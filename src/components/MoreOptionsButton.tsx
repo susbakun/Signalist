@@ -1,17 +1,22 @@
 import { AccountModel, PostModel } from '@/shared/models'
 import { Popover } from 'flowbite-react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { TfiMore } from 'react-icons/tfi'
 import { MoreOptionsButtonContent } from './MoreOptionsButtonContent'
 
 type MoreOptionsButtonProps = {
-  postId: PostModel['id']
+  postId?: PostModel['id']
+  isForComment?: boolean
   username: AccountModel['username']
 }
 
-export const MoreOptionsButton = ({ username, postId }: MoreOptionsButtonProps) => {
+export const MoreOptionsButton = ({
+  username,
+  postId,
+  isForComment = false
+}: MoreOptionsButtonProps) => {
   const [open, setIsOpen] = useState(false)
-  const popOverRef = useRef<HTMLDivElement>(null)
+
   const handleClose = () => {
     setIsOpen(false)
   }
@@ -20,11 +25,15 @@ export const MoreOptionsButton = ({ username, postId }: MoreOptionsButtonProps) 
   }
   return (
     <Popover
-      ref={popOverRef}
       trigger="click"
       aria-labelledby="more-options"
       content={
-        <MoreOptionsButtonContent postId={postId} closePopover={handleClose} username={username} />
+        <MoreOptionsButtonContent
+          isForComment={isForComment}
+          postId={postId}
+          closePopover={handleClose}
+          username={username}
+        />
       }
       open={open}
       onOpenChange={setIsOpen}

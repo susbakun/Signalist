@@ -1,4 +1,4 @@
-import { PostModel } from '@/shared/models'
+import { AccountModel, PostModel } from '@/shared/models'
 
 export const postsMock: PostModel[] = [
   {
@@ -18,6 +18,7 @@ export const postsMock: PostModel[] = [
         commentId: '1',
         postId: '1',
         date: new Date().getTime(),
+        likes: 10,
         publisher: {
           name: 'Ali',
           username: 'Alid',
@@ -28,6 +29,7 @@ export const postsMock: PostModel[] = [
         body: "Welcome to the world of Bitcoin! It's always inspiring to see new investors joining the crypto community. Wishing you the best of luck on your investment journey! 💰 #crypto #investment #welcome",
         commentId: '2',
         postId: '1',
+        likes: 2,
         date: new Date().getTime() - 24 * 60 * 60 * 1000,
         publisher: {
           name: 'steve',
@@ -53,6 +55,7 @@ export const postsMock: PostModel[] = [
         body: "Couldn't agree more! Ethereum's smart contracts are truly revolutionary. The potential for decentralized applications to disrupt traditional industries is immense. Excited to see what the future holds for Ethereum and the entire blockchain ecosystem! 🌐💡 #ethereum #smartcontracts #innovation",
         commentId: '1',
         postId: '2',
+        likes: 0,
         date: new Date().getTime() - 60 * 60 * 1000,
         publisher: {
           name: 'susba',
@@ -77,7 +80,8 @@ export const postsMock: PostModel[] = [
       {
         body: "Couldn't agree more! Ethereum's smart contracts are truly revolutionary. The potential for decentralized applications to disrupt traditional industries is immense. Excited to see what the future holds for Ethereum and the entire blockchain ecosystem! 🌐💡 #ethereum #smartcontracts #innovation",
         commentId: '1',
-        postId: '2',
+        postId: '3',
+        likes: 0,
         date: new Date().getTime(),
         publisher: {
           name: 'mostafa',
@@ -103,6 +107,7 @@ export const postsMock: PostModel[] = [
         body: 'Good for me btw, This is not a thing that just falls out of sky!!',
         commentId: '1',
         postId: '4',
+        likes: 0,
         date: new Date().getTime(),
         publisher: {
           name: 'amirsaeed aryanmehr',
@@ -111,5 +116,71 @@ export const postsMock: PostModel[] = [
         }
       }
     ]
+  }
+]
+
+export const usersMock: AccountModel[] = [
+  {
+    name: 'amirsaeed aryanmehr',
+    username: 'Amir Aryan',
+    email: 'amiraryanmehr@gmail.com',
+    followers: 10000,
+    followings: 2000,
+    score: 20,
+    imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+  },
+  {
+    name: 'mostafa',
+    username: 'mosi',
+    email: 'mostafakamal@gmail.com',
+    followers: 2000,
+    followings: 30,
+    score: 1,
+    imageUrl: ''
+  },
+  {
+    name: 'steve',
+    username: 'stuDent',
+    email: 'stevejobs@gamil.com',
+    followers: 10000,
+    followings: 200,
+    score: 18,
+    imageUrl: ''
+  },
+  {
+    name: 'Hamid Naseri',
+    username: 'hamihami',
+    email: 'hamidnaseri@gmail.com',
+    followers: 2,
+    followings: 1000,
+    score: 5,
+    imageUrl: ''
+  },
+  {
+    name: 'Ali',
+    username: 'Alid',
+    email: 'alidarparesh@gamil.com',
+    followers: 21000,
+    followings: 500,
+    score: 23,
+    imageUrl: ''
+  },
+  {
+    name: 'Amir Pouya',
+    username: 'AmirP',
+    email: 'amirpouya@gmail.com',
+    followers: 18000,
+    followings: 240,
+    score: 25,
+    imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg'
+  },
+  {
+    name: 'susba',
+    username: 'susbakun',
+    email: 'susbakun@gmail.com',
+    followers: 100,
+    followings: 200,
+    score: 8,
+    imageUrl: ''
   }
 ]

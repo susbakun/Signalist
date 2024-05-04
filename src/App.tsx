@@ -1,5 +1,7 @@
 import { AppContent, AppSideBar, RootLayout } from '@/components'
 import { BiMoon } from 'react-icons/bi'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   const toggleDarkMode = () => {
@@ -14,6 +16,7 @@ function App() {
         <BiMoon />
       </button>
       <AppContent />
+      <ToastContainer />
     </RootLayout>
   )
 }

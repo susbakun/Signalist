@@ -1,4 +1,5 @@
-import { ExploreTopBar } from '@/components/ExploreTopBar'
+import { ExploreTopBar, UserPreview } from '@/components'
+import { useAppSelector } from '@/features/User/usersSlice'
 import { useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -29,5 +30,19 @@ export const ExplorePosts = () => {
 }
 
 export const RightSideBar = () => {
-  return <aside className="w-[400px] h-screen flex flex-col"></aside>
+  const users = useAppSelector((state) => state.users)
+  let selectedUsers = [...users]
+  selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
+  return (
+    <aside className="w-[400px] h-screen flex flex-col pt-8 px-8 sticky top-0">
+      <div className="border border-gray-600/20 dark:border-white/20 rounded-xl gap-4 p-3 flex flex-col">
+        <h2 className="text-xl font-bold">Who to follow</h2>
+        <div className="flex flex-col gap-4">
+          {selectedUsers.map((user) => (
+            <UserPreview key={user.username} {...user} />
+          ))}
+        </div>
+      </div>
+    </aside>
+  )
 }

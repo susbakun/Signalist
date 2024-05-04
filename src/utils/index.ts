@@ -25,3 +25,7 @@ export const getAvatarPlaceholder = (name: string) => {
   }
   return avatarPlaceholder
 }
+
+export const isDarkMode = () => {
+  return document.body.classList.contains('darkmode')
+}

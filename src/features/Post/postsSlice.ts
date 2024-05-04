@@ -43,10 +43,50 @@ const postsSlice = createSlice({
         }
         return post
       })
+    },
+    likeComment: (state, action) => {
+      return state.map((post) => {
+        if (post.id === action.payload.postId) {
+          const newComments = post.comments.map((comment) => {
+            if (comment.commentId === action.payload.commentId) {
+              return { ...comment, likes: comment.likes + 1 }
+            } else {
+              return comment
+            }
+          })
+          return { ...post, comments: newComments }
+        } else {
+          return post
+        }
+      })
+    },
+    dislikeComment: (state, action) => {
+      return state.map((post) => {
+        if (post.id === action.payload.postId) {
+          const newComments = post.comments.map((comment) => {
+            if (comment.commentId === action.payload.commentId) {
+              return { ...comment, likes: comment.likes - 1 }
+            } else {
+              return comment
+            }
+          })
+          return { ...post, comments: newComments }
+        } else {
+          return post
+        }
+      })
     }
   }
 })
 
-export const { createPost, deletePost, blockUser, likePost, dislikePost } = postsSlice.actions
+export const {
+  createPost,
+  deletePost,
+  blockUser,
+  likePost,
+  dislikePost,
+  likeComment,
+  dislikeComment
+} = postsSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default postsSlice.reducer

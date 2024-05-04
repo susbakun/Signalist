@@ -72,7 +72,6 @@
 
   .option-button {
     @apply border-b border-b-gray-600/60 dark:border-b-white/20;
-    @apply px-2 py-2;
     @apply flex gap-2 items-center;
     @apply hover:bg-slate-900/40;
   }

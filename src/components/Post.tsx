@@ -13,7 +13,7 @@ export const Post = ({ id, date, likes, content, publisher, comments }: PostProp
     >
       <PostTopBar postId={id} {...publisher} date={date} />
       <PostBody content={content} />
-      <PostFooter postId={id} likes={likes} comments={comments} />
+      <PostFooter username={publisher.username} postId={id} likes={likes} comments={comments} />
     </div>
   )
 }

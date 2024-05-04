@@ -89,6 +89,7 @@ export type CommentModel = {
   publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
   commentId: string
   body: string
+  likes: number
   date: number
 }
 
