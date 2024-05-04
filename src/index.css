@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-primary-main h-screen;
+    @apply text-gray-600;
+    @apply font-sans;
+  }
+  body.darkmode {
+    @apply bg-dark-main;
+    @apply text-white;
+  }
+}
+
+@layer utilities {
+  .link-button {
+    @apply flex items-center gap-2 p-2 rounded-lg;
+    @apply bg-transparent  hover:text-primary-link-button;
+    @apply transition ease-in;
+  }
+  .link-button.active {
+    @apply bg-primary-link-button dark:bg-dark-link-button;
+    @apply text-white font-medium;
+  }
+
+  .button-icon {
+    @apply w-5 h-5;
+  }
+
+  .main-sidebar {
+    @apply flex flex-col px-2 h-screen w-[350px] gap-4 pt-8;
+    @apply font-anta font-normal not-italic;
+  }
+
+  .action-button {
+    @apply transition-all ease-out;
+    @apply hover:dark:text-white/70 hover:text-gray-600/60;
+  }
+
+  .main-button {
+    @apply hover:bg-blue-900 dark:hover:bg-blue-900;
+    @apply bg-blue-700/90 dark:bg-blue-800;
+    @apply transition-all text-white ease-out;
+  }
+
+  .custom-input {
+    @apply dark:bg-gray-600 bg-gray-300;
+    @apply dark:text-gray-300 text-gray-900 outline-none;
+    @apply border-4 border-transparent;
+    @apply w-full py-2 pl-4 pr-2 rounded-full;
+    @apply focus:dark:border-neutral-500;
+    @apply transition-all ease-linear;
+    @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
+    @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
+    @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
+    @apply focus:border-neutral-500;
+  }
+
+  .explore-nav-link {
+    @apply transition-all ease-out;
+    @apply dark:text-white text-gray-600;
+    @apply border-b-4 border-b-transparent;
+    @apply pb-2 rounded-b-sm;
+  }
+
+  .explore-nav-link.active {
+    @apply font-bold;
+    @apply border-b-primary-link-button dark:border-b-dark-link-button;
+  }
+
+  .option-button {
+    @apply border-b border-b-gray-600/60 dark:border-b-white/20;
+    @apply px-2 py-2;
+    @apply flex gap-2 items-center;
+    @apply hover:bg-slate-900/40;
+  }
+
+  .detail-text {
+    @apply text-sm text-gray-600 dark:text-white/60;
+  }
+}
