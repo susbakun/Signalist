@@ -12,7 +12,7 @@ function App() {
   return (
     <RootLayout className="flex">
       <AppSideBar />
-      <button className="bg-black absolute right-0" onClick={toggleDarkMode}>
+      <button className="bg-black fixed bottom-0 left-0" onClick={toggleDarkMode}>
         <BiMoon />
       </button>
       <AppContent />
