@@ -1,11 +1,13 @@
 import { dislikePost, likePost } from '@/features/Post/postsSlice'
 import { AccountModel, PostModel } from '@/shared/models'
+import { isDarkMode } from '@/utils'
 import millify from 'millify'
 import { useState } from 'react'
 import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa'
 import { HiOutlineLightningBolt } from 'react-icons/hi'
 import { HiBolt } from 'react-icons/hi2'
 import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
 import { PostCommentModal } from '../Modal/PostCommentModal'
 import { SharePostModal } from '../Modal/SharePostModal'
 
@@ -64,6 +66,16 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
   const handleCopyLink = async () => {
     const link = `https://www.signalists/explore/${postId}`
     await navigator.clipboard.writeText(link)
+    toast.info('Post link is copied', {
+      position: 'bottom-center',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: isDarkMode() ? 'dark' : 'light'
+    })
     handleCloseShareModal()
   }
 
