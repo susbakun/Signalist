@@ -35,8 +35,8 @@ export const SelectionTable = ({ notSelectedMarkets, selectMarket }: SelctionTab
             <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white">
               <button
                 className="text-white transition-all duration-150 ease-out hover:opacity-60 rounded-lg 
-                    px-2 py-1 bg-dark-link-button
-                   dark:bg-dark-link-button"
+                px-2 py-1 bg-dark-link-button
+              dark:bg-dark-link-button"
                 onClick={() => selectMarket(crypto)}
               >
                 Add Market

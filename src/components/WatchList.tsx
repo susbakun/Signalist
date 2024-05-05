@@ -21,6 +21,11 @@ export const WatchList = () => {
     setCrytops((prev) => [...prev, coin])
   }
 
+  const handleRemoveFromWatchList = (coinId: CoinType['uuid']) => {
+    const filteredCryptos = cryptos.filter((crypto) => crypto.uuid !== coinId)
+    setCrytops(filteredCryptos)
+  }
+
   useEffect(() => {
     if (cryptosList?.data.coins) {
       setCrytops(cryptosList.data.coins)
@@ -45,19 +50,26 @@ export const WatchList = () => {
         />
         <Table>
           <Table.Head>
-            <Table.HeadCell>Market</Table.HeadCell>
-            <Table.HeadCell>Current Price</Table.HeadCell>
-            <Table.HeadCell>24h Volume</Table.HeadCell>
-            <Table.HeadCell>Weekly Chart</Table.HeadCell>
-            <Table.HeadCell>24h Change</Table.HeadCell>
+            <Table.HeadCell className="text-center">Market</Table.HeadCell>
+            <Table.HeadCell className="text-center">Current Price</Table.HeadCell>
+            <Table.HeadCell className="text-center">24h Volume</Table.HeadCell>
+            <Table.HeadCell className="text-center">Weekly Chart</Table.HeadCell>
+            <Table.HeadCell className="text-center">24h Change</Table.HeadCell>
+            <Table.HeadCell>
+              <span className="sr-only">Select</span>
+            </Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
             {cryptos.map((crypto) => (
               <Table.Row
                 key={crypto.uuid}
-                className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
               >
-                <CryptoPreview {...crypto} key={crypto.uuid} />
+                <CryptoPreview
+                  removeMarket={handleRemoveFromWatchList}
+                  {...crypto}
+                  key={crypto.uuid}
+                />
               </Table.Row>
             ))}
           </Table.Body>
