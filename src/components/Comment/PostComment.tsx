@@ -1,7 +1,5 @@
+import { CommentBody, CommentFooter, CommentTopBar } from '@/components'
 import { PostModel } from '@/shared/models'
-import { CommentBody } from './CommentBody'
-import { CommentFooter } from './CommentFooter'
-import { CommentTopBar } from './CommentTopBar'
 
 type PostCommentProps = PostModel['comments'][0]
 

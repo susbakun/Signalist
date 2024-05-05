@@ -2,7 +2,7 @@ import { PostModel } from '@/shared/models'
 import { formatDateFromMS, getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import moment from 'jalali-moment'
-import { MoreOptionsButton } from './MoreOptionsButton'
+import { MoreOptionsButton } from '../Button/MoreOptionsButton/MoreOptionsButton'
 
 type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']

@@ -1,5 +1,5 @@
+import SignalLogo from '@/assets/antenna.png'
 import { Link } from 'react-router-dom'
-import SignalLogo from '../assets/antenna.png'
 
 export const Header = () => {
   return (

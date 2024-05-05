@@ -1,8 +1,8 @@
+import { UserUnfollowModal } from '@/components'
 import { AccountModel } from '@/shared/models'
 import { getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import { useState } from 'react'
-import { UserUnfollowModal } from './UserUnfollowModal'
 
 type UserPreviewProps = AccountModel
 

@@ -6,8 +6,8 @@ import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa'
 import { HiOutlineLightningBolt } from 'react-icons/hi'
 import { HiBolt } from 'react-icons/hi2'
 import { useDispatch } from 'react-redux'
-import { PostCommentModal } from './PostCommentModal'
-import { SharePostModal } from './SharePostModal'
+import { PostCommentModal } from '../Modal/PostCommentModal'
+import { SharePostModal } from '../Modal/SharePostModal'
 
 type PostFooterProps = {
   likes: PostModel['likes']

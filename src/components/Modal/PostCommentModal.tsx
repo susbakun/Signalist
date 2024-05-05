@@ -1,6 +1,6 @@
+import { PostComment } from '@/components'
 import { PostModel } from '@/shared/models'
 import { Modal } from 'flowbite-react'
-import { PostComment } from './PostComment'
 
 type PostCommentMoalProps = {
   openModal: boolean

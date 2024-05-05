@@ -1,3 +1,4 @@
+import { Loader, NewsPreview } from '@/components'
 import { useGetCryptoNewsQuery } from '@/services/cryptoNewsApi'
 import { CryptoNewsType } from '@/shared/models'
 import { cn } from '@/utils'
@@ -5,8 +6,6 @@ import { uniqBy } from 'lodash'
 import { useEffect, useState } from 'react'
 import { FaArrowUp } from 'react-icons/fa'
 import { IoChevronDownOutline } from 'react-icons/io5'
-import { Loader } from './Loader'
-import { NewsPreview } from './NewsPreview'
 
 export const NewsList = () => {
   const [newsPage, setNewsPage] = useState(1)

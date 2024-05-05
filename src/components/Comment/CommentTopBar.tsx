@@ -1,8 +1,8 @@
+import { MoreOptionsButton } from '@/components'
 import { CommentModel } from '@/shared/models'
 import { formatDateFromMS, getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import moment from 'jalali-moment'
-import { MoreOptionsButton } from './MoreOptionsButton'
 
 type CommentTopBarProps = {
   user: CommentModel['publisher']

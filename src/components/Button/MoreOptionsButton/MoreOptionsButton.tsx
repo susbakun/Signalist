@@ -1,8 +1,8 @@
+import { MoreOptionsButtonContent } from '@/components'
 import { AccountModel, PostModel } from '@/shared/models'
 import { Popover } from 'flowbite-react'
 import { useState } from 'react'
 import { TfiMore } from 'react-icons/tfi'
-import { MoreOptionsButtonContent } from './MoreOptionsButtonContent'
 
 type MoreOptionsButtonProps = {
   postId?: PostModel['id']

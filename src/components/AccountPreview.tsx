@@ -19,7 +19,7 @@ export const AccountPreview = () => {
             <span className="text-slate-700 dark:text-white">10k</span>{' '}
             <Link
               className="hover:text-primary-link-button transition ease-out
-               dark:hover:text-dark-link-button"
+            dark:hover:text-dark-link-button"
               to="/"
             >
               followers
@@ -29,7 +29,7 @@ export const AccountPreview = () => {
             <span className="text-slate-700 dark:text-white">2k</span>{' '}
             <Link
               className="hover:text-primary-link-button transition ease-out
-               dark:hover:text-dark-link-button"
+            dark:hover:text-dark-link-button"
               to="/"
             >
               Following
