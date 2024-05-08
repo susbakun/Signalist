@@ -34,7 +34,7 @@ export const postsMock: PostModel[] = [
         publisher: {
           name: 'steve',
           username: 'stuDent',
-          imageUrl: ''
+          imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
         }
       }
     ]
@@ -124,17 +124,17 @@ export const usersMock: AccountModel[] = [
     name: 'amirsaeed aryanmehr',
     username: 'Amir Aryan',
     email: 'amiraryanmehr@gmail.com',
-    followers: 10000,
-    followings: 2000,
+    followers: ['mosi', 'hamihami'],
+    followings: [],
     score: 20,
-    imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+    imageUrl: ''
   },
   {
     name: 'mostafa',
     username: 'mosi',
     email: 'mostafakamal@gmail.com',
-    followers: 2000,
-    followings: 30,
+    followers: ['susbakun'],
+    followings: ['Alid', 'Amir Aryan'],
     score: 1,
     imageUrl: ''
   },
@@ -142,17 +142,17 @@ export const usersMock: AccountModel[] = [
     name: 'steve',
     username: 'stuDent',
     email: 'stevejobs@gamil.com',
-    followers: 10000,
-    followings: 200,
+    followers: ['hamihami'],
+    followings: ['hamihami'],
     score: 18,
-    imageUrl: ''
+    imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
   },
   {
     name: 'Hamid Naseri',
     username: 'hamihami',
     email: 'hamidnaseri@gmail.com',
-    followers: 2,
-    followings: 1000,
+    followers: [],
+    followings: ['Amir Aryan', 'stuDent'],
     score: 5,
     imageUrl: ''
   },
@@ -160,8 +160,8 @@ export const usersMock: AccountModel[] = [
     name: 'Ali',
     username: 'Alid',
     email: 'alidarparesh@gamil.com',
-    followers: 21000,
-    followings: 500,
+    followers: [],
+    followings: ['AmirP'],
     score: 23,
     imageUrl: ''
   },
@@ -169,8 +169,8 @@ export const usersMock: AccountModel[] = [
     name: 'Amir Pouya',
     username: 'AmirP',
     email: 'amirpouya@gmail.com',
-    followers: 18000,
-    followings: 240,
+    followers: ['Alid'],
+    followings: [],
     score: 25,
     imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg'
   },
@@ -178,8 +178,8 @@ export const usersMock: AccountModel[] = [
     name: 'susba',
     username: 'susbakun',
     email: 'susbakun@gmail.com',
-    followers: 100,
-    followings: 200,
+    followers: [],
+    followings: ['mosi'],
     score: 8,
     imageUrl: ''
   }

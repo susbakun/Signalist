@@ -79,8 +79,8 @@ export type AccountModel = {
   username: string
   email: string
   imageUrl?: string
-  followings: number
-  followers: number
+  followings: AccountModel['username'][]
+  followers: AccountModel['username'][]
   score: number
 }
 

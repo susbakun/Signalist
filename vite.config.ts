@@ -14,7 +14,8 @@ export default defineConfig({
       '@/pages': resolve('src/pages'),
       '@/services': resolve('src/services'),
       '@/app': resolve('src/app'),
-      '@/features': resolve('src/features')
+      '@/features': resolve('src/features'),
+      '@/shared': resolve('src/shared')
     }
   }
 })

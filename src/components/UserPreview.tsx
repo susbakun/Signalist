@@ -1,25 +1,56 @@
 import { UserUnfollowModal } from '@/components'
+import { followUser, unfollowUser } from '@/features/User/usersSlice'
 import { AccountModel } from '@/shared/models'
-import { getAvatarPlaceholder } from '@/utils'
+import { getAvatarPlaceholder, isDarkMode } from '@/utils'
 import { Avatar } from 'flowbite-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
 
-type UserPreviewProps = AccountModel
+type UserPreviewProps = AccountModel & {
+  follower: AccountModel
+}
 
-export const UserPreview = ({ name, username, imageUrl }: UserPreviewProps) => {
-  const [isFollowed, setIsFollowed] = useState(false)
+export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewProps) => {
+  const isFollowed = useMemo(
+    () => follower.followings.some((followingUsername) => followingUsername === username),
+    [follower, username]
+  )
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
+
   const placeholder = getAvatarPlaceholder(name)
+  const dispatch = useDispatch()
+
   const handleUserFollow = () => {
     if (!isFollowed) {
-      setIsFollowed(true)
+      toast.success(`You followed user @${username}`, {
+        position: 'bottom-left',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: isDarkMode() ? 'dark' : 'light'
+      })
+      dispatch(followUser({ followerUsername: follower.username, followingUsername: username }))
     } else {
       setOpenUnfollowModal(true)
     }
   }
 
   const handleAcceptUnfollowModal = () => {
-    setIsFollowed(false)
+    toast.warn(`You unfollowed user @${username}`, {
+      position: 'bottom-left',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: isDarkMode() ? 'dark' : 'light'
+    })
+    dispatch(unfollowUser({ followerUsername: follower.username, followingUsername: username }))
     setOpenUnfollowModal(false)
   }
 
@@ -39,9 +70,11 @@ export const UserPreview = ({ name, username, imageUrl }: UserPreviewProps) => {
             </div>
           </div>
         </div>
-        <button onClick={handleUserFollow} className="action-button">
-          {isFollowed ? 'followed' : 'follow'}
-        </button>
+        {follower.username !== username && (
+          <button onClick={handleUserFollow} className="action-button">
+            {isFollowed ? 'followed' : 'follow'}
+          </button>
+        )}
       </div>
       <UserUnfollowModal
         username={username}

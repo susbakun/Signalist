@@ -54,7 +54,6 @@
     @apply transition-all ease-linear;
     @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
     @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
-    @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
     @apply focus:border-neutral-500;
   }
 

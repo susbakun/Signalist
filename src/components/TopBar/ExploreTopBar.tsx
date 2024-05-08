@@ -8,7 +8,7 @@ export const ExploreTopBar = () => {
       </div>
       <div
         className="border-b border-b-gray-600/20 dark:border-b-white/20 flex 
-      justify-between px-20"
+        justify-between px-20"
       >
         <NavLink className="explore-nav-link" to="followings">
           Followings

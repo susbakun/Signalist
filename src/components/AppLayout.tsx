@@ -26,7 +26,10 @@ export const AppSideBar = () => {
 
 export const AppContent = () => {
   return (
-    <div className="flex-1 border-l border-l-gray-600/20 dark:border-l-white/20">
+    <div
+      className="flex-1 border-l border-l-gray-600/20
+    dark:border-l-white/20"
+    >
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />}>

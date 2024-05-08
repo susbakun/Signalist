@@ -65,7 +65,8 @@ export const NewsList = () => {
         ) : (
           <button
             onClick={handleLoadMore}
-            className="flex items-center gap-1 main-button text-sm rounded-2xl px-2 py-2 "
+            className="flex items-center gap-1 main-button text-sm
+            rounded-2xl px-2 py-2 "
           >
             <IoChevronDownOutline />
             Show More
@@ -75,10 +76,11 @@ export const NewsList = () => {
       <button
         onClick={scrollToTop}
         className={cn(
-          'main-button transition-all duration-100 ease-out fixed right-4 bottom-4 px-4 py-4 rounded-full',
+          'main-button transition-all duration-100 ease-out fixed',
           {
             'translate-x-20': !isVisible
-          }
+          },
+          'right-4 bottom-4 px-4 py-4 rounded-full'
         )}
       >
         <FaArrowUp />

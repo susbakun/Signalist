@@ -1,8 +1,8 @@
+import { MoreOptionsButton } from '@/components'
 import { PostModel } from '@/shared/models'
 import { formatDateFromMS, getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import moment from 'jalali-moment'
-import { MoreOptionsButton } from '../Button/MoreOptionsButton/MoreOptionsButton'
 
 type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
@@ -12,6 +12,7 @@ type PostUserInfoProps = PostModel['publisher'] & {
 export const PostTopBar = ({ postId, name, username, imageUrl, date }: PostUserInfoProps) => {
   const placeholder = getAvatarPlaceholder(name)
   const postDate = formatDateFromMS(date)
+
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
