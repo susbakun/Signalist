@@ -1,5 +1,6 @@
 export * from './AccountPreview'
 export * from './AppLayout'
+export * from './Button/CreatePostButton'
 export * from './Button/MoreOptionsButton/MoreOptionsButton'
 export * from './Button/MoreOptionsButton/MoreOptionsButtonContent'
 export * from './Comment/CommentBody'

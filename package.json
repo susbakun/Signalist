@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
+    "@tippyjs/react": "^4.2.6",
     "flowbite-react": "^0.9.0",
     "millify": "^6.1.0",
     "react": "^18.2.0",
@@ -21,6 +22,7 @@
     "react-toastify": "^10.0.5",
     "recharts": "^2.12.6",
     "tailwind-merge": "^2.3.0",
+    "tippy.js": "^6.3.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

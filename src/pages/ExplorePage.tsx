@@ -1,4 +1,4 @@
-import { ExploreTopBar, UserPreview } from '@/components'
+import { CreatePostButton, ExploreTopBar, UserPreview } from '@/components'
 import { useAppSelector } from '@/features/User/usersSlice'
 import { useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -16,6 +16,7 @@ export const ExplorePage = () => {
     <div className="flex">
       <ExplorePosts />
       <RightSideBar />
+      <CreatePostButton />
     </div>
   )
 }
