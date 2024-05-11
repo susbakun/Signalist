@@ -61,16 +61,11 @@ export const WatchList = () => {
           </Table.Head>
           <Table.Body className="divide-y">
             {cryptos.map((crypto) => (
-              <Table.Row
+              <CryptoPreview
+                removeMarket={handleRemoveFromWatchList}
+                {...crypto}
                 key={crypto.uuid}
-                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
-              >
-                <CryptoPreview
-                  removeMarket={handleRemoveFromWatchList}
-                  {...crypto}
-                  key={crypto.uuid}
-                />
-              </Table.Row>
+              />
             ))}
           </Table.Body>
         </Table>

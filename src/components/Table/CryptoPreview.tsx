@@ -1,7 +1,8 @@
 import { CoinType } from '@/shared/types'
-import { TableCell } from 'flowbite-react'
+import { cn } from '@/utils'
+import { TableCell, TableRow } from 'flowbite-react'
 import millify from 'millify'
-import { ComponentProps } from 'react'
+import { ComponentProps, useState } from 'react'
 import { IoTrashOutline } from 'react-icons/io5'
 
 type CryptoPreviewProps = ComponentProps<'div'> &
@@ -17,10 +18,26 @@ export const CryptoPreview = ({
   symbol,
   iconUrl,
   removeMarket,
+
   '24hVolume': volume
 }: CryptoPreviewProps) => {
+  const [isMouseEnter, setIsMouseEnter] = useState(false)
+
+  const handleMouseEnter = () => {
+    setIsMouseEnter(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsMouseEnter(false)
+  }
+
   return (
-    <>
+    <TableRow
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      key={uuid}
+      className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
+    >
       <TableCell className="whitespace-nowrap font-medium text-slate-700 dark:text-white">
         <div className="flex items-center gap-[6px] justify-center">
           <img className="w-6 h-6 inline-block" src={iconUrl} alt={name} />{' '}
@@ -43,9 +60,13 @@ export const CryptoPreview = ({
       </TableCell>
       <TableCell>
         <button onClick={() => removeMarket(uuid)}>
-          <IoTrashOutline className="w-5 h-5 action-button opacity-0 hover:opacity-100" />
+          <IoTrashOutline
+            className={cn('w-5 h-5 action-button opacity-0', {
+              'opacity-100': isMouseEnter
+            })}
+          />
         </button>
       </TableCell>
-    </>
+    </TableRow>
   )
 }
