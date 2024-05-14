@@ -3,7 +3,11 @@ import { GoPlusCircle } from 'react-icons/go'
 import { roundArrow } from 'tippy.js'
 import 'tippy.js/dist/svg-arrow.css'
 
-export const CreatePostButton = () => {
+type CreatePostButtonProps = {
+  handleOpenModal: () => void
+}
+
+export const CreatePostButton = ({ handleOpenModal }: CreatePostButtonProps) => {
   return (
     <Tippy
       content="create post"
@@ -17,6 +21,7 @@ export const CreatePostButton = () => {
       hideOnClick={true}
     >
       <button
+        onClick={handleOpenModal}
         className="main-button transition-all duration-100 ease-out fixed
         right-4 bottom-4 px-4 py-4 rounded-full"
       >

@@ -49,7 +49,7 @@ export const NewsList = () => {
     }
   }, [])
 
-  if (!newsList?.length || isLoading) return
+  if (!newsList?.length || isLoading) return <Loader />
 
   return (
     <section>

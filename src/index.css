@@ -12,6 +12,28 @@
     @apply bg-dark-main;
     @apply text-white;
   }
+  ::-webkit-scrollbar {
+    @apply w-[10px] rounded-sm;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 z-30 rounded-md;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-white dark:bg-[#555]/10;
+  }
+  textarea:focus {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+  }
+  textarea::-webkit-scrollbar {
+    display: none;
+  }
+  .custom-modal::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer utilities {
@@ -30,28 +52,29 @@
   }
 
   .main-sidebar {
-    @apply flex flex-col px-2 h-screen w-[350px] gap-4 pt-8;
+    @apply flex flex-col px-2 h-screen w-[25%] gap-4 pt-8;
     @apply font-anta font-normal not-italic;
   }
 
   .action-button {
     @apply transition-all ease-out;
-    @apply hover:dark:text-white/70 hover:text-gray-600/60;
+    /* @apply hover:dark:text-white/70 hover:text-gray-600/60; */
+    @apply hover:opacity-70;
   }
 
   .main-button {
-    @apply hover:bg-blue-900 dark:hover:bg-blue-900;
-    @apply bg-blue-700/90 dark:bg-blue-800;
+    @apply dark:bg-dark-link-button bg-primary-link-button;
+    @apply hover:opacity-70;
     @apply transition-all text-white ease-out;
   }
 
   .custom-input {
     @apply dark:bg-gray-600 bg-gray-300;
     @apply dark:text-gray-300 text-gray-900 outline-none;
-    @apply border-4 border-transparent;
+    @apply border-4 border-transparent inline-block;
     @apply w-full py-2 pl-4 pr-2 rounded-full;
     @apply focus:dark:border-neutral-500;
-    @apply transition-all ease-linear;
+    @apply transition-colors ease-linear;
     @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
     @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
     @apply focus:border-neutral-500;

@@ -14,7 +14,7 @@ export const SuggestionsPosts = () => {
   return (
     <div className="flex flex-col">
       {sortedPosts.map((post) => (
-        <Post key={post.id} {...post} />
+        <Post key={post.id} post={post} />
       ))}
     </div>
   )

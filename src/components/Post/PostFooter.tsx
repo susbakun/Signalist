@@ -1,6 +1,6 @@
 import { dislikePost, likePost } from '@/features/Post/postsSlice'
-import { AccountModel, PostModel } from '@/shared/models'
-import { isDarkMode } from '@/utils'
+import { PostModel } from '@/shared/models'
+import { cn, isDarkMode } from '@/utils'
 import millify from 'millify'
 import { useState } from 'react'
 import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa'
@@ -12,13 +12,12 @@ import { PostCommentModal } from '../Modal/PostCommentModal'
 import { SharePostModal } from '../Modal/SharePostModal'
 
 type PostFooterProps = {
-  likes: PostModel['likes']
-  comments: PostModel['comments']
-  postId: PostModel['id']
-  username: AccountModel['username']
+  post: Omit<PostModel, 'comments'>
+  comments?: PostModel['comments']
+  simplified?: boolean
 }
 
-export const PostFooter = ({ postId, likes, comments, username }: PostFooterProps) => {
+export const PostFooter = ({ post, comments, simplified }: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
@@ -26,11 +25,13 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
 
   const dispatch = useDispatch()
 
+  const { publisher } = post
+
   const handleLikePost = () => {
     if (isLiked) {
-      dispatch(likePost({ id: postId }))
+      dispatch(likePost({ id: post.id }))
     } else {
-      dispatch(dislikePost({ id: postId }))
+      dispatch(dislikePost({ id: post.id }))
     }
     setIsLiked((prev) => !prev)
   }
@@ -56,15 +57,15 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
   }
 
   const handleShareEmail = () => {
-    const title = `See this post by @${username}`
-    const body = `See this post by @${username}:https://www.signalists/explore/${postId}`
+    const title = `See this post by @${publisher.username}`
+    const body = `See this post by @${publisher.username}:https://www.signalists/explore/${post.id}`
     const shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
     handleCloseShareModal()
     window.open(shareUrl)
   }
 
   const handleCopyLink = async () => {
-    const link = `https://www.signalists/explore/${postId}`
+    const link = `https://www.signalists/explore/${post.id}`
     await navigator.clipboard.writeText(link)
     toast.info('Post link is copied', {
       position: 'bottom-center',
@@ -81,9 +82,11 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
 
   return (
     <>
-      <div className="flex justify-between items-center mt-2">
+      <div
+        className={cn('flex justify-between items-center mt-2', { '-translate-x-2': simplified })}
+      >
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-[2px]">
             <button onClick={handleLikePost} className="action-button">
               {isLiked ? (
                 <HiBolt className="w-6 h-6 text-yellow-300" />
@@ -91,18 +94,24 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
                 <HiOutlineLightningBolt className="w-6 h-6" />
               )}
             </button>
-            <span className="detail-text">{millify(likes)}</span>
+            <span className="detail-text">{millify(post.likes)}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <button onClick={handleOpenCommentsModal} className="action-button">
-              <FaRegComment className="w-5 h-5" />
-            </button>
-            <span className="detail-text">{millify(comments.length)}</span>
-          </div>
-          <button className="action-button">repost</button>
-          <button onClick={handleOpenShareModal} className="action-button">
-            Share
-          </button>
+          {comments && (
+            <div className="flex items-center gap-1">
+              <button onClick={handleOpenCommentsModal} className="action-button">
+                <FaRegComment className="w-5 h-5" />
+              </button>
+              <span className="detail-text">{millify(comments.length)}</span>
+            </div>
+          )}
+          {!simplified && (
+            <>
+              <button className="action-button">repost</button>
+              <button onClick={handleOpenShareModal} className="action-button">
+                Share
+              </button>
+            </>
+          )}
         </div>
         <button onClick={handleBookmark} className="action-button">
           {isBookmarked ? (
@@ -118,11 +127,14 @@ export const PostFooter = ({ postId, likes, comments, username }: PostFooterProp
         copyLink={handleCopyLink}
         shareEmail={handleShareEmail}
       />
-      <PostCommentModal
-        comments={comments}
-        handleCloseCommentsModal={handleCloseCommentsModal}
-        openModal={openCommentsModal}
-      />
+      {comments && (
+        <PostCommentModal
+          post={post}
+          comments={comments}
+          handleCloseCommentsModal={handleCloseCommentsModal}
+          openModal={openCommentsModal}
+        />
+      )}
     </>
   )
 }

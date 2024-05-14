@@ -10,7 +10,7 @@ export default {
           'link-button': '#07a290'
         },
         dark: {
-          main: '#101827',
+          main: '#101827', //#0D1116
           'link-button': '#057e78'
         }
       },

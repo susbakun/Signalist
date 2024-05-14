@@ -3,6 +3,7 @@ import { useAppSelector } from '@/features/Post/postsSlice'
 import { AccountModel, PostModel } from '@/shared/models'
 import { Popover } from 'flowbite-react'
 import { useState } from 'react'
+import { MdOutlineModeEditOutline } from 'react-icons/md'
 import { TfiMore } from 'react-icons/tfi'
 
 type MoreOptionsButtonProps = {
@@ -24,10 +25,20 @@ export const MoreOptionsButton = ({
   const handleClose = () => {
     setIsOpen(false)
   }
+
   const handleOpen = () => {
     setIsOpen(true)
   }
-  if (me?.username === username) return null
+
+  if (me?.username === username)
+    return (
+      <>
+        <button className="action-button">
+          <MdOutlineModeEditOutline className="w-6 h-6" />
+        </button>
+      </>
+    )
+
   return (
     <Popover
       trigger="click"

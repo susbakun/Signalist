@@ -1,9 +1,10 @@
-import { CreatePostButton, ExploreTopBar, UserPreview } from '@/components'
+import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from '@/components'
 import { useAppSelector } from '@/features/User/usersSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 export const ExplorePage = () => {
+  const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -12,11 +13,24 @@ export const ExplorePage = () => {
       navigate('followings')
     }
   }, [location, navigate])
+
+  const handleCloseCreatePostModal = () => {
+    setOpenCreatePostModal(false)
+  }
+
+  const hanldeOpenCreatePostModal = () => {
+    setOpenCreatePostModal(true)
+  }
+
   return (
     <div className="flex">
       <ExplorePosts />
       <RightSideBar />
-      <CreatePostButton />
+      <CreatePostButton handleOpenModal={hanldeOpenCreatePostModal} />
+      <CreatePostModal
+        openModal={openCreatePostModal}
+        handleCloseModal={handleCloseCreatePostModal}
+      />
     </div>
   )
 }
@@ -25,7 +39,7 @@ export const ExplorePosts = () => {
   return (
     <div
       className="flex-1 border-r-gray-600/20 dark:border-r-white/20
-      border-r pt-8"
+      border-r"
     >
       <ExploreTopBar />
       <Outlet />
@@ -39,7 +53,7 @@ export const RightSideBar = () => {
   let selectedUsers = [...users.filter((user) => user.username !== me?.username)]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
   return (
-    <aside className="w-[400px] h-screen flex flex-col pt-8 px-8 sticky top-0">
+    <aside className="w-[38%] h-screen flex flex-col pt-8 px-8 sticky top-0">
       <div
         className="border border-gray-600/20 dark:border-white/20
         rounded-xl gap-4 p-3 flex flex-col"

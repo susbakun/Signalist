@@ -1,5 +1,5 @@
 import { postsMock } from '@/assets/mocks'
-import { PostModel } from '@/shared/models'
+import { CommentModel, PostModel } from '@/shared/models'
 import { RootState } from '@/shared/types'
 import { createSlice } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useSelector } from 'react-redux'
@@ -75,6 +75,24 @@ const postsSlice = createSlice({
           return post
         }
       })
+    },
+    postComment: (state, action) => {
+      state = state.map((post) => {
+        if (post.id === action.payload.postId) {
+          const postComments = post.comments
+          const newComment: CommentModel = {
+            body: action.payload.body,
+            commentId: v4(),
+            date: new Date().getTime(),
+            likes: 0,
+            postId: action.payload.postId,
+            publisher: action.payload.publisher
+          }
+          postComments.push(newComment)
+          return { ...post, comments: postComments }
+        }
+        return post
+      })
     }
   }
 })
@@ -86,6 +104,7 @@ export const {
   likePost,
   dislikePost,
   likeComment,
+  postComment,
   dislikeComment
 } = postsSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector

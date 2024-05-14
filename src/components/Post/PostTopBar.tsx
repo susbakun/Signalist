@@ -7,6 +7,7 @@ import moment from 'jalali-moment'
 type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
   postId: PostModel['id']
+  content: PostModel['content']
 }
 
 export const PostTopBar = ({ postId, name, username, imageUrl, date }: PostUserInfoProps) => {

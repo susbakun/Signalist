@@ -4,7 +4,12 @@ import { Link } from 'react-router-dom'
 export const AccountPreview = () => {
   return (
     <div className="flex flex-col justify-center space-y-4 mb-4">
-      <Avatar placeholderInitials="AA" size="lg" rounded />
+      <Avatar
+        placeholderInitials="AA"
+        size="lg"
+        img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+        rounded
+      />
       <div
         className="space-y-1 font-medium dark:text-white                            
       text-slate-700 flex flex-col justify-center text-center"

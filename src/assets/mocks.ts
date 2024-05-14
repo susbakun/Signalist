@@ -36,6 +36,30 @@ export const postsMock: PostModel[] = [
           username: 'stuDent',
           imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
         }
+      },
+      {
+        body: "Welcome to the world of Bitcoin! It's always inspiring to see new investors joining the crypto community. Wishing you the best of luck on your investment journey! 💰 #crypto #investment #welcome",
+        commentId: '2',
+        postId: '1',
+        likes: 2,
+        date: new Date().getTime() - 24 * 60 * 60 * 1000,
+        publisher: {
+          name: 'steve',
+          username: 'stuDent',
+          imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+        }
+      },
+      {
+        body: "Welcome to the world of Bitcoin! It's always inspiring to see new investors joining the crypto community. Wishing you the best of luck on your investment journey! 💰 #crypto #investment #welcome",
+        commentId: '2',
+        postId: '1',
+        likes: 2,
+        date: new Date().getTime() - 24 * 60 * 60 * 1000,
+        publisher: {
+          name: 'steve',
+          username: 'stuDent',
+          imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+        }
       }
     ]
   },
@@ -127,7 +151,7 @@ export const usersMock: AccountModel[] = [
     followers: ['mosi', 'hamihami'],
     followings: [],
     score: 20,
-    imageUrl: ''
+    imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
   },
   {
     name: 'mostafa',

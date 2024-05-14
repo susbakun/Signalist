@@ -13,21 +13,18 @@ export const NewsPreview = ({
 }: NewsPreviewProps) => {
   return (
     <div
-      className="w-full flex rounded-md bg-white
+      className="w-full flex rounded-md bg-white h-[180px]
     dark:bg-gray-800 gap-3"
     >
-      <div className="max-w-full max-h-full">
+      <div className="max-w-full max-h-full p-2">
         <img
-          className="w-[200px] h-[150px] object-cover rounded-md"
+          className="w-[250px] h-full object-cover rounded-md"
           src={urlToImage || demoImageUrl}
           alt={title}
         />
       </div>
-      <div className="flex flex-col p-2 w-full h-full">
-        <div
-          className="h-[110px] max-h-[120px] overflow-y-hidden 
-          flex flex-col gap-2"
-        >
+      <div className="flex flex-col px-2 py-2 w-full h-full">
+        <div className="flex flex-col gap-2 h-[80%] text-ellipsis overflow-hidden">
           <h5
             className="text-xl font-bold tracking-tight
           text-gray-900 dark:text-white"
@@ -36,12 +33,12 @@ export const NewsPreview = ({
           </h5>
           <p
             className="font-normal text-sm text-gray-500
-          dark:text-white/60"
+          dark:text-white/60 flex-1"
           >
             {description.length > 100 ? `${description.substring(0, 400)}` : description}
           </p>
         </div>
-        <div className="flex items-center justify-between pr-2">
+        <div className="flex items-center justify-between pr-2 flex-1">
           <a
             target="_blank"
             href={url}

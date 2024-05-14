@@ -26,7 +26,7 @@ export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) 
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 -translate-x">
       <button onClick={handleLikeComment} className="action-button">
         {isLiked ? (
           <HiBolt className="w-6 h-6 text-yellow-300" />

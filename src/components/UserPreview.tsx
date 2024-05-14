@@ -1,19 +1,27 @@
 import { UserUnfollowModal } from '@/components'
 import { followUser, unfollowUser } from '@/features/User/usersSlice'
 import { AccountModel } from '@/shared/models'
-import { getAvatarPlaceholder, isDarkMode } from '@/utils'
+import { cn, getAvatarPlaceholder, isDarkMode } from '@/utils'
 import { Avatar } from 'flowbite-react'
-import { useMemo, useState } from 'react'
+import { ComponentProps, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
+import { twMerge } from 'tailwind-merge'
 
-type UserPreviewProps = AccountModel & {
-  follower: AccountModel
-}
+type UserPreviewProps = AccountModel &
+  ComponentProps<'div'> & {
+    follower?: AccountModel
+  }
 
-export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewProps) => {
+export const UserPreview = ({
+  name,
+  username,
+  imageUrl,
+  follower,
+  className
+}: UserPreviewProps) => {
   const isFollowed = useMemo(
-    () => follower.followings.some((followingUsername) => followingUsername === username),
+    () => follower?.followings.some((followingUsername) => followingUsername === username),
     [follower, username]
   )
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
@@ -33,7 +41,7 @@ export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewP
         progress: undefined,
         theme: isDarkMode() ? 'dark' : 'light'
       })
-      dispatch(followUser({ followerUsername: follower.username, followingUsername: username }))
+      dispatch(followUser({ followerUsername: follower?.username, followingUsername: username }))
     } else {
       setOpenUnfollowModal(true)
     }
@@ -50,7 +58,7 @@ export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewP
       progress: undefined,
       theme: isDarkMode() ? 'dark' : 'light'
     })
-    dispatch(unfollowUser({ followerUsername: follower.username, followingUsername: username }))
+    dispatch(unfollowUser({ followerUsername: follower!.username, followingUsername: username }))
     setOpenUnfollowModal(false)
   }
 
@@ -60,7 +68,7 @@ export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewP
 
   return (
     <>
-      <div className="flex jusfity-between">
+      <div className={twMerge('flex jusfity-between', className)}>
         <div className="flex gap-2 items-center flex-1">
           <Avatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
           <div className="flex flex-col justify-center">
@@ -70,8 +78,14 @@ export const UserPreview = ({ name, username, imageUrl, follower }: UserPreviewP
             </div>
           </div>
         </div>
-        {follower.username !== username && (
-          <button onClick={handleUserFollow} className="action-button">
+        {follower && follower.username !== username && (
+          <button
+            onClick={handleUserFollow}
+            className={cn('action-button', {
+              'dark:text-dark-link-button': isFollowed,
+              'text-primary-link-button': isFollowed
+            })}
+          >
             {isFollowed ? 'followed' : 'follow'}
           </button>
         )}
