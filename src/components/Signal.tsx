@@ -1,8 +1,15 @@
+import { dislikeSignal, likeSignal } from '@/features/Signal/signalsSlice'
 import { SignalModel } from '@/shared/models'
-import { getFormattedMarketName, getMarketScale } from '@/utils'
-import moment from 'jalali-moment'
-import { AdvancedRealTimeChart } from 'react-ts-tradingview-widgets'
-import { BlackPulse, GreenPulse, RedPulse } from './Pulse'
+import { isDarkMode } from '@/utils'
+import millify from 'millify'
+import { useState } from 'react'
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa'
+import { HiOutlineLightningBolt } from 'react-icons/hi'
+import { HiBolt } from 'react-icons/hi2'
+import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
+import { SharePostModal } from './Modal/SharePostModal'
+import { SignalContext } from './SignalContext'
 import { SignalTopBar } from './SignalTopBar'
 
 type SignalProps = {
@@ -10,9 +17,57 @@ type SignalProps = {
 }
 
 export const Signal = ({ signal }: SignalProps) => {
+  const dispatch = useDispatch()
   const { publisher } = signal
-  const marketName = getFormattedMarketName(signal.market)
-  const marketScale = getMarketScale(signal.market)
+
+  const [isLiked, setIsLiked] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [openShareModal, setOpenShareModal] = useState(false)
+
+  const handleLikeSignal = () => {
+    if (isLiked) {
+      dispatch(dislikeSignal({ id: signal.id }))
+    } else {
+      dispatch(likeSignal({ id: signal.id }))
+    }
+    setIsLiked((prev) => !prev)
+  }
+
+  const handleBookmark = () => {
+    setIsBookmarked((prev) => !prev)
+  }
+
+  const handleCloseShareModal = () => {
+    setOpenShareModal(false)
+  }
+
+  const handleOpenShareModal = () => {
+    setOpenShareModal(true)
+  }
+
+  const handleShareEmail = () => {
+    const title = `See this post by @${publisher.username}`
+    const body = `See this post by @${publisher.username}:https://www.signalists/explore/${signal.id}`
+    const shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
+    handleCloseShareModal()
+    window.open(shareUrl)
+  }
+
+  const handleCopyLink = async () => {
+    const link = `https://www.signalists/explore/${signal.id}`
+    await navigator.clipboard.writeText(link)
+    toast.info('Post link is copied', {
+      position: 'bottom-center',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: isDarkMode() ? 'dark' : 'light'
+    })
+    handleCloseShareModal()
+  }
 
   return (
     <div
@@ -20,63 +75,39 @@ export const Signal = ({ signal }: SignalProps) => {
     border-b-gray-600/20 dark:border-b-white/20"
     >
       <SignalTopBar publisher={publisher} date={signal.date} signalId={signal.id} />
-      {/* <MiniChart colorTheme="dark" width="100%" symbol={'BTCUSD'}></MiniChart> */}
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between detail-text">
-          <p className="text-lg">{signal.market}</p>
-          {signal.status === 'closed' ? (
-            <p className="text-md flex items-center">
-              closed
-              <RedPulse />
-            </p>
-          ) : signal.status === 'not_opened' ? (
-            <p className="text-md flex items-center">
-              will be opened {moment(signal.openTime).startOf('seconds').fromNow()}
-              <BlackPulse />
-            </p>
-          ) : (
-            <p className="text-md flex items-center">
-              will be colsed {moment(signal.closeTime).startOf('seconds').fromNow()}
-              <GreenPulse />
-            </p>
-          )}
-        </div>
-        <AdvancedRealTimeChart
-          theme="dark"
-          width="100%"
-          symbol={marketName}
-          height={500}
-          hotlist={false}
-          style="3"
-          hide_legend
-          hide_side_toolbar
-          allow_symbol_change={false}
-          timezone="Asia/Tehran"
-        ></AdvancedRealTimeChart>
-        <div
-          className="flex flex-col gap-4 border-2
-          rounded-lg border-white/20 px-4 py-2"
-        >
-          <div>
-            Entry: {signal.entry} <span className="detail-text">{marketScale}</span>
+      <SignalContext signal={signal} />
+      <>
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-[2px]">
+              <button onClick={handleLikeSignal} className="action-button">
+                {isLiked ? (
+                  <HiBolt className="w-6 h-6 text-yellow-300" />
+                ) : (
+                  <HiOutlineLightningBolt className="w-6 h-6" />
+                )}
+              </button>
+              <span className="detail-text">{millify(signal.likes)}</span>
+            </div>
+            <button onClick={handleOpenShareModal} className="action-button">
+              Share
+            </button>
           </div>
-          <div>
-            Stoploss: {signal.stoploss} <span className="detail-text">{marketScale}</span>
-          </div>
-          <ul className="flex flex-col gap-4 justify-center">
-            {signal.targets.map((target, index) => (
-              <li className="flex items-center" key={index}>
-                <span className="w-52">
-                  target {index + 1}: {target.value}{' '}
-                  <span className="detail-text">{marketScale}</span>
-                </span>
-                {target.touched && <span className="text-dark-link-button">touched</span>}
-              </li>
-            ))}
-          </ul>
+          <button onClick={handleBookmark} className="action-button">
+            {isBookmarked ? (
+              <FaBookmark className="w-5 h-5" />
+            ) : (
+              <FaRegBookmark className="w-5 h-5" />
+            )}
+          </button>
         </div>
-        {signal.description && <p className="pt-4">{signal.description}</p>}
-      </div>
+        <SharePostModal
+          openModal={openShareModal}
+          handleCloseModal={handleCloseShareModal}
+          copyLink={handleCopyLink}
+          shareEmail={handleShareEmail}
+        />
+      </>
     </div>
   )
 }

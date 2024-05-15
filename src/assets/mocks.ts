@@ -215,6 +215,7 @@ export const signalsMock: SignalModel[] = [
     id: v4(),
     market: 'BTC/USD',
     entry: 61000,
+    likes: 20000,
     targets: [
       { value: 61500, touched: true },
       { value: 62000, touched: true },
@@ -237,6 +238,7 @@ export const signalsMock: SignalModel[] = [
     market: 'BNB/USD',
     entry: 600,
     status: 'open',
+    likes: 0,
     targets: [
       { value: 630, touched: false },
       { value: 640, touched: false },
@@ -257,12 +259,13 @@ export const signalsMock: SignalModel[] = [
     id: v4(),
     market: 'ETH/USD',
     entry: 2887,
-    status: 'closed',
+    status: 'not_opened',
+    likes: 1000,
     targets: [
       { value: 2900, touched: true },
       { value: 2920, touched: false }
     ],
-    openTime: new Date().getTime() - 3 * 60 * 60 * 1000,
+    openTime: new Date().getTime() + 3 * 60 * 60 * 1000,
     closeTime: new Date().getTime() - 1 * 60 * 60 * 1000,
     date: new Date().getTime() - 3 * 60 * 60 * 1000,
     stoploss: 2680,

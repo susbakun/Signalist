@@ -49,7 +49,13 @@ export const NewsList = () => {
     }
   }, [])
 
-  if (!newsList?.length || isLoading) return <Loader />
+  if (!newsList?.length || isLoading)
+    return (
+      <>
+        <h4 className="text-xl mb-4">News</h4>
+        <Loader />
+      </>
+    )
 
   return (
     <section>

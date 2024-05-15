@@ -115,5 +115,6 @@ export type SignalModel = {
   closeTime: number
   date: number
   description?: string
+  likes: number
   status: StatusType
 }
