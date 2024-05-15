@@ -1,6 +1,6 @@
 import { blockUser, deletePost } from '@/features/Post/postsSlice'
 import { followUser, unfollowUser } from '@/features/User/usersSlice'
-import { AccountModel, PostModel } from '@/shared/models'
+import { AccountModel, PostModel, SignalModel } from '@/shared/models'
 import { isDarkMode } from '@/utils'
 import { useMemo } from 'react'
 import { IoHeartDislikeOutline, IoPersonAddOutline } from 'react-icons/io5'
@@ -11,6 +11,7 @@ import { toast } from 'react-toastify'
 type MoreOptionsButtonContentProps = {
   username: AccountModel['username']
   postId?: PostModel['id']
+  signalId?: SignalModel['id']
   follower: AccountModel
   isForComment?: boolean
   closePopover: () => void
@@ -19,6 +20,7 @@ type MoreOptionsButtonContentProps = {
 export const MoreOptionsButtonContent = ({
   username,
   follower,
+  signalId,
   closePopover,
   isForComment = false,
   postId
@@ -81,7 +83,7 @@ export const MoreOptionsButtonContent = ({
 
   const handleReportUser = () => {
     closePopover()
-    toast.error(`This ${isForComment ? 'comment' : 'post'} is reported`, {
+    toast.error(`This ${isForComment ? 'Comment' : signalId ? 'Signal' : 'Post'} is reported`, {
       position: 'bottom-left',
       autoClose: 5000,
       hideProgressBar: false,
@@ -99,7 +101,7 @@ export const MoreOptionsButtonContent = ({
         <IoPersonAddOutline />
         {isFollowed ? 'unfollow' : 'follow'}
       </button>
-      {!isForComment && (
+      {!isForComment && !signalId && (
         <button onClick={handleNotInterested} className="option-button px-2 py-2">
           <IoHeartDislikeOutline /> Not Interested
         </button>
@@ -110,7 +112,7 @@ export const MoreOptionsButtonContent = ({
       </button>
       <button onClick={handleReportUser} className="option-button border-none px-2 py-2">
         <MdOutlineReport />
-        Report {isForComment ? 'Comment' : 'Post'}
+        Report {isForComment ? 'Comment' : signalId ? 'Signal' : 'Post'}
       </button>
     </div>
   )

@@ -1,3 +1,5 @@
+import { StatusType } from './types'
+
 export type CryptoResponseType = {
   status: string
   data: {
@@ -100,4 +102,18 @@ export type PostModel = {
   content: string
   likes: number
   comments: CommentModel[]
+}
+
+export type SignalModel = {
+  id: string
+  market: string
+  publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
+  entry: number
+  stoploss: number
+  targets: { value: number; touched: boolean }[]
+  openTime: number
+  closeTime: number
+  date: number
+  description?: string
+  status: StatusType
 }

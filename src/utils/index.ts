@@ -1,3 +1,4 @@
+import { SignalModel } from '@/shared/models'
 import clsx, { ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -28,4 +29,15 @@ export const getAvatarPlaceholder = (name: string) => {
 
 export const isDarkMode = () => {
   return document.body.classList.contains('darkmode')
+}
+
+export const getFormattedMarketName = (marketName: SignalModel['market']) => {
+  const slashSybmolIndex = marketName.indexOf('/')
+  const formattedMarketName =
+    marketName.slice(0, slashSybmolIndex) + marketName.slice(slashSybmolIndex + 1)
+  return formattedMarketName
+}
+
+export const getMarketScale = (marketName: SignalModel['market']) => {
+  return marketName.split('/')[1]
 }

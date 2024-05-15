@@ -1,4 +1,5 @@
-import { AccountModel, PostModel } from '@/shared/models'
+import { AccountModel, PostModel, SignalModel } from '@/shared/models'
+import { v4 } from 'uuid'
 
 export const postsMock: PostModel[] = [
   {
@@ -206,5 +207,71 @@ export const usersMock: AccountModel[] = [
     followings: ['mosi'],
     score: 8,
     imageUrl: ''
+  }
+]
+
+export const signalsMock: SignalModel[] = [
+  {
+    id: v4(),
+    market: 'BTC/USD',
+    entry: 61000,
+    targets: [
+      { value: 61500, touched: true },
+      { value: 62000, touched: true },
+      { value: 63000, touched: false }
+    ],
+    openTime: new Date().getTime() - 2 * 24 * 60 * 60 * 1000,
+    closeTime: new Date().getTime() - 24 * 60 * 60 * 1000,
+    date: new Date().getTime() - 2 * 24 * 60 * 60 * 1000,
+    stoploss: 60000,
+    description: '',
+    status: 'closed',
+    publisher: {
+      name: 'amirsaeed aryanmehr',
+      username: 'Amir Aryan',
+      imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+    }
+  },
+  {
+    id: v4(),
+    market: 'BNB/USD',
+    entry: 600,
+    status: 'open',
+    targets: [
+      { value: 630, touched: false },
+      { value: 640, touched: false },
+      { value: 650, touched: false }
+    ],
+    openTime: new Date().getTime(),
+    closeTime: new Date().getTime() + 30 * 60 * 1000,
+    date: new Date().getTime(),
+    stoploss: 530,
+    description: '',
+    publisher: {
+      name: 'Amir Pouya',
+      username: 'AmirP',
+      imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg'
+    }
+  },
+  {
+    id: v4(),
+    market: 'ETH/USD',
+    entry: 2887,
+    status: 'closed',
+    targets: [
+      { value: 2900, touched: true },
+      { value: 2920, touched: false }
+    ],
+    openTime: new Date().getTime() - 3 * 60 * 60 * 1000,
+    closeTime: new Date().getTime() - 1 * 60 * 60 * 1000,
+    date: new Date().getTime() - 3 * 60 * 60 * 1000,
+    stoploss: 2680,
+    description:
+      'Are you holding for the long term, actively trading short-term price movements, or adopting a different approach? What rationale guides your strategy?',
+    publisher: {
+      name: 'steve',
+      username: 'stuDent',
+      imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+    }
   }
 ]

@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
 
-type UserPreviewProps = AccountModel &
+type UserPreviewProps = Pick<AccountModel, 'name' | 'username' | 'imageUrl'> &
   ComponentProps<'div'> & {
     follower?: AccountModel
   }

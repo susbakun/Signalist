@@ -35,7 +35,7 @@ export const ExplorePage = () => {
   )
 }
 
-export const ExplorePosts = () => {
+const ExplorePosts = () => {
   return (
     <div
       className="flex-1 border-r-gray-600/20 dark:border-r-white/20

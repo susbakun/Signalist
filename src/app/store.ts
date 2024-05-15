@@ -1,4 +1,5 @@
 import postsReducer from '@/features/Post/postsSlice'
+import signalsReducer from '@/features/Signal/signalsSlice'
 import usersReducer from '@/features/User/usersSlice'
 import { cryptoApi } from '@/services/cryptoApi'
 import { cryptoNewsApi } from '@/services/cryptoNewsApi'
@@ -9,7 +10,8 @@ const store = configureStore({
     [cryptoApi.reducerPath]: cryptoApi.reducer,
     [cryptoNewsApi.reducerPath]: cryptoNewsApi.reducer,
     posts: postsReducer,
-    users: usersReducer
+    users: usersReducer,
+    signals: signalsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(cryptoApi.middleware).concat(cryptoNewsApi.middleware)
