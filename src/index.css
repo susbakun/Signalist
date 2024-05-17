@@ -31,7 +31,22 @@
   textarea::-webkit-scrollbar {
     display: none;
   }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+
   .custom-modal::-webkit-scrollbar {
+    display: none;
+  }
+  .custom-drawer::-webkit-scrollbar {
+    display: none;
+  }
+  .custom-dropdown::-webkit-scrollbar {
     display: none;
   }
 }
@@ -78,6 +93,30 @@
     @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
     @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
     @apply focus:border-neutral-500;
+  }
+
+  .signal-market-selector {
+    @apply dark:bg-gray-600 bg-gray-300;
+    @apply dark:text-gray-300 text-gray-900 outline-none;
+    @apply border-4 border-transparent;
+    @apply py-2 pl-4 pr-2 rounded-lg;
+    @apply focus:dark:border-neutral-500;
+    @apply transition-colors ease-linear;
+    @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
+    @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
+    @apply focus:border-neutral-500 hover:opacity-85;
+  }
+
+  input.signal-market-selector {
+    @apply dark:bg-gray-700 bg-gray-300;
+    @apply dark:text-gray-300 text-gray-900 outline-none;
+    @apply border-4 border-transparent;
+    @apply py-2 pl-4 pr-2 rounded-xl;
+    @apply focus:dark:border-neutral-500;
+    @apply transition-colors ease-linear;
+    @apply placeholder:dark:text-gray-300 focus:dark:placeholder:text-gray-400;
+    @apply placeholder:text-gray-800 focus:placeholder:text-gray-700;
+    @apply focus:border-neutral-500 hover:opacity-85;
   }
 
   .explore-nav-link {

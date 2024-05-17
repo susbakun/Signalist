@@ -45,7 +45,12 @@ export const MarketSelectionDrawer = ({
   })
 
   return (
-    <Drawer className="w-[400px]" open={isOpen} onClose={closeDrawer} position="right">
+    <Drawer
+      className="w-[400px] custom-drawer"
+      open={isOpen}
+      onClose={closeDrawer}
+      position="right"
+    >
       <Drawer.Header titleIcon={FaChartLine} title="Markets" />
       <Drawer.Items>
         <div className="px-4 mb-4">
@@ -58,8 +63,8 @@ export const MarketSelectionDrawer = ({
           />
         </div>
         {!notSelectedMarkets.length ? (
-          <EmptyPage>
-            <h3 className="text-center detail-text leading-[100vh]">No Markets Found!</h3>
+          <EmptyPage className="flex justify-center items-center h-[80vh]">
+            <h3>No markets found!</h3>
           </EmptyPage>
         ) : (
           <SelectionTable selectMarket={selectMarket} notSelectedMarkets={notSelectedMarkets} />

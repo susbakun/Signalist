@@ -62,7 +62,7 @@ export const UserPreview = ({
     setOpenUnfollowModal(false)
   }
 
-  const handleCloseMoal = () => {
+  const handleCloseModal = () => {
     setOpenUnfollowModal(false)
   }
 
@@ -93,7 +93,7 @@ export const UserPreview = ({
       <UserUnfollowModal
         username={username}
         openModal={openUnfollowModal}
-        handleCloseModal={handleCloseMoal}
+        handleCloseModal={handleCloseModal}
         handleAcceptUnfollowModal={handleAcceptUnfollowModal}
       />
     </>

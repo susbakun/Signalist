@@ -1,6 +1,5 @@
 import { createPost } from '@/features/Post/postsSlice'
 import { useAppSelector } from '@/features/User/usersSlice'
-import { PostModel } from '@/shared/models'
 import { cn, isDarkMode } from '@/utils'
 import { Modal } from 'flowbite-react'
 import { useState } from 'react'
@@ -11,7 +10,6 @@ import './togglebutton.css'
 
 export type CreatePostModalProps = {
   openModal: boolean
-  initialContent?: PostModel['content']
   handleCloseModal: () => void
 }
 
@@ -27,6 +25,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
       hanldeCreatePost()
     }
   }
+
   const hanldeCreatePost = () => {
     setPostText('')
     handleCloseModal()

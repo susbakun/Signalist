@@ -227,6 +227,7 @@ export const signalsMock: SignalModel[] = [
     stoploss: 60000,
     description: '',
     status: 'closed',
+    showChart: true,
     publisher: {
       name: 'amirsaeed aryanmehr',
       username: 'Amir Aryan',
@@ -238,15 +239,16 @@ export const signalsMock: SignalModel[] = [
     market: 'BNB/USD',
     entry: 600,
     status: 'open',
+    showChart: true,
     likes: 0,
     targets: [
-      { value: 630, touched: false },
-      { value: 640, touched: false },
-      { value: 650, touched: false }
+      { value: 630, touched: undefined },
+      { value: 640, touched: undefined },
+      { value: 650, touched: undefined }
     ],
-    openTime: new Date().getTime(),
+    openTime: new Date().getTime() - 2 * 60 * 1000,
     closeTime: new Date().getTime() + 30 * 60 * 1000,
-    date: new Date().getTime(),
+    date: new Date().getTime() - 30 * 60 * 1000,
     stoploss: 530,
     description: '',
     publisher: {
@@ -259,13 +261,14 @@ export const signalsMock: SignalModel[] = [
     id: v4(),
     market: 'ETH/USD',
     entry: 2887,
-    status: 'not_opened',
+    status: 'closed',
     likes: 1000,
+    showChart: true,
     targets: [
       { value: 2900, touched: true },
       { value: 2920, touched: false }
     ],
-    openTime: new Date().getTime() + 3 * 60 * 60 * 1000,
+    openTime: new Date().getTime() - 2 * 60 * 60 * 1000,
     closeTime: new Date().getTime() - 1 * 60 * 60 * 1000,
     date: new Date().getTime() - 3 * 60 * 60 * 1000,
     stoploss: 2680,

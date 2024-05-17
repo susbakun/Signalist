@@ -110,11 +110,12 @@ export type SignalModel = {
   publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
   entry: number
   stoploss: number
-  targets: { value: number; touched: boolean }[]
+  targets: { value: number; touched: boolean | undefined }[]
   openTime: number
   closeTime: number
   date: number
   description?: string
   likes: number
+  showChart: boolean
   status: StatusType
 }

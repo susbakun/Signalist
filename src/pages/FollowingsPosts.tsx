@@ -22,7 +22,7 @@ export const FollowingsPosts = () => {
   return (
     <div className="flex flex-col">
       {followingPosts.map((post) => (
-        <Post key={post.id} {...post} />
+        <Post key={post.id} post={post} />
       ))}
     </div>
   )

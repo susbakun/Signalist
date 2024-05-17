@@ -4,7 +4,7 @@ import { cn } from '@/utils'
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { IoSearchOutline } from 'react-icons/io5'
 import { NavLink } from 'react-router-dom'
-import { UserPreview } from '../UserPreview'
+import { UserPreview } from '../Shared/UserPreview'
 
 export const ExploreTopBar = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)

@@ -1,8 +1,8 @@
+import { BlackPulse, GreenPulse, RedPulse } from '@/components'
 import { SignalModel } from '@/shared/models'
 import { getFormattedMarketName, getMarketScale } from '@/utils'
 import moment from 'jalali-moment'
 import { AdvancedRealTimeChart } from 'react-ts-tradingview-widgets'
-import { BlackPulse, GreenPulse, RedPulse } from './Pulse'
 
 type SignalContextProps = {
   signal: SignalModel
@@ -11,39 +11,42 @@ type SignalContextProps = {
 export const SignalContext = ({ signal }: SignalContextProps) => {
   const marketName = getFormattedMarketName(signal.market)
   const marketScale = getMarketScale(signal.market)
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between detail-text">
         <p className="text-lg">{signal.market}</p>
         {signal.status === 'closed' ? (
-          <p className="text-md flex items-center">
+          <div className="text-md flex items-center">
             closed
             <RedPulse />
-          </p>
+          </div>
         ) : signal.status === 'not_opened' ? (
-          <p className="text-md flex items-center">
+          <div className="text-md flex items-center">
             will be opened {moment(signal.openTime).startOf('seconds').fromNow()}
             <BlackPulse />
-          </p>
+          </div>
         ) : (
-          <p className="text-md flex items-center">
+          <div className="text-md flex items-center">
             will be colsed {moment(signal.closeTime).startOf('seconds').fromNow()}
             <GreenPulse />
-          </p>
+          </div>
         )}
       </div>
-      <AdvancedRealTimeChart
-        theme="dark"
-        width="100%"
-        symbol={marketName}
-        height={500}
-        hotlist={false}
-        style="3"
-        hide_legend
-        hide_side_toolbar
-        allow_symbol_change={false}
-        timezone="Asia/Tehran"
-      ></AdvancedRealTimeChart>
+      {signal.showChart && (
+        <AdvancedRealTimeChart
+          theme="dark"
+          width="100%"
+          symbol={marketName}
+          height={500}
+          hotlist={false}
+          style="3"
+          hide_legend
+          hide_side_toolbar
+          allow_symbol_change={false}
+          timezone="Asia/Tehran"
+        ></AdvancedRealTimeChart>
+      )}
       <div
         className="bg-white dark:bg-gray-900
           p-4 rounded-lg border-2 border-white/20"

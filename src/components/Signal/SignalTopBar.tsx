@@ -1,8 +1,8 @@
+import { MoreOptionsButton } from '@/components'
 import { SignalModel } from '@/shared/models'
 import { getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import moment from 'jalali-moment'
-import { MoreOptionsButton } from './Button/MoreOptionsButton/MoreOptionsButton'
 
 type SignalTopBarProps = {
   publisher: SignalModel['publisher']
