@@ -5,6 +5,7 @@ import { cn, getAvatarPlaceholder, isDarkMode } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import { ComponentProps, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { twMerge } from 'tailwind-merge'
 
@@ -21,9 +22,10 @@ export const UserPreview = ({
   className
 }: UserPreviewProps) => {
   const isFollowed = useMemo(
-    () => follower?.followings.some((followingUsername) => followingUsername === username),
-    [follower, username]
+    () => follower?.followings.some((following) => following.username === username),
+    [username, follower]
   )
+
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
 
   const placeholder = getAvatarPlaceholder(name)
@@ -58,7 +60,7 @@ export const UserPreview = ({
       progress: undefined,
       theme: isDarkMode() ? 'dark' : 'light'
     })
-    dispatch(unfollowUser({ followerUsername: follower!.username, followingUsername: username }))
+    dispatch(unfollowUser({ followerUsername: follower?.username, followingUsername: username }))
     setOpenUnfollowModal(false)
   }
 
@@ -71,12 +73,12 @@ export const UserPreview = ({
       <div className={twMerge('flex jusfity-between', className)}>
         <div className="flex gap-2 items-center flex-1">
           <Avatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
-          <div className="flex flex-col justify-center">
+          <Link to={`/${username}`} className="flex flex-col justify-center">
             <p>{name.toLowerCase()}</p>
             <div className="flex gap-2">
               <p className="text-sm text-gray-600/70 dark:text-white/50">@{username}</p>
             </div>
-          </div>
+          </Link>
         </div>
         {follower && follower.username !== username && (
           <button

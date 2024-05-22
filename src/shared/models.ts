@@ -79,10 +79,13 @@ export type CryptoNewsType = {
 export type AccountModel = {
   name: string
   username: string
+  bio?: string
+  subscribed?: boolean
+  hasPremium?: boolean
   email: string
   imageUrl?: string
-  followings: AccountModel['username'][]
-  followers: AccountModel['username'][]
+  followings: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>[]
+  followers: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>[]
   score: number
 }
 
@@ -101,21 +104,28 @@ export type PostModel = {
   date: number
   content: string
   likes: number
+  isPremium: boolean
+  subscribed?: boolean
   comments: CommentModel[]
 }
 
 export type SignalModel = {
   id: string
-  market: string
+  market: {
+    name: string
+    uuid: string
+  }
   publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
   entry: number
   stoploss: number
-  targets: { value: number; touched: boolean | undefined }[]
+  targets: { id: string; value: number; touched: boolean | undefined }[]
   openTime: number
   closeTime: number
   date: number
+  subscribed?: boolean
   description?: string
   likes: number
   showChart: boolean
+  isPremium: boolean
   status: StatusType
 }

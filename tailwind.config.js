@@ -6,7 +6,7 @@ export default {
     extend: {
       colors: {
         primary: {
-          main: '#EAEAEA',
+          main: '#F5F5F5',
           'link-button': '#07a290'
         },
         dark: {

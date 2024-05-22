@@ -3,7 +3,7 @@ import { followUser, unfollowUser } from '@/features/User/usersSlice'
 import { AccountModel, PostModel, SignalModel } from '@/shared/models'
 import { isDarkMode } from '@/utils'
 import { useMemo } from 'react'
-import { IoHeartDislikeOutline, IoPersonAddOutline } from 'react-icons/io5'
+import { IoHeartDislikeOutline, IoPersonAddOutline, IoPersonRemoveOutline } from 'react-icons/io5'
 import { MdBlock, MdOutlineReport } from 'react-icons/md'
 import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
@@ -14,6 +14,7 @@ type MoreOptionsButtonContentProps = {
   signalId?: SignalModel['id']
   follower: AccountModel
   isForComment?: boolean
+  isForUserPage?: boolean
   closePopover: () => void
 }
 
@@ -22,13 +23,14 @@ export const MoreOptionsButtonContent = ({
   follower,
   signalId,
   closePopover,
+  isForUserPage,
   isForComment = false,
   postId
 }: MoreOptionsButtonContentProps) => {
   const dispatch = useDispatch()
 
   const isFollowed = useMemo(
-    () => follower.followings.some((followingUsername) => followingUsername === username),
+    () => follower.followings.some((following) => following.username === username),
     [follower, username]
   )
 
@@ -97,11 +99,13 @@ export const MoreOptionsButtonContent = ({
 
   return (
     <div className="flex flex-col text-md font-bold justify-center text-center">
-      <button onClick={handleFollowUser} className="option-button px-2 py-2">
-        <IoPersonAddOutline />
-        {isFollowed ? 'unfollow' : 'follow'}
-      </button>
-      {!isForComment && !signalId && (
+      {!isForUserPage && (
+        <button onClick={handleFollowUser} className="option-button px-2 py-2">
+          {isFollowed ? <IoPersonRemoveOutline /> : <IoPersonAddOutline />}
+          {isFollowed ? 'unfollow' : 'follow'}
+        </button>
+      )}
+      {!isForComment && !signalId && !isForUserPage && (
         <button onClick={handleNotInterested} className="option-button px-2 py-2">
           <IoHeartDislikeOutline /> Not Interested
         </button>
@@ -112,7 +116,7 @@ export const MoreOptionsButtonContent = ({
       </button>
       <button onClick={handleReportUser} className="option-button border-none px-2 py-2">
         <MdOutlineReport />
-        Report {isForComment ? 'Comment' : signalId ? 'Signal' : 'Post'}
+        Report {isForComment ? 'Comment' : signalId ? 'Signal' : isForUserPage ? username : 'Post'}
       </button>
     </div>
   )

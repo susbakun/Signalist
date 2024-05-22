@@ -1,3 +1,4 @@
+import { cn } from '@/utils'
 import { ReactNode } from 'react'
 import { BiSolidSearch } from 'react-icons/bi'
 import {
@@ -14,6 +15,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 
 export const Navbar = () => {
   const location = useLocation()
+  const isInMessages = location.pathname === '/messages'
 
   // Function to determine the appropriate icon based on the active link
   const getIcon = (pathREG: RegExp, activeIcon: ReactNode, inactiveIcon: ReactNode) => {
@@ -21,14 +23,14 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className="flex flex-col gap-4 pr-4">
+    <nav className={cn('flex flex-col gap-4 pr-4', { 'pr-2 pt-8': isInMessages })}>
       <NavLink className="link-button" to="/">
         {getIcon(
           /^\/$/,
           <IoHome className="w-full button-icon" />,
           <IoHomeOutline className="w-full button-icon" />
         )}
-        <span>Home</span>
+        {!isInMessages && <span>Home</span>}
       </NavLink>
       <NavLink className="link-button" to="/explore">
         {getIcon(
@@ -36,7 +38,7 @@ export const Navbar = () => {
           <BiSolidSearch className="w-full button-icon" />,
           <IoSearchOutline className="w-full button-icon" />
         )}
-        <span>Explore</span>
+        {!isInMessages && <span>Explore</span>}
       </NavLink>
       <NavLink className="link-button" to="/signals">
         {getIcon(
@@ -44,7 +46,7 @@ export const Navbar = () => {
           <IoBarChart className="w-full button-icon" />,
           <IoBarChartOutline className="w-full button-icon" />
         )}
-        <span>Signals</span>
+        {!isInMessages && <span>Signals</span>}
       </NavLink>
       <NavLink className="link-button" to="/messages">
         {getIcon(
@@ -52,7 +54,7 @@ export const Navbar = () => {
           <IoMail className="w-full button-icon" />,
           <IoMailOutline className="w-full button-icon" />
         )}
-        <span>Messages</span>
+        {!isInMessages && <span>Messages</span>}
       </NavLink>
       <NavLink className="link-button" to="/premium">
         {getIcon(
@@ -60,7 +62,7 @@ export const Navbar = () => {
           <TbCoinFilled className="w-full button-icon" />,
           <TbPremiumRights className="w-full button-icon" />
         )}
-        <span>Premium</span>
+        {!isInMessages && <span>Premium</span>}
       </NavLink>
     </nav>
   )

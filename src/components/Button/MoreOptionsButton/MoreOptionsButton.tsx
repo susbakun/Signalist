@@ -22,7 +22,7 @@ export const MoreOptionsButton = ({
   const [open, setIsOpen] = useState(false)
 
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir Aryan')
+  const me = users.find((user) => user.username === 'Amir_Aryan')
 
   const handleClose = () => {
     setIsOpen(false)

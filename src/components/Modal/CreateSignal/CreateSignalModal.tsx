@@ -16,6 +16,7 @@ import { CoinType } from '@/shared/types'
 import { Label, Modal } from 'flowbite-react'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { v4 } from 'uuid'
 
 type CreateSignalModalProps = {
   openModal: boolean
@@ -25,19 +26,23 @@ type CreateSignalModalProps = {
 export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalModalProps) => {
   const [targetList, setTargetList] = useState<SignalModel['targets']>([])
   const [dropdownMarkets, setDropDownMarkets] = useState<CryptoResponseType['data']['coins']>([])
-  const [selectedMarket, setSelectedMarket] = useState('BTC')
+  const [selectedMarket, setSelectedMarket] = useState<SignalModel['market']>({
+    name: 'BTC',
+    uuid: 'Qwsogvtv82FCd'
+  })
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [showChart, setShowChart] = useState(false)
   const [openTime, setOpenTime] = useState<Date>(new Date())
   const [closeTime, setCloseTime] = useState<Date>(new Date())
-  const [entryValue, setEntryValue] = useState(0)
-  const [stoplossValue, setStoplossValue] = useState(0)
+  const [entryValue, setEntryValue] = useState(0.0)
+  const [stoplossValue, setStoplossValue] = useState(0.0)
   const [descriptionText, setDescriptionText] = useState('')
+  const [isPremium, setIsPremium] = useState(false)
 
   const { data: cryptosList, isLoading } = useGetCryptosQuery(20)
   const dispatch = useDispatch()
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir Aryan')
+  const me = users.find((user) => user.username === 'Amir_Aryan')
 
   const handleSelectMarket = (market: SignalModel['market']) => {
     setSelectedMarket(market)
@@ -53,16 +58,12 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const handleAddTarget = () => {
-    setTargetList((prev) => [...prev, { value: 0, touched: false }])
+    setTargetList((prev) => [...prev, { id: v4(), value: 0, touched: undefined }])
   }
 
-  const handleRemoveTarget = (targetIndex: number) => {
+  const handleRemoveTarget = (removedTargetId: string) => {
     setTargetList((prev) => {
-      return prev.filter((target, index) => {
-        if (index !== targetIndex) {
-          return target
-        }
-      })
+      return prev.filter((target) => target.id !== removedTargetId)
     })
   }
 
@@ -80,33 +81,46 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     }
   }
 
-  const handleCreateSignal = () => {
+  const handleTargetValueChange = (e: ChangeEvent<HTMLInputElement>, targetId: string) => {
+    setTargetList((prev) => {
+      return prev.map((target) => {
+        if (target.id === targetId) {
+          return { ...target, value: parseFloat(e.target.value) }
+        }
+        return target
+      })
+    })
+  }
+
+  const resetForm = () => {
     handleCloseModal()
+    setCloseTime(new Date())
+    setOpenTime(new Date())
+    setEntryValue(0.0)
+    setStoplossValue(0.0)
+    setTargetList([])
+    setDescriptionText('')
+    setShowChart(false)
+    setSelectedMarket({ name: 'BTC', uuid: 'Qwsogvtv82FCd' })
+  }
+
+  const handleCreateSignal = () => {
     dispatch(
       createSignal({
         openTime: openTime.getTime(),
         closeTime: closeTime.getTime(),
         showChart,
-        market: `${selectedMarket}/USD`,
+        market: { ...selectedMarket, name: `${selectedMarket.name}/USD` },
         entry: entryValue,
         stoploss: stoplossValue,
         targets: targetList,
         description: descriptionText,
         publisher: me,
+        isPremium,
         status: getStatus(openTime.getTime(), closeTime.getTime())
       })
     )
-  }
-
-  const handleTargetValueChange = (e: ChangeEvent<HTMLInputElement>, targetIndex: number) => {
-    setTargetList((prev) => {
-      return prev.map((target, index) => {
-        if (index === targetIndex) {
-          return { value: +e.target.value, touched: undefined }
-        }
-        return target
-      })
-    })
+    resetForm()
   }
 
   const handleOpenTimeChange = (date: Date) => {
@@ -118,19 +132,23 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const handleEntryValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEntryValue(+e.target.value)
+    setEntryValue(parseFloat(e.target.value))
   }
 
   const handleStoplossValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setStoplossValue(+e.target.value)
+    setStoplossValue(parseFloat(e.target.value))
   }
 
   const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setDescriptionText(e.target.value)
   }
 
+  const handlePremiumToggle = () => {
+    setIsPremium((prev) => !prev)
+  }
+
   const market: CoinType | undefined = useMemo(
-    () => dropdownMarkets.find((market) => market.symbol === selectedMarket),
+    () => dropdownMarkets.find((market) => market.symbol === selectedMarket.name),
     [selectedMarket, dropdownMarkets]
   )
 
@@ -141,7 +159,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }, [cryptosList])
 
   return (
-    <Modal className="pl-9 custom-modal" size="5xl" show={openModal} onClose={handleCloseModal}>
+    <Modal className="pl-9 custom-modal" size="5xl" show={openModal} onClose={resetForm}>
       <Modal.Header className="border-none pr-1 py-2" />
       <Modal.Body
         className="flex overflow-y-auto
@@ -179,7 +197,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                 <div className="flex flex-col gap-4">
                   {targetList.map((target, index) => (
                     <SignalModalTargetsList
-                      key={target.value}
+                      key={target.id}
                       target={target}
                       index={index}
                       handleRemoveTarget={handleRemoveTarget}
@@ -198,7 +216,11 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                     descriptionText={descriptionText}
                     handleDescriptionChange={handleDescriptionChange}
                   />
-                  <SignalModalFooter handleCreateSignal={handleCreateSignal} />
+                  <SignalModalFooter
+                    isPremium={isPremium}
+                    handlePremiumToggle={handlePremiumToggle}
+                    handleCreateSignal={handleCreateSignal}
+                  />
                 </div>
               </div>
             </div>

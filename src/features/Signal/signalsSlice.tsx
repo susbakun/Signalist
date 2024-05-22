@@ -1,5 +1,6 @@
 import { signalsMock } from '@/assets/mocks'
 import { SignalModel } from '@/shared/models'
+import { CoinType } from '@/shared/types'
 import { createSlice } from '@reduxjs/toolkit'
 import { v4 } from 'uuid'
 
@@ -18,6 +19,7 @@ const signalsSlice = createSlice({
         publisher: action.payload.publisher,
         showChart: action.payload.showChart,
         status: action.payload.status,
+        isPremium: action.payload.isPremium,
         likes: 0,
         market: action.payload.market,
         entry: action.payload.entry,
@@ -43,11 +45,22 @@ const signalsSlice = createSlice({
         return signal
       })
     },
-    updateStates: (state) => {
+    updateSignalsState: (state, action) => {
       const currentTime = new Date().getTime()
       return state.map((signal) => {
+        const marketName = signal.market.name.split('/')[0]
         if (signal.status === 'open' && currentTime - signal.closeTime >= -1000) {
-          return { ...signal, status: 'closed' }
+          const currentPrice = action.payload.coins.find(
+            (crypto: CoinType) => crypto.symbol === marketName
+          )?.price
+          const updatedSignal = { ...signal }
+          updatedSignal.targets = updatedSignal.targets.map((target) => {
+            if (parseFloat(currentPrice) >= target.value) {
+              return { ...target, touched: true }
+            }
+            return target
+          })
+          return { ...updatedSignal, status: 'closed' }
         } else if (signal.status === 'not_opened' && currentTime - signal.openTime >= -1000) {
           return { ...signal, status: 'open' }
         }
@@ -57,5 +70,5 @@ const signalsSlice = createSlice({
   }
 })
 
-export const { createSignal, likeSignal, dislikeSignal, updateStates } = signalsSlice.actions
+export const { createSignal, likeSignal, dislikeSignal, updateSignalsState } = signalsSlice.actions
 export default signalsSlice.reducer

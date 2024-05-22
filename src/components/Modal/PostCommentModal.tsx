@@ -16,7 +16,7 @@ export const PostCommentModal = ({
   comments,
   post
 }: PostCommentMoalProps) => {
-  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir Aryan')
+  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
   return (
     <Modal size="3xl" show={openModal} onClose={handleCloseCommentsModal}>
@@ -31,7 +31,11 @@ export const PostCommentModal = ({
           flex-col gap-4 sticky top-0"
         >
           <PostTopBar postId={post.id} {...post.publisher} date={post.date} />
-          <PostBody content={post.content} />
+          <PostBody
+            isPremium={post.isPremium}
+            publisherUsername={post.publisher.username}
+            content={post.content}
+          />
           <PostFooter simplified={true} post={post} />
         </div>
         <div className="w-[50%] flex flex-col gap-4 relative">

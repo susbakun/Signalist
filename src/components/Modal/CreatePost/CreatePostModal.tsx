@@ -14,9 +14,10 @@ export type CreatePostModalProps = {
 }
 
 export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModalProps) => {
+  const [isPremium, setIsPremium] = useState(false)
   const [postText, setPostText] = useState('')
 
-  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir Aryan')
+  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
 
   const dispatch = useDispatch()
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -27,9 +28,13 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   }
 
   const hanldeCreatePost = () => {
-    setPostText('')
+    dispatch(createPost({ content: postText, publisher: me, isPremium }))
     handleCloseModal()
-    dispatch(createPost({ content: postText, publisher: me }))
+    setPostText('')
+  }
+
+  const handleTogglePremium = () => {
+    setIsPremium((prev) => !prev)
   }
 
   return (
@@ -60,7 +65,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
             </button>
             <label className={cn('flex items-center gap-1', { dark: isDarkMode() })}>
               <span>Premium</span>
-              <Toggle defaultChecked={false} icons={false} />
+              <Toggle onChange={handleTogglePremium} defaultChecked={isPremium} icons={false} />
             </label>
           </div>
           <button

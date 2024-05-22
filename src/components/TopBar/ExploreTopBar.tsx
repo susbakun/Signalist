@@ -9,6 +9,7 @@ import { UserPreview } from '../Shared/UserPreview'
 export const ExploreTopBar = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [searched, setSearched] = useState('')
+  console.log(isInputFocused)
 
   const users = useAppSelector((state) => state.users)
 
@@ -19,11 +20,23 @@ export const ExploreTopBar = () => {
     setIsInputFocused((prev) => !prev)
   }
 
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Only blur the input if the new focus is outside the search results
+    if (!e.relatedTarget) {
+      setIsInputFocused(false)
+    }
+  }
+
   const handleSearchUsers = useCallback(() => {
-    return users.filter((user) => user.username.toLowerCase().includes(searched.toLowerCase()))
+    return users.filter(
+      (user) =>
+        user.username.toLowerCase().includes(searched.toLowerCase()) ||
+        user.name.toLocaleLowerCase().includes(searched)
+    )
   }, [users, searched])
 
   const searchedUsers = useMemo(() => handleSearchUsers(), [handleSearchUsers])
+
   return (
     <div
       className="flex flex-col gap-8 sticky top-0 pt-8
@@ -41,12 +54,14 @@ export const ExploreTopBar = () => {
             />
           )}
           <input
+            onBlur={handleInputBlur}
             value={searched}
-            onBlur={handleInputFocus}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
-            className="custom-input inline-block
-            focus:w-[80%] focus:pl-8"
+            className={cn('custom-input pl-4 inline-block w-full', {
+              'w-[80%]': isInputFocused,
+              'pl-8': isInputFocused
+            })}
             placeholder="Search"
           />
         </div>

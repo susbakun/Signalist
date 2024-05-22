@@ -13,35 +13,40 @@ const usersSlice = createSlice({
       const follower = state.find((user) => user.username === action.payload.followerUsername)
       const following = state.find((user) => user.username === action.payload.followingUsername)
       if (follower && following)
-        state = state.map((user) => {
-          if (user.username === follower.username) {
-            follower.followings.push(following.username)
-            return follower
-          } else if (user.username === following.username) {
-            following.followers.push(follower.username)
-            return following
+        return state.map((user) => {
+          if (user.username === action.payload.followerUsername) {
+            return {
+              ...user,
+              followings: [...user.followings, following]
+            }
+          } else if (user.username === action.payload.followingUsername) {
+            return {
+              ...user,
+              followers: [...user.followers, follower]
+            }
           }
           return user
         })
     },
     unfollowUser: (state, action) => {
-      const follower = state.find((user) => user.username === action.payload.followerUsername)
-      const following = state.find((user) => user.username === action.payload.followingUsername)
-      if (follower && following)
-        state = state.map((user) => {
-          if (user.username === follower.username) {
-            follower.followings = follower.followings.filter(
-              (username) => username !== following.username
+      return state.map((user) => {
+        if (user.username === action.payload.followerUsername) {
+          return {
+            ...user,
+            followings: user.followings.filter(
+              (following) => following.username !== action.payload.followingUsername
             )
-            return follower
-          } else if (user.username === following.username) {
-            following.followers = following.followers.filter(
-              (username) => username !== follower.username
-            )
-            return following
           }
-          return user
-        })
+        } else if (user.username === action.payload.followingUsername) {
+          return {
+            ...user,
+            followers: user.followers.filter(
+              (follower) => follower.username !== action.payload.followerUsername
+            )
+          }
+        }
+        return user
+      })
     }
   }
 })

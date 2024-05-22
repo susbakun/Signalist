@@ -14,6 +14,7 @@ const postsSlice = createSlice({
     createPost: (state, action) => {
       const newPost: PostModel = {
         id: v4(),
+        isPremium: action.payload.isPremium,
         content: action.payload.content,
         likes: 0,
         publisher: action.payload.publisher,

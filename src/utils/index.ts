@@ -31,13 +31,13 @@ export const isDarkMode = () => {
   return document.body.classList.contains('darkmode')
 }
 
-export const getFormattedMarketName = (marketName: SignalModel['market']) => {
+export const getFormattedMarketName = (marketName: SignalModel['market']['name']) => {
   const slashSybmolIndex = marketName.indexOf('/')
   const formattedMarketName =
     marketName.slice(0, slashSybmolIndex) + marketName.slice(slashSybmolIndex + 1)
   return formattedMarketName
 }
 
-export const getMarketScale = (marketName: SignalModel['market']) => {
+export const getMarketScale = (marketName: SignalModel['market']['name']) => {
   return marketName.split('/')[1]
 }

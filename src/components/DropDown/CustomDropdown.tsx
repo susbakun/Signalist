@@ -76,7 +76,7 @@ export const CustomDropdown = ({
           {isLoading && <Loader className="h-[80%]" />}
           {filteredMarkets.map((market) => (
             <div
-              key={market.symbol}
+              key={market.uuid}
               className="p-2 flex justify-between items-center
               cursor-pointer dark:hover:bg-gray-500
             hover:bg-gray-300 focus:opacity-85 border-b border-b-gray-600/20 dark:border-b-white/20"
@@ -86,7 +86,7 @@ export const CustomDropdown = ({
                 <span>{market.symbol}USD</span>
               </div>
               <button
-                onClick={() => handleSelectMarket(market.symbol)}
+                onClick={() => handleSelectMarket({ name: market.symbol, uuid: market.uuid })}
                 className="text-white transition-all duration-150
                 ease-out hover:opacity-60 rounded-lg px-2 py-1
               bg-dark-link-button dark:bg-dark-link-button"

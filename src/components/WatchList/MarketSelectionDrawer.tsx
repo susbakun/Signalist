@@ -58,7 +58,7 @@ export const MarketSelectionDrawer = ({
             value={searchTerm}
             autoFocus
             onChange={handleSearch}
-            className="custom-input inline-block"
+            className="custom-input w-full pl-4 inline-block"
             placeholder="Search"
           />
         </div>

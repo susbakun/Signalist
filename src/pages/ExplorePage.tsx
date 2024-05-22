@@ -49,7 +49,7 @@ const ExplorePosts = () => {
 
 export const RightSideBar = () => {
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir Aryan')
+  const me = users.find((user) => user.username === 'Amir_Aryan')
   let selectedUsers = [...users.filter((user) => user.username !== me?.username)]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
   return (

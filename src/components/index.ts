@@ -1,4 +1,5 @@
 export * from './AppLayout'
+export * from './BluredComponent/BluredComponent'
 export * from './Button/CreatePostButton'
 export * from './Button/CreateSignalButton'
 export * from './Button/MoreOptionsButton/MoreOptionsButton'

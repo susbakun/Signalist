@@ -1,9 +1,9 @@
 import { PostModel } from '@/shared/models'
 
-export const PostBody = ({ content }: { content: PostModel['content'] }) => {
-  return (
-    <div>
-      <p>{content}</p>
-    </div>
-  )
+type PostBodyProps = {
+  content: PostModel['content']
+}
+
+export const PostBody = ({ content }: PostBodyProps) => {
+  return <div>{content}</div>
 }
