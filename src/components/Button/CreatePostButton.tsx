@@ -1,7 +1,6 @@
 import Tippy from '@tippyjs/react'
 import { GoPlusCircle } from 'react-icons/go'
 import { roundArrow } from 'tippy.js'
-import 'tippy.js/dist/svg-arrow.css'
 
 type CreatePostButtonProps = {
   handleOpenModal: () => void

@@ -1,4 +1,5 @@
 import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from '@/components'
+import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
 import { SignalModel } from '@/shared/models'
 import { getFormattedMarketName, getMarketScale, isDarkMode } from '@/utils'
 import moment from 'jalali-moment'
@@ -25,6 +26,8 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
 
   const { publisher } = signal
 
+  const { amISubscribed } = useIsUserSubscribed(publisher)
+
   const marketName = getFormattedMarketName(signal.market.name)
   const marketScale = getMarketScale(signal.market.name)
 
@@ -46,12 +49,12 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      {signal.isPremium && !signal.subscribed ? (
+      {signal.isPremium && !amISubscribed ? (
         <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
           <BluredSignalComponent />
 
           <Link
-            to={`${publisher.username}`}
+            to={`/${publisher.username}/premium`}
             className="absolute top-[50%] left-[50%] -translate-x-[50%]
         -translate-y-[50%] action-button text-white bg-gradient-to-r
         dark:from-dark-link-button from-primary-link-button to-[#ff00e5]

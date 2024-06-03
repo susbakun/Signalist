@@ -1,4 +1,4 @@
-import { MoreOptionsButton } from '@/components'
+import { MoreOptionsButton, SubscriberSign } from '@/components'
 import { PostModel } from '@/shared/models'
 import { formatDateFromMS, getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
@@ -9,9 +9,17 @@ type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
   postContent: PostModel['content']
   postId: PostModel['id']
+  subscribed?: boolean
 }
 
-export const PostTopBar = ({ postId, name, username, imageUrl, date }: PostUserInfoProps) => {
+export const PostTopBar = ({
+  postId,
+  name,
+  username,
+  imageUrl,
+  date,
+  subscribed
+}: PostUserInfoProps) => {
   const placeholder = getAvatarPlaceholder(name)
   const postDate = formatDateFromMS(date)
 
@@ -27,6 +35,7 @@ export const PostTopBar = ({ postId, name, username, imageUrl, date }: PostUserI
           </div>
         </Link>
       </div>
+      {subscribed && <SubscriberSign small />}
       <MoreOptionsButton postId={postId} username={username} />
     </div>
   )

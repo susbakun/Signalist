@@ -68,7 +68,7 @@ export const UserFollowingsModal = () => {
               ))
             ) : (
               <EmptyPage className="h-[80%] w-full flex items-center justify-center">
-                <p>No results found</p>
+                <p className="font-normal">No results found</p>
               </EmptyPage>
             )}
           </div>

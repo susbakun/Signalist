@@ -191,8 +191,23 @@ export const usersMock: AccountModel[] = [
   {
     name: 'steve',
     username: 'stuDent',
+    susbscriptionPlan: [
+      { duration: '30 days', price: 29.99 },
+      { duration: '3 months', price: 79.99 },
+      { duration: '6 months', price: 159.99 },
+      { duration: '12 months', price: 349.99 }
+    ],
     email: 'stevejobs@gamil.com',
-    subscribed: true,
+    subscribers: [
+      {
+        username: 'Amir_Aryan',
+        expireDate: new Date().getTime() + 250 * 24 * 60 * 60 * 1000
+      },
+      {
+        username: 'mosi',
+        expireDate: new Date().getTime() + 21 * 24 * 60 * 60 * 1000
+      }
+    ],
     hasPremium: true,
     bio: "I'm committed to building a supportive and knowledgeable trading community. Follow my signals and join a network of like-minded individuals striving for excellence in the crypto markets. Let's navigate the world of cryptocurrency trading together and achieve financial success.",
     followers: [
@@ -251,6 +266,22 @@ export const usersMock: AccountModel[] = [
     name: 'Amir Pouya',
     username: 'AmirP',
     hasPremium: true,
+    susbscriptionPlan: [
+      { duration: '30 days', price: 59.99 },
+      { duration: '3 months', price: 159.99 },
+      { duration: '6 months', price: 349.99 },
+      { duration: '12 months', price: 709.99 }
+    ],
+    subscribers: [
+      {
+        username: 'hamihami',
+        expireDate: new Date().getTime() + 20 * 24 * 60 * 60 * 1000
+      },
+      {
+        username: 'Alid',
+        expireDate: new Date().getTime() + 24 * 60 * 60 * 1000
+      }
+    ],
     email: 'amirpouya@gmail.com',
     bio: 'Join me on this exciting journey in the crypto trading world. Together, we can turn market opportunities into profitable trades. Happy trading! 🚀📈',
     followers: [
@@ -346,7 +377,6 @@ export const signalsMock: SignalModel[] = [
     status: 'closed',
     likes: 1000,
     isPremium: true,
-    subscribed: true,
     showChart: true,
     targets: [
       { id: v4(), value: 2900, touched: true },

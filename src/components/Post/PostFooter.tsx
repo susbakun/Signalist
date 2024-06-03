@@ -3,7 +3,7 @@ import { PostModel } from '@/shared/models'
 import { cn, isDarkMode } from '@/utils'
 import millify from 'millify'
 import { useState } from 'react'
-import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa'
+import { FaBookmark, FaCommentSlash, FaRegBookmark, FaRegComment } from 'react-icons/fa'
 import { HiOutlineLightningBolt } from 'react-icons/hi'
 import { HiBolt } from 'react-icons/hi2'
 import { useDispatch } from 'react-redux'
@@ -15,9 +15,10 @@ type PostFooterProps = {
   post: Omit<PostModel, 'comments'>
   comments?: PostModel['comments']
   simplified?: boolean
+  amISubscribed?: boolean
 }
 
-export const PostFooter = ({ post, comments, simplified }: PostFooterProps) => {
+export const PostFooter = ({ post, comments, simplified, amISubscribed }: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
@@ -98,8 +99,16 @@ export const PostFooter = ({ post, comments, simplified }: PostFooterProps) => {
           </div>
           {comments && (
             <div className="flex items-center gap-1">
-              <button onClick={handleOpenCommentsModal} className="action-button">
-                <FaRegComment className="w-5 h-5" />
+              <button
+                onClick={handleOpenCommentsModal}
+                className="action-button"
+                disabled={!amISubscribed && post.isPremium}
+              >
+                {post.isPremium && !amISubscribed ? (
+                  <FaCommentSlash className="w-5 h-5" />
+                ) : (
+                  <FaRegComment className="w-5 h-5" />
+                )}
               </button>
               <span className="detail-text">{millify(comments.length)}</span>
             </div>

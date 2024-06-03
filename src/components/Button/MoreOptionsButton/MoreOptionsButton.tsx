@@ -13,10 +13,6 @@ type MoreOptionsButtonProps = {
   username: AccountModel['username']
 }
 
-type OutletContextType = {
-  handleOpenEditModal: () => void
-}
-
 export const MoreOptionsButton = ({
   postId,
   username,
@@ -24,8 +20,6 @@ export const MoreOptionsButton = ({
   isForComment = false
 }: MoreOptionsButtonProps) => {
   const [open, setIsOpen] = useState(false)
-
-  // const { handleOpenEditModal } = useOutletContext<OutletContextType>()
 
   const users = useAppSelector((state) => state.users)
   const me = users.find((user) => user.username === 'Amir_Aryan')
@@ -41,7 +35,7 @@ export const MoreOptionsButton = ({
   if (me?.username === username && !signalId)
     return (
       <>
-        <button onClick={handleOpenEditModal} className="action-button">
+        <button className="action-button">
           <MdOutlineModeEditOutline className="w-6 h-6" />
         </button>
       </>

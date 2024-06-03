@@ -1,9 +1,9 @@
-import { AccountPreview, Header, Navbar } from '@/components'
+import { AccountPreview, Header, Navbar, UserPosts, UserReplies, UserSignals } from '@/components'
 import {
   ExplorePage,
   FollowingsPosts,
   HomePage,
-  Messages,
+  MessagesPage,
   PremiumPage,
   SignalsPage,
   SuggestionsPosts,
@@ -14,10 +14,7 @@ import { ComponentProps } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { UserFollowersModal } from './Modal/UserFollowersModal'
 import { UserFollowingsModal } from './Modal/UserFollowingsModal'
-import { UserPremiumModal } from './Modal/UserPremiumModal'
-import { UserPosts } from './UserPosts'
-import { UserReplies } from './UserReplies'
-import { UserSignals } from './UserSignals'
+import { UserPremiumModal } from './Modal/UserPremium/UserPremiumModal'
 
 export const RootLayout = ({ children, ...props }: ComponentProps<'main'>) => {
   return <main {...props}>{children}</main>
@@ -65,7 +62,7 @@ export const AppContent = () => {
           <Route path="followers" element={<UserFollowersModal />} />
           <Route path="premium" element={<UserPremiumModal />} />
         </Route>
-        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages" element={<MessagesPage />} />
       </Routes>
     </div>
   )

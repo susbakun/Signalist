@@ -1,4 +1,4 @@
-import { SimplifiedAccountType, StatusType } from './types'
+import { SimplifiedAccountType, StatusType, SubscriberType, SubscriptionPlanType } from './types'
 
 export type CryptoResponseType = {
   status: string
@@ -83,7 +83,8 @@ export type AccountModel = {
   imageUrl?: string
   bio?: string
   score: number
-  subscribed?: boolean
+  subscribers?: SubscriberType[]
+  susbscriptionPlan?: SubscriptionPlanType
   hasPremium?: boolean
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
@@ -105,7 +106,6 @@ export type PostModel = {
   likes: number
   comments: CommentModel[]
   isPremium: boolean
-  subscribed?: boolean
   publisher: SimplifiedAccountType
 }
 
@@ -125,7 +125,6 @@ export type SignalModel = {
   likes: number
   description?: string
   showChart: boolean
-  subscribed?: boolean
   isPremium: boolean
   publisher: SimplifiedAccountType
 }

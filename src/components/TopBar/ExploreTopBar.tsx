@@ -9,7 +9,6 @@ import { UserPreview } from '../Shared/UserPreview'
 export const ExploreTopBar = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [searched, setSearched] = useState('')
-  console.log(isInputFocused)
 
   const users = useAppSelector((state) => state.users)
 
@@ -93,7 +92,7 @@ export const ExploreTopBar = () => {
               border-gray-600/50 absolute top-12 left-[11%] right-[11%] 
               dark:bg-dark-main"
             >
-              <p>Search for People</p>
+              <p className="font-normal">Search for People</p>
             </EmptyPage>
           ))}
       </div>

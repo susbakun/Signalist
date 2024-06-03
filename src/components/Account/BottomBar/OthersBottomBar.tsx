@@ -1,40 +1,35 @@
+import { UserUnfollowModal } from '@/components'
+import { ShaerUserButton } from '@/components/Button/ShaerUserButton'
 import { followUser, unfollowUser } from '@/features/User/usersSlice'
+import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
 import { AccountModel } from '@/shared/models'
 import { isDarkMode } from '@/utils'
-import Tippy from '@tippyjs/react'
 import { useMemo, useState } from 'react'
 import { BiMessage } from 'react-icons/bi'
-import { IoLockClosed, IoLockOpenOutline, IoShareOutline } from 'react-icons/io5'
+import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { roundArrow } from 'tippy.js'
-import { UserUnfollowModal } from './Modal/UserUnfollowModal'
 
-type HaminjoriProps = {
-  followingUsername: AccountModel['username']
-  subscribed?: boolean
-  follower?: AccountModel
-  hasPremium?: boolean
+type OthersBottomBarProps = {
+  userAccount: AccountModel
+  myAccount?: AccountModel
 }
 
-export const Haminjori = ({
-  followingUsername,
-  follower,
-  subscribed,
-  hasPremium
-}: HaminjoriProps) => {
+export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
 
   const isFollowed = useMemo(
-    () => follower?.followings.some((following) => following.username === followingUsername),
-    [follower, followingUsername]
+    () => myAccount?.followings.some((following) => following.username === userAccount.username),
+    [myAccount, userAccount]
   )
   const dispatch = useDispatch()
 
+  const { amISubscribed } = useIsUserSubscribed(userAccount)
+
   const handleFollowUser = () => {
     if (!isFollowed) {
-      toast.success(`You followed user @${followingUsername}`, {
+      toast.success(`You followed user @${userAccount.username}`, {
         position: 'bottom-left',
         autoClose: 5000,
         hideProgressBar: false,
@@ -44,14 +39,19 @@ export const Haminjori = ({
         progress: undefined,
         theme: isDarkMode() ? 'dark' : 'light'
       })
-      dispatch(followUser({ followerUsername: follower?.username, followingUsername }))
+      dispatch(
+        followUser({
+          followerUsername: myAccount?.username,
+          followingUsername: userAccount.username
+        })
+      )
     } else {
       setOpenUnfollowModal(true)
     }
   }
 
   const handleAcceptUnfollowModal = () => {
-    toast.warn(`You unfollowed user @${followingUsername}`, {
+    toast.warn(`You unfollowed user @${userAccount.username}`, {
       position: 'bottom-left',
       autoClose: 5000,
       hideProgressBar: false,
@@ -61,7 +61,12 @@ export const Haminjori = ({
       progress: undefined,
       theme: isDarkMode() ? 'dark' : 'light'
     })
-    dispatch(unfollowUser({ followerUsername: follower?.username, followingUsername }))
+    dispatch(
+      unfollowUser({
+        followerUsername: myAccount?.username,
+        followingUsername: userAccount.username
+      })
+    )
     setOpenUnfollowModal(false)
   }
 
@@ -92,7 +97,7 @@ export const Haminjori = ({
               <BiMessage className="w-5 h-6" />
             </Link>
           </div>
-          {hasPremium && (
+          {userAccount.hasPremium && (
             <div>
               <Link
                 to="premium"
@@ -101,35 +106,16 @@ export const Haminjori = ({
                     dark:to-[#ff00e5] rounded-md action-button
                   text-white flex gap-1 items-center"
               >
-                {subscribed ? 'charge premium' : 'premium'}
-                {subscribed ? <IoLockOpenOutline /> : <IoLockClosed />}
+                {amISubscribed ? 'charge premium' : 'premium'}
+                {amISubscribed ? <IoLockOpenOutline /> : <IoLockClosed />}
               </Link>
             </div>
           )}
         </div>
-        <div>
-          <Tippy
-            content="share user"
-            className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-                rounded-md px-1 py-[1px] text-sm"
-            delay={[1000, 0]}
-            placement="top"
-            animation="fade"
-            arrow={roundArrow}
-            duration={10}
-            hideOnClick={true}
-          >
-            <button
-              className="action-button
-                text-black/90 dark:text-white"
-            >
-              <IoShareOutline className="w-6 h-6" />
-            </button>
-          </Tippy>
-        </div>
+        <ShaerUserButton />
       </div>
       <UserUnfollowModal
-        username={followingUsername}
+        username={userAccount.username}
         openModal={openUnfollowModal}
         handleCloseModal={handleCloseModal}
         handleAcceptUnfollowModal={handleAcceptUnfollowModal}

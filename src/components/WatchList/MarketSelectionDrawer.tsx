@@ -64,7 +64,7 @@ export const MarketSelectionDrawer = ({
         </div>
         {!notSelectedMarkets.length ? (
           <EmptyPage className="flex justify-center items-center h-[80vh]">
-            <h3>No markets found!</h3>
+            <h3 className="font-normal">No markets found!</h3>
           </EmptyPage>
         ) : (
           <SelectionTable selectMarket={selectMarket} notSelectedMarkets={notSelectedMarkets} />

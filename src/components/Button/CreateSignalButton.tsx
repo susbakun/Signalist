@@ -1,7 +1,6 @@
 import Tippy from '@tippyjs/react'
 import { HiMiniSignal } from 'react-icons/hi2'
 import { roundArrow } from 'tippy.js'
-import 'tippy.js/dist/svg-arrow.css'
 
 type CreateSignalButtonProps = {
   handleOpenModal: () => void

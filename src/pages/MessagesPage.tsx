@@ -36,7 +36,7 @@ const messages = {
   ]
 }
 
-export const Messages = () => {
+export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | number>(null)
 
   return (

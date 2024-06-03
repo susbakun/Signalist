@@ -131,6 +131,15 @@
     @apply text-sm text-gray-600 dark:text-white/60;
   }
 
+  .subscription-bundle {
+    @apply flex justify-between;
+    @apply bg-gradient-to-r from-primary-link-button to-[#ff00e5];
+    @apply dark:from-dark-link-button dark:to-[#ff00e5];
+    @apply px-2 py-3 mb-2;
+    @apply transition-all ease-linear hover:scale-[1.15];
+    @apply w-full rounded-md cursor-pointer text-white;
+  }
+
   .custom-modal::-webkit-scrollbar {
     display: none;
   }

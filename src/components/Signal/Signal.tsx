@@ -1,5 +1,6 @@
 import { SignalContext, SignalFooter, SignalTopBar } from '@/components'
 import { updateSignalsState } from '@/features/Signal/signalsSlice'
+import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
 import { useGetCryptosQuery } from '@/services/cryptoApi'
 import { SignalModel } from '@/shared/models'
 import { useEffect, useState } from 'react'
@@ -19,6 +20,8 @@ export const Signal = ({ signal, simplified }: SignalProps) => {
 
   const { publisher } = signal
 
+  const { amISubscribed } = useIsUserSubscribed(publisher)
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().getTime())
@@ -34,7 +37,7 @@ export const Signal = ({ signal, simplified }: SignalProps) => {
     border-b-gray-600/20 dark:border-b-white/20"
     >
       <SignalTopBar
-        subscribed={signal.subscribed}
+        subscribed={amISubscribed}
         publisher={publisher}
         date={signal.date}
         signalId={signal.id}

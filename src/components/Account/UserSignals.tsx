@@ -10,13 +10,14 @@ import { roundArrow } from 'tippy.js'
 export const UserSignals = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
 
-  const { username: myUsername } = useParams()
-  const users = useAppSelector((store) => store.users)
-  const me = users.find((user) => user.username === myUsername)
+  const { username: userUsername } = useParams()
+  const userAccount = useAppSelector((store) => store.users).find(
+    (user) => user.username === userUsername
+  )
   const mySignals = useAppSelector((state) => state.signals)
-    .filter((signal) => signal.publisher.username === me?.username)
+    .filter((signal) => signal.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
-  const isItmyAccount = me?.username === 'Amir_Aryan'
+  const isItmyAccount = userAccount?.username === 'Amir_Aryan'
 
   const handleCloseCreateSignalModal = () => {
     setOpenCreateSignalModal(false)
@@ -29,7 +30,7 @@ export const UserSignals = () => {
   if (mySignals.length === 0)
     return (
       <EmptyPage className="text-center mt-8">
-        <h3>No signals found</h3>
+        <h3 className="font-normal">No signals found</h3>
       </EmptyPage>
     )
 

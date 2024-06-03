@@ -8,7 +8,7 @@ export const SuggestionsPosts = () => {
   if (!sortedPosts.length)
     return (
       <EmptyPage className="flex justify-center items-center h-[80vh]">
-        <h3>There are no posts yet</h3>
+        <h3 className="font-normal">There are no posts yet</h3>
       </EmptyPage>
     )
   return (

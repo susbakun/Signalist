@@ -1,9 +1,8 @@
-import { MoreOptionsButton } from '@/components'
+import { MoreOptionsButton, SubscriberSign } from '@/components'
 import { SignalModel } from '@/shared/models'
 import { getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import moment from 'jalali-moment'
-import { TbPremiumRights } from 'react-icons/tb'
 import { Link } from 'react-router-dom'
 
 type SignalTopBarProps = {
@@ -28,7 +27,7 @@ export const SignalTopBar = ({ date, publisher, signalId, subscribed }: SignalTo
         </Link>
       </div>
       <div className="flex gap-4 items-center">
-        {subscribed && <TbPremiumRights className="w-4 h-4 text-yellow-400" />}
+        {subscribed && <SubscriberSign small />}
         <MoreOptionsButton signalId={signalId} username={publisher.username} />
       </div>
     </div>
