@@ -24,7 +24,7 @@ export const ExplorePage = () => {
 
   return (
     <div className="flex">
-      <ExplorePosts />
+      <ExplorePosts handleOpenEditPostModal={hanldeOpenCreatePostModal} />
       <RightSideBar />
       <CreatePostButton handleOpenModal={hanldeOpenCreatePostModal} />
       <CreatePostModal
@@ -35,14 +35,18 @@ export const ExplorePage = () => {
   )
 }
 
-const ExplorePosts = () => {
+type ExplorePostsProps = {
+  handleOpenEditPostModal: (content?: string) => void
+}
+
+const ExplorePosts = ({ handleOpenEditPostModal }: ExplorePostsProps) => {
   return (
     <div
       className="flex-1 border-r-gray-600/20 dark:border-r-white/20
       border-r"
     >
       <ExploreTopBar />
-      <Outlet />
+      <Outlet context={{ handleOpenEditPostModal }} />
     </div>
   )
 }

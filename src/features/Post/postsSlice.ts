@@ -78,7 +78,7 @@ const postsSlice = createSlice({
       })
     },
     postComment: (state, action) => {
-      state = state.map((post) => {
+      return state.map((post) => {
         if (post.id === action.payload.postId) {
           const postComments = post.comments
           const newComment: CommentModel = {
@@ -94,6 +94,14 @@ const postsSlice = createSlice({
         }
         return post
       })
+    },
+    editPost: (state, action) => {
+      return state.map((post) => {
+        if (post.id === action.payload.postId) {
+          return { ...post, content: action.payload.postContent }
+        }
+        return post
+      })
     }
   }
 })
@@ -105,6 +113,7 @@ export const {
   likePost,
   dislikePost,
   likeComment,
+  editPost,
   postComment,
   dislikeComment
 } = postsSlice.actions

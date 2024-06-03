@@ -253,14 +253,15 @@ export const UserPage = () => {
                   </button>
                 </div>
                 <div>
-                  <button
+                  <Link
+                    to="/premium"
                     className="px-2 py-1 bg-gradient-to-r
                   dark:from-dark-link-button from-primary-link-button to-[#ff00e5]
                   dark:to-[#ff00e5] rounded-md action-button
                 text-white"
                   >
                     Manage Premium
-                  </button>
+                  </Link>
                 </div>
               </div>
               <div>

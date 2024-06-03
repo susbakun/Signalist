@@ -5,6 +5,7 @@ import moment from 'jalali-moment'
 import { useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { IoMdLink } from 'react-icons/io'
+import { Link } from 'react-router-dom'
 import { AdvancedRealTimeChart } from 'react-ts-tradingview-widgets'
 
 type SignalContextProps = {
@@ -21,6 +22,8 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
   const [isTargetCopied, setIsTargetCopied] = useState<IsTargetCopiedType>(() => {
     return signal.targets.map((target) => ({ id: target.id, isCopied: false }))
   })
+
+  const { publisher } = signal
 
   const marketName = getFormattedMarketName(signal.market.name)
   const marketScale = getMarketScale(signal.market.name)
@@ -47,14 +50,15 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
         <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
           <BluredSignalComponent />
 
-          <button
+          <Link
+            to={`${publisher.username}`}
             className="absolute top-[50%] left-[50%] -translate-x-[50%]
         -translate-y-[50%] action-button text-white bg-gradient-to-r
         dark:from-dark-link-button from-primary-link-button to-[#ff00e5]
         dark:to-[#ff00e5] px-3 py-2 rounded-md"
           >
             Subscribe
-          </button>
+          </Link>
         </div>
       ) : (
         <>

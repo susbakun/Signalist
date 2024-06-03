@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 
 type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
+  postContent: PostModel['content']
   postId: PostModel['id']
 }
 

@@ -32,7 +32,14 @@ export const WatchList = () => {
     }
   }, [cryptosList])
 
-  if (!cryptos?.length || isLoading) return <Loader className="h-[80vh]" />
+  if (!cryptos?.length || isLoading)
+    return (
+      <>
+        <h4 className="text-xl">WatchList</h4>
+        <Loader className="h-[80vh]" />
+      </>
+    )
+
   return (
     <section>
       <div className="flex justify-between px-2 mb-4">

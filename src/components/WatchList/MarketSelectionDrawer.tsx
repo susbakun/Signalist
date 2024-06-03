@@ -23,7 +23,7 @@ export const MarketSelectionDrawer = ({
   const [drawerCoins, setDrawerCoins] = useState<CryptoResponseType['data']['coins']>([])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const { data: cryptosList } = useGetCryptosQuery(20)
+  const { data: cryptosList } = useGetCryptosQuery(50)
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)

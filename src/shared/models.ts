@@ -1,4 +1,4 @@
-import { StatusType } from './types'
+import { SimplifiedAccountType, StatusType } from './types'
 
 export type CryptoResponseType = {
   status: string
@@ -79,34 +79,34 @@ export type CryptoNewsType = {
 export type AccountModel = {
   name: string
   username: string
-  bio?: string
-  subscribed?: boolean
-  hasPremium?: boolean
   email: string
   imageUrl?: string
-  followings: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>[]
-  followers: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>[]
+  bio?: string
   score: number
+  subscribed?: boolean
+  hasPremium?: boolean
+  followings: SimplifiedAccountType[]
+  followers: SimplifiedAccountType[]
 }
 
 export type CommentModel = {
   postId: PostModel['id']
-  publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
   commentId: string
   body: string
   likes: number
   date: number
+  publisher: SimplifiedAccountType
 }
 
 export type PostModel = {
   id: string
-  publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
-  date: number
   content: string
+  date: number
   likes: number
+  comments: CommentModel[]
   isPremium: boolean
   subscribed?: boolean
-  comments: CommentModel[]
+  publisher: SimplifiedAccountType
 }
 
 export type SignalModel = {
@@ -115,17 +115,17 @@ export type SignalModel = {
     name: string
     uuid: string
   }
-  publisher: Omit<AccountModel, 'followings' | 'followers' | 'score' | 'email'>
   entry: number
   stoploss: number
   targets: { id: string; value: number; touched: boolean | undefined }[]
   openTime: number
   closeTime: number
-  date: number
-  subscribed?: boolean
-  description?: string
-  likes: number
-  showChart: boolean
-  isPremium: boolean
   status: StatusType
+  date: number
+  likes: number
+  description?: string
+  showChart: boolean
+  subscribed?: boolean
+  isPremium: boolean
+  publisher: SimplifiedAccountType
 }

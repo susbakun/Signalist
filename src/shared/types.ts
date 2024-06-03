@@ -1,6 +1,16 @@
 import RootStore from '@/app/store'
-import { CryptoResponseType } from './models'
+import { AccountModel, CryptoResponseType } from './models'
 
 export type RootState = ReturnType<typeof RootStore.getState>
 export type CoinType = CryptoResponseType['data']['coins'][0]
 export type StatusType = 'closed' | 'open' | 'not_opened'
+export type SimplifiedAccountType = Omit<
+  AccountModel,
+  'followings' | 'followers' | 'score' | 'email'
+>
+export type SubscriptionPlanType = {
+  '30 days': number
+  '3 months': number
+  '6 months': number
+  '12 months': number
+}

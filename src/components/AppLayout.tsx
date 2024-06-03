@@ -27,7 +27,11 @@ export const AppSideBar = () => {
   const location = useLocation()
   const isInMessages = location.pathname === '/messages'
   return (
-    <aside className={cn('main-sidebar sticky top-0 w-[25%]', { 'w-fit': isInMessages })}>
+    <aside
+      className={cn('main-sidebar sticky top-0 w-[25%]', {
+        'w-fit': isInMessages
+      })}
+    >
       {!isInMessages && (
         <>
           <Header />
