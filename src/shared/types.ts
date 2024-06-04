@@ -8,7 +8,8 @@ export type SimplifiedAccountType = Omit<
   AccountModel,
   'followings' | 'followers' | 'score' | 'email'
 >
-export type SubscriptionPlanType = { duration: string; price: number }[]
+type DurationType = '30 days' | '3 months' | '6 months' | '12 months'
+export type SubscriptionPlanType = { duration: DurationType; price: number }[]
 export type SubscriberType = {
   username: AccountModel['username']
   expireDate: number
