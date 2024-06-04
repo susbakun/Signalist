@@ -1,4 +1,10 @@
-import { SimplifiedAccountType, StatusType, SubscriberType, SubscriptionPlanType } from './types'
+import {
+  ChatType,
+  SimplifiedAccountType,
+  StatusType,
+  SubscriberType,
+  SubscriptionPlanType
+} from './types'
 
 export type CryptoResponseType = {
   status: string
@@ -127,4 +133,13 @@ export type SignalModel = {
   showChart: boolean
   isPremium: boolean
   publisher: SimplifiedAccountType
+}
+
+export type MessageModel = {
+  [username: AccountModel['username']]: {
+    [k: string]: {
+      userInfo: SimplifiedAccountType
+      messages: ChatType[]
+    }
+  }
 }

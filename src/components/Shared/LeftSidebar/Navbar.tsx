@@ -1,3 +1,4 @@
+import { messagesRoutRegExp } from '@/shared/constants'
 import { cn } from '@/utils'
 import { ReactNode } from 'react'
 import { BiSolidSearch } from 'react-icons/bi'
@@ -15,7 +16,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 
 export const Navbar = () => {
   const location = useLocation()
-  const isInMessages = location.pathname === '/messages'
+  const isInMessages = messagesRoutRegExp.test(location.pathname)
 
   // Function to determine the appropriate icon based on the active link
   const getIcon = (pathREG: RegExp, activeIcon: ReactNode, inactiveIcon: ReactNode) => {

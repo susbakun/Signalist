@@ -1,4 +1,4 @@
-import { AccountModel, PostModel, SignalModel } from '@/shared/models'
+import { AccountModel, MessageModel, PostModel, SignalModel } from '@/shared/models'
 import { v4 } from 'uuid'
 
 export const postsMock: PostModel[] = [
@@ -395,3 +395,89 @@ export const signalsMock: SignalModel[] = [
     }
   }
 ]
+
+export const messagesMock: MessageModel = {
+  Amir_Aryan: {
+    '1': {
+      userInfo: {
+        name: 'Amir Pouya',
+        username: 'AmirP',
+        imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg'
+      },
+      messages: [
+        {
+          sender: {
+            name: 'Amir Pouya',
+            username: 'AmirP',
+            imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg'
+          },
+          text: 'Hey there!',
+          date: new Date().getTime() - 38 * 24 * 60 * 60 * 1000
+        },
+        {
+          sender: {
+            name: 'Amirsaeed Aryanmehr',
+            username: 'Amir_Aryan',
+            imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+          },
+          text: 'Hello!',
+          date: new Date().getTime() - 24 * 60 * 60 * 1000
+        }
+      ]
+    },
+    '2': {
+      userInfo: {
+        name: 'steve',
+        username: 'stuDent',
+        imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+      },
+      messages: [
+        {
+          sender: {
+            name: 'steve',
+            username: 'stuDent',
+            imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+          },
+          text: 'How are you?',
+          date: new Date().getTime() - 4 * 60 * 60 * 1000
+        },
+        {
+          sender: {
+            name: 'Amirsaeed Aryanmehr',
+            username: 'Amir_Aryan',
+            imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+          },
+          text: 'I am good, thanks!',
+          date: new Date().getTime() - 60 * 60 * 1000
+        }
+      ]
+    },
+    '3': {
+      userInfo: {
+        name: 'Hamid Naseri',
+        username: 'hamihami',
+        imageUrl: 'https://i.pravatar.cc/150?img=8'
+      },
+      messages: [
+        {
+          sender: {
+            name: 'Hamid Naseri',
+            username: 'hamihami',
+            imageUrl: 'https://i.pravatar.cc/150?img=8'
+          },
+          text: 'See you soon.',
+          date: new Date().getTime() - 2 * 24 * 60 * 60 * 1000
+        },
+        {
+          sender: {
+            name: 'Amirsaeed Aryanmehr',
+            username: 'Amir_Aryan',
+            imageUrl: 'https://flowbite.com/docs/images/people/profile-picture-5.jpg'
+          },
+          text: 'Yes, see you!',
+          date: new Date().getTime() - 1.5 * 24 * 60 * 60 * 1000
+        }
+      ]
+    }
+  }
+}

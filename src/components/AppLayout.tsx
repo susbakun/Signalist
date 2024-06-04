@@ -1,4 +1,12 @@
-import { AccountPreview, Header, Navbar, UserPosts, UserReplies, UserSignals } from '@/components'
+import {
+  AccountPreview,
+  Header,
+  MessageRoom,
+  Navbar,
+  UserPosts,
+  UserReplies,
+  UserSignals
+} from '@/components'
 import {
   ExplorePage,
   FollowingsPosts,
@@ -9,6 +17,7 @@ import {
   SuggestionsPosts,
   UserPage
 } from '@/pages'
+import { messagesRoutRegExp } from '@/shared/constants'
 import { cn } from '@/utils'
 import { ComponentProps } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
@@ -22,7 +31,8 @@ export const RootLayout = ({ children, ...props }: ComponentProps<'main'>) => {
 
 export const AppSideBar = () => {
   const location = useLocation()
-  const isInMessages = location.pathname === '/messages'
+  const isInMessages = messagesRoutRegExp.test(location.pathname)
+
   return (
     <aside
       className={cn('main-sidebar sticky top-0 w-[25%]', {
@@ -62,7 +72,9 @@ export const AppContent = () => {
           <Route path="followers" element={<UserFollowersModal />} />
           <Route path="premium" element={<UserPremiumModal />} />
         </Route>
-        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/messages" element={<MessagesPage />}>
+          <Route path=":id" element={<MessageRoom />} />
+        </Route>
       </Routes>
     </div>
   )

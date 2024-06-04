@@ -14,3 +14,4 @@ export type SubscriberType = {
   username: AccountModel['username']
   expireDate: number
 }
+export type ChatType = { sender: SimplifiedAccountType; text: string; date: number }
