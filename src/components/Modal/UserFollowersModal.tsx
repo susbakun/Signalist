@@ -1,10 +1,10 @@
+import { UserPreview } from '@/components'
 import { useAppSelector } from '@/features/Post/postsSlice'
 import { EmptyPage } from '@/pages'
 import { cn } from '@/utils'
 import { Modal } from 'flowbite-react'
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { UserPreview } from '../Shared/UserPreview'
 
 export const UserFollowersModal = () => {
   const [openModal, setOpenModal] = useState(true)

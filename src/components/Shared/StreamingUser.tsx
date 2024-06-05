@@ -6,9 +6,10 @@ import { TbExternalLink } from 'react-icons/tb'
 import { Link } from 'react-router-dom'
 import { twMerge } from 'tailwind-merge'
 
-type UserPreviewProps = Pick<AccountModel, 'name' | 'username' | 'imageUrl'> & ComponentProps<'div'>
+type StreamingUserProps = Pick<AccountModel, 'name' | 'username' | 'imageUrl'> &
+  ComponentProps<'div'>
 
-export const StreamingUser = ({ name, username, imageUrl, className }: UserPreviewProps) => {
+export const StreamingUser = ({ name, username, imageUrl, className }: StreamingUserProps) => {
   const placeholder = getAvatarPlaceholder(name)
 
   return (

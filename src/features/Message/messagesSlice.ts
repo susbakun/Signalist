@@ -11,7 +11,7 @@ const messagesSlice = createSlice({
   initialState,
   reducers: {
     createRoom: (state, action) => {
-      state[action.payload.username][v4()] = { userInfo: action.payload.userInfo, messages: [] }
+      state[action.payload.myUsername][v4()] = { userInfo: action.payload.userInfo, messages: [] }
     },
     sendMessage: (state, action) => {
       const newMessage = {
