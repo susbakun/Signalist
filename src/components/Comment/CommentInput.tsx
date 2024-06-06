@@ -1,6 +1,6 @@
 import { postComment } from '@/features/Post/postsSlice'
 import { CommentModel, PostModel } from '@/shared/models'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 export type CommentInputProps = {
@@ -9,8 +9,9 @@ export type CommentInputProps = {
 }
 
 export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) => {
-  const dispatch = useDispatch()
   const [commentBody, setCommentBody] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const dispatch = useDispatch()
   const handleCommentInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setCommentBody(e.target.value)
   }
@@ -21,6 +22,13 @@ export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) =>
       handlePostComment()
     }
   }
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+    }
+  }, [commentBody])
 
   const handlePostComment = () => {
     setCommentBody('')
@@ -34,12 +42,13 @@ export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) =>
   }
   return (
     <div
-      className="h-[50px] dark:bg-gray-600 sticky bottom-0
+      className="dark:bg-gray-600 sticky bottom-0
       w-full mt-auto flex justify-center border-t
     border-t-white/30 px-2 pb-0 items-start
       bg-gray-200"
     >
       <textarea
+        ref={textareaRef}
         value={commentBody}
         onChange={handleCommentInputChange}
         onKeyDown={handleKeyDown}

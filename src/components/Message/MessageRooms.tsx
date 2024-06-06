@@ -108,6 +108,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
       <CreateMessageModal
         openModal={showCreateMessageModal}
         handleCloseModal={handleCloseCreateMessageModal}
+        myMessages={myMessages}
       />
     </>
   )

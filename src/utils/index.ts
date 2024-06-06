@@ -1,5 +1,6 @@
 import { SignalModel } from '@/shared/models'
 import clsx, { ClassValue } from 'clsx'
+import moment from 'jalali-moment'
 import { twMerge } from 'tailwind-merge'
 
 export const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
@@ -40,4 +41,15 @@ export const getFormattedMarketName = (marketName: SignalModel['market']['name']
 
 export const getMarketScale = (marketName: SignalModel['market']['name']) => {
   return marketName.split('/')[1]
+}
+
+export const formatMessageDate = (date: number) => {
+  return moment(date).calendar(undefined, {
+    sameDay: '[Today]',
+    nextDay: '[Tomorrow]',
+    nextWeek: 'dddd',
+    lastDay: '[Yesterday]',
+    lastWeek: '[Last] dddd',
+    sameElse: 'MMM D, YYYY'
+  })
 }

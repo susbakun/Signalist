@@ -2,7 +2,6 @@ import { messagesMock } from '@/assets/mocks'
 import { RootState } from '@/shared/types'
 import { createSlice } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useSelector } from 'react-redux'
-import { v4 } from 'uuid'
 
 const initialState = messagesMock
 
@@ -11,7 +10,10 @@ const messagesSlice = createSlice({
   initialState,
   reducers: {
     createRoom: (state, action) => {
-      state[action.payload.myUsername][v4()] = { userInfo: action.payload.userInfo, messages: [] }
+      state[action.payload.myUsername][action.payload.roomId] = {
+        userInfo: action.payload.userInfo,
+        messages: []
+      }
     },
     sendMessage: (state, action) => {
       const newMessage = {

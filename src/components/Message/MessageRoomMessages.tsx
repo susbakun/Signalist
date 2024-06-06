@@ -1,4 +1,5 @@
 import { ChatType } from '@/shared/types'
+import { formatMessageDate } from '@/utils'
 import moment from 'jalali-moment'
 
 type MessageRoomMessagesProps = {
@@ -10,16 +11,6 @@ export const MessageRoomMessages = ({
   handleBlurEmojiPicker,
   messages
 }: MessageRoomMessagesProps) => {
-  const formatMessageDate = (date: number) => {
-    return moment(date).calendar(undefined, {
-      sameDay: '[Today]',
-      nextDay: '[Tomorrow]',
-      nextWeek: 'dddd',
-      lastDay: '[Yesterday]',
-      lastWeek: '[Last] dddd',
-      sameElse: 'MMM D, YYYY'
-    })
-  }
   return (
     <div onClick={handleBlurEmojiPicker} className="flex-grow overflow-y-auto space-y-4">
       {messages.reduce((acc: JSX.Element[], message, index) => {

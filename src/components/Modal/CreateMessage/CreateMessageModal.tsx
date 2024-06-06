@@ -1,25 +1,33 @@
 import { UserPreview } from '@/components/Shared/UserPreview'
 import { createRoom, useAppSelector } from '@/features/Message/messagesSlice'
 import { EmptyPage } from '@/pages'
-import { AccountModel } from '@/shared/models'
+import { AccountModel, MessageModel } from '@/shared/models'
 import { SimplifiedAccountType } from '@/shared/types'
 import { cn } from '@/utils'
 import { Modal } from 'flowbite-react'
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { v4 } from 'uuid'
 
 type CreateMessageModalProps = {
   openModal: boolean
+  myMessages: MessageModel['']
   handleCloseModal: () => void
 }
 
-export const CreateMessageModal = ({ openModal, handleCloseModal }: CreateMessageModalProps) => {
+export const CreateMessageModal = ({
+  openModal,
+  handleCloseModal,
+  myMessages
+}: CreateMessageModalProps) => {
   const [searched, setSearched] = useState('')
 
   const users = useAppSelector((state) => state.users).filter(
     (user) => user.username !== 'Amir_Aryan'
   )
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const handleSearchUsers = useCallback(() => {
     return users.filter(
@@ -37,12 +45,35 @@ export const CreateMessageModal = ({ openModal, handleCloseModal }: CreateMessag
 
   const handleCreateMessage = (user: AccountModel) => {
     handleCloseModal()
-    const userInfo: SimplifiedAccountType = {
-      name: user.name,
-      username: user.username,
-      imageUrl: user.imageUrl
+    if (checkIfExistsRoom(user)) {
+      const roomId = findExistingRoomId(user)
+      navigate(roomId!)
+    } else {
+      const userInfo: SimplifiedAccountType = {
+        name: user.name,
+        username: user.username,
+        imageUrl: user.imageUrl
+      }
+      const roomId = v4()
+      dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo, roomId }))
+      navigate(roomId)
     }
-    dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo }))
+  }
+  const checkIfExistsRoom = (user: AccountModel) => {
+    return Object.keys(myMessages).some((messageId) => {
+      if (myMessages[messageId].userInfo.username === user.username) {
+        return true
+      }
+      return false
+    })
+  }
+
+  const findExistingRoomId = (user: AccountModel) => {
+    return Object.keys(myMessages).find((messageId) => {
+      if (myMessages[messageId].userInfo.username === user.username) {
+        return messageId
+      }
+    })
   }
 
   return (
