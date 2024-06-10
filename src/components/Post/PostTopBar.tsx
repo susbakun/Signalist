@@ -7,9 +7,9 @@ import { Link } from 'react-router-dom'
 
 type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
-  postContent: PostModel['content']
   postId: PostModel['id']
   subscribed?: boolean
+  handleOpenEditPostModal: () => void
 }
 
 export const PostTopBar = ({
@@ -18,7 +18,8 @@ export const PostTopBar = ({
   username,
   imageUrl,
   date,
-  subscribed
+  subscribed,
+  handleOpenEditPostModal
 }: PostUserInfoProps) => {
   const placeholder = getAvatarPlaceholder(name)
   const postDate = formatDateFromMS(date)
@@ -36,7 +37,11 @@ export const PostTopBar = ({
         </Link>
       </div>
       {subscribed && <SubscriberSign small />}
-      <MoreOptionsButton postId={postId} username={username} />
+      <MoreOptionsButton
+        handleOpenEditPostModal={handleOpenEditPostModal}
+        postId={postId}
+        username={username}
+      />
     </div>
   )
 }

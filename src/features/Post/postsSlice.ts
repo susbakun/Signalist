@@ -98,7 +98,7 @@ const postsSlice = createSlice({
     editPost: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
-          return { ...post, content: action.payload.postContent }
+          return { ...post, content: action.payload.content, date: new Date().getTime() }
         }
         return post
       })

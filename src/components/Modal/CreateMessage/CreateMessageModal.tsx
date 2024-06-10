@@ -81,11 +81,11 @@ export const CreateMessageModal = ({
       <Modal.Header className="border-none pr-1 py-2" />
       <Modal.Body
         className="flex overflow-y-auto
-  flex-col gap-2 py-2 mb-4 px-4 custom-modal min-h-[400px]"
+        flex-col gap-2 py-2 mb-4 px-4 custom-modal min-h-[400px]"
       >
         <div
           className="flex items-center relative
-    justify-center"
+          justify-center"
         >
           <input
             value={searched}

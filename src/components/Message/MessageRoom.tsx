@@ -1,10 +1,9 @@
+import { MessageRoomInput, MessageRoomMessages } from '@/components'
 import { sendMessage, useAppSelector } from '@/features/Message/messagesSlice'
 import { ChatType, SimplifiedAccountType } from '@/shared/types'
 import { ChangeEvent, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useOutletContext, useParams } from 'react-router-dom'
-import { MessageRoomInput } from './MessageRoomInput'
-import { MessageRoomMessages } from './MessageRoomMessages'
 
 type MessageRoomOutletType = {
   messages: ChatType[]

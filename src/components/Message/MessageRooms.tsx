@@ -1,3 +1,4 @@
+import { CreateMessageModal } from '@/components'
 import { MessageModel } from '@/shared/models'
 import { SimplifiedAccountType } from '@/shared/types'
 import { getAvatarPlaceholder } from '@/utils'
@@ -7,7 +8,6 @@ import { useState } from 'react'
 import { TbMessagePlus } from 'react-icons/tb'
 import { Link } from 'react-router-dom'
 import { roundArrow } from 'tippy.js'
-import { CreateMessageModal } from '../Modal/CreateMessage/CreateMessageModal'
 
 type MessageRoomsProps = {
   myMessages: MessageModel['']

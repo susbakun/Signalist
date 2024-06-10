@@ -11,31 +11,33 @@ type MoreOptionsButtonProps = {
   signalId?: SignalModel['id']
   isForComment?: boolean
   username: AccountModel['username']
+  handleOpenEditPostModal?: () => void
 }
 
 export const MoreOptionsButton = ({
   postId,
   username,
   signalId,
-  isForComment = false
+  isForComment = false,
+  handleOpenEditPostModal
 }: MoreOptionsButtonProps) => {
   const [open, setIsOpen] = useState(false)
 
   const users = useAppSelector((state) => state.users)
   const me = users.find((user) => user.username === 'Amir_Aryan')
 
-  const handleClose = () => {
+  const handleCloseCreatePostModal = () => {
     setIsOpen(false)
   }
 
-  const handleOpen = () => {
+  const hanldeOpenCreatePostModal = () => {
     setIsOpen(true)
   }
 
   if (me?.username === username && !signalId)
     return (
       <>
-        <button className="action-button">
+        <button onClick={handleOpenEditPostModal} className="action-button">
           <MdOutlineModeEditOutline className="w-6 h-6" />
         </button>
       </>
@@ -51,14 +53,14 @@ export const MoreOptionsButton = ({
             isForComment={isForComment}
             postId={postId}
             signalId={signalId}
-            closePopover={handleClose}
+            closePopover={handleCloseCreatePostModal}
             username={username}
           />
         }
         open={open}
         onOpenChange={setIsOpen}
       >
-        <button onClick={handleOpen} className="action-button">
+        <button onClick={hanldeOpenCreatePostModal} className="action-button">
           <TfiMore className="w-6 h-6" />
         </button>
       </Popover>

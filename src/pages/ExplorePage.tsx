@@ -1,5 +1,6 @@
 import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from '@/components'
 import { useAppSelector } from '@/features/User/usersSlice'
+import { editPostRouteRegExp } from '@/shared/constants'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -11,6 +12,9 @@ export const ExplorePage = () => {
   useEffect(() => {
     if (location.pathname == '/explore') {
       navigate('followings')
+    }
+    if (editPostRouteRegExp.test(location.pathname)) {
+      setOpenCreatePostModal(true)
     }
   }, [location, navigate])
 
@@ -24,7 +28,7 @@ export const ExplorePage = () => {
 
   return (
     <div className="flex">
-      <ExplorePosts handleOpenEditPostModal={hanldeOpenCreatePostModal} />
+      <ExplorePosts />
       <RightSideBar />
       <CreatePostButton handleOpenModal={hanldeOpenCreatePostModal} />
       <CreatePostModal
@@ -35,18 +39,14 @@ export const ExplorePage = () => {
   )
 }
 
-type ExplorePostsProps = {
-  handleOpenEditPostModal: (content?: string) => void
-}
-
-const ExplorePosts = ({ handleOpenEditPostModal }: ExplorePostsProps) => {
+const ExplorePosts = () => {
   return (
     <div
       className="flex-1 border-r-gray-600/20 dark:border-r-white/20
       border-r"
     >
       <ExploreTopBar />
-      <Outlet context={{ handleOpenEditPostModal }} />
+      <Outlet />
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { createPost } from '@/features/Post/postsSlice'
-import { useAppSelector } from '@/features/User/usersSlice'
+import { editPost } from '@/features/Post/postsSlice'
+import { PostModel } from '@/shared/models'
 import { cn, isDarkMode } from '@/utils'
 import { Modal } from 'flowbite-react'
 import { useState } from 'react'
@@ -8,29 +8,27 @@ import { useDispatch } from 'react-redux'
 import Toggle from 'react-toggle'
 import './togglebutton.css'
 
-export type CreatePostModalProps = {
+export type EditPostModalProps = {
   openModal: boolean
   handleCloseModal: () => void
+  post: PostModel
 }
 
-export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModalProps) => {
+export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostModalProps) => {
   const [isPremium, setIsPremium] = useState(false)
-  const [postText, setPostText] = useState('')
-
-  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
+  const [postText, setPostText] = useState(post.content)
 
   const dispatch = useDispatch()
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      hanldeCreatePost()
+      handleEditPost()
     }
   }
 
-  const hanldeCreatePost = () => {
-    dispatch(createPost({ content: postText, publisher: me, isPremium }))
+  const handleEditPost = () => {
+    dispatch(editPost({ content: postText, postId: post.id }))
     handleCloseModal!()
-    setPostText('')
   }
 
   const handleTogglePremium = () => {
@@ -69,7 +67,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
             </label>
           </div>
           <button
-            onClick={hanldeCreatePost}
+            onClick={handleEditPost}
             className="action-button dark:text-dark-link-button
           text-primary-link-button font-bold"
           >
