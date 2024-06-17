@@ -15,7 +15,8 @@ export default {
         }
       },
       fontFamily: {
-        anta: '"Anta", sans-serif'
+        roboto: '"Roboto", sans-serif',
+        montserrat: '"Montserrat", sans-serif'
       }
     }
   },

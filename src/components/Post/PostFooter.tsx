@@ -16,9 +16,16 @@ type PostFooterProps = {
   comments?: PostModel['comments']
   simplified?: boolean
   amISubscribed?: boolean
+  handleOpenEditPostModal?: () => void
 }
 
-export const PostFooter = ({ post, comments, simplified, amISubscribed }: PostFooterProps) => {
+export const PostFooter = ({
+  post,
+  comments,
+  simplified,
+  amISubscribed,
+  handleOpenEditPostModal
+}: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
@@ -138,6 +145,7 @@ export const PostFooter = ({ post, comments, simplified, amISubscribed }: PostFo
       />
       {comments && (
         <PostCommentModal
+          handleOpenEditPostModal={handleOpenEditPostModal}
           post={post}
           comments={comments}
           handleCloseCommentsModal={handleCloseCommentsModal}

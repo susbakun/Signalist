@@ -9,7 +9,7 @@ type PostUserInfoProps = PostModel['publisher'] & {
   date: PostModel['date']
   postId: PostModel['id']
   subscribed?: boolean
-  handleOpenEditPostModal: () => void
+  handleOpenEditPostModal?: () => void
 }
 
 export const PostTopBar = ({

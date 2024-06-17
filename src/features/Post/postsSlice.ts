@@ -23,11 +23,11 @@ const postsSlice = createSlice({
       }
       state.push(newPost)
     },
-    deletePost: (state, action) => {
-      return state.filter((post) => post.id !== action.payload.id)
-    },
     blockUser: (state, action) => {
       return state.filter((post) => post.publisher.username !== action.payload.username)
+    },
+    deletePost: (state, action) => {
+      return state.filter((post) => post.id !== action.payload.id)
     },
     likePost: (state, action) => {
       return state.map((post) => {

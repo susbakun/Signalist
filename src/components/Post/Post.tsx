@@ -41,7 +41,12 @@ export const Post = ({ post }: PostProps) => {
           amISubscribed={amISubscribed}
           content={post.content}
         />
-        <PostFooter amISubscribed={amISubscribed} post={post} comments={post.comments} />
+        <PostFooter
+          handleOpenEditPostModal={handleOpenEditPostModal}
+          amISubscribed={amISubscribed}
+          post={post}
+          comments={post.comments}
+        />
       </div>
       <EditPostModal
         post={post}

@@ -42,8 +42,8 @@ export const NewsPreview = ({
           <a
             target="_blank"
             href={url}
-            className="text-blue-700/90 transition-all ease-out
-          dark:hover:text-blue-800 hover:text-blue-900"
+            className="text-primary-link-button dark:text-dark-link-button
+            hover:opacity-60 transition-all ease-out font-medium"
           >
             Visit Website
           </a>

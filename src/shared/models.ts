@@ -94,6 +94,7 @@ export type AccountModel = {
   hasPremium?: boolean
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
+  // bookmarks: (SignalModel | PostModel)[]
 }
 
 export type CommentModel = {

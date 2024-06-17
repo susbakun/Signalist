@@ -8,13 +8,15 @@ type PostCommentMoalProps = {
   handleCloseCommentsModal: () => void
   comments: PostModel['comments']
   post: Omit<PostModel, 'comments'>
+  handleOpenEditPostModal?: () => void
 }
 
 export const PostCommentModal = ({
   openModal,
   handleCloseCommentsModal,
   comments,
-  post
+  post,
+  handleOpenEditPostModal
 }: PostCommentMoalProps) => {
   const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
@@ -30,7 +32,12 @@ export const PostCommentModal = ({
         border-r-gray-600/20 dark:border-r-white/20
           flex-col gap-4 sticky top-0"
         >
-          <PostTopBar postId={post.id} {...post.publisher} date={post.date} />
+          <PostTopBar
+            handleOpenEditPostModal={handleOpenEditPostModal}
+            postId={post.id}
+            {...post.publisher}
+            date={post.date}
+          />
           <PostBody
             isPremium={post.isPremium}
             publisherUsername={post.publisher.username}

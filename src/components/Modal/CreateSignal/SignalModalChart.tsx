@@ -37,7 +37,8 @@ export const SignalModalChart = ({
             hide_legend
             allow_symbol_change={false}
             timezone="Asia/Tehran"
-          ></AdvancedRealTimeChart>
+            show_popup_button
+          />
         </div>
       ) : (
         <button

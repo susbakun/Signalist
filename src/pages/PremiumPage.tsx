@@ -8,7 +8,7 @@ export const PremiumPage = () => {
       <div className="bg-gray-200 dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-lg">
         <h1 className="text-2xl font-bold mb-4 text-gray-600 dark:text-white">Access Denied</h1>
         <p className="text-lg text-gray-500/80 dark:text-gray-400 mb-4">
-          You need to authorize to have a premium plan.
+          You need to authorize in order to have a premium plan
         </p>
         <button
           className="bg-primary-link-button dark:bg-dark-link-button hover:opacity-70

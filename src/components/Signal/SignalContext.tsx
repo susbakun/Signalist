@@ -23,8 +23,10 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
   const [isTargetCopied, setIsTargetCopied] = useState<IsTargetCopiedType>(() => {
     return signal.targets.map((target) => ({ id: target.id, isCopied: false }))
   })
+  // const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null)
 
   const { publisher } = signal
+  // const chartRef = useRef(null)
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
 
@@ -46,6 +48,28 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
     }, 2000)
     await navigator.clipboard.writeText(target.value.toString())
   }
+
+  // useEffect(() => {
+  //   chartRef.current = document.getElementById('haha')
+  // }, [document.getElementById('haha')])
+
+  // const handleCaptureChart = async () => {
+  //   if (chartRef.current) {
+  //     const canvas = await html2canvas(chartRef.current)
+  //     const dataUrl = canvas.toDataURL('image/png')
+  //     setSnapshotUrl(dataUrl)
+  //   }
+  // }
+
+  // const handleCopyImage = async () => {
+  //   if (snapshotUrl) {
+  //     const response = await fetch(snapshotUrl)
+  //     const blob = await response.blob()
+  //     const clipboardItem = new ClipboardItem({ 'image/png': blob })
+  //     await navigator.clipboard.write([clipboardItem])
+  //     alert('Image copied to clipboard!')
+  //   }
+  // }
 
   return (
     <div className="flex flex-col gap-2">
@@ -98,7 +122,8 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
               allow_symbol_change={false}
               range="1D"
               timezone="Asia/Tehran"
-            ></AdvancedRealTimeChart>
+              container_id="haha"
+            />
           )}
           <div
             className="bg-white dark:bg-gray-900

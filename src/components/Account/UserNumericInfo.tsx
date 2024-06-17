@@ -10,7 +10,7 @@ export const UserNumericInfo = ({ userAccount }: UserNumericInfoProps) => {
   return (
     <div
       className="text-lg text-gray-500 dark:text-gray-400
-          flex gap-14 items-center"
+      flex gap-14 items-center font-medium"
     >
       <div className="flex flex-col items-center">
         <span className="text-slate-700 dark:text-white">{userAccount.score}</span>

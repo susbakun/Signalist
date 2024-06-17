@@ -33,7 +33,7 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
   }
 
   return (
-    <div className={cn('flex items-center gap-36 relative', { 'gap-20 pt-2': !isItmMyAccount })}>
+    <div className={cn('flex items-center gap-36 relative', { 'gap-24 pt-2': !isItmMyAccount })}>
       <Avatar
         bordered
         placeholderInitials={placeholder}
