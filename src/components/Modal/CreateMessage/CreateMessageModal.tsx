@@ -1,5 +1,6 @@
 import { UserPreview } from '@/components/Shared/UserPreview'
 import { createRoom, useAppSelector } from '@/features/Message/messagesSlice'
+import { useUserMessageRoom } from '@/hooks/useUserMessageRoom'
 import { EmptyPage } from '@/pages'
 import { AccountModel, MessageModel } from '@/shared/models'
 import { SimplifiedAccountType } from '@/shared/types'
@@ -28,6 +29,8 @@ export const CreateMessageModal = ({
   )
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(myMessages)
 
   const handleSearchUsers = useCallback(() => {
     return users.filter(
@@ -58,22 +61,6 @@ export const CreateMessageModal = ({
       dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo, roomId }))
       navigate(roomId)
     }
-  }
-  const checkIfExistsRoom = (user: AccountModel) => {
-    return Object.keys(myMessages).some((messageId) => {
-      if (myMessages[messageId].userInfo.username === user.username) {
-        return true
-      }
-      return false
-    })
-  }
-
-  const findExistingRoomId = (user: AccountModel) => {
-    return Object.keys(myMessages).find((messageId) => {
-      if (myMessages[messageId].userInfo.username === user.username) {
-        return messageId
-      }
-    })
   }
 
   return (

@@ -13,18 +13,18 @@ export const UserInfo = ({ userAccount, handleShareEmail }: UserInfoProps) => {
     <div className="flex flex-col gap-2 font-sans">
       <div className="flex items-center gap-2">
         <span className="flex items-center gap-1">
-          <HiIdentification />:
+          <HiIdentification className="w-5 h-5" />:
         </span>
         {userAccount.name}
       </div>
       <div className="flex items-center gap-2">
         <span className="flex items-center gap-1">
-          <FaUserAlt />:
+          <FaUserAlt className="w-4 h-4" />:
         </span>
         @{userAccount.username}
       </div>
       <div className="flex items-center gap-1">
-        <IoMail />:
+        <IoMail className="w-4 h-4" />:
         <button
           className="text-primary-link-button action-button
               dark:text-dark-link-button ml-1"

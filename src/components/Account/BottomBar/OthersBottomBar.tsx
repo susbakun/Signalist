@@ -1,15 +1,19 @@
 import { UserUnfollowModal } from '@/components'
 import { ShaerUserButton } from '@/components/Button/ShaerUserButton'
+import { createRoom, useAppSelector } from '@/features/Message/messagesSlice'
 import { followUser, unfollowUser } from '@/features/User/usersSlice'
 import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
+import { useUserMessageRoom } from '@/hooks/useUserMessageRoom'
 import { AccountModel } from '@/shared/models'
+import { SimplifiedAccountType } from '@/shared/types'
 import { isDarkMode } from '@/utils'
 import { useMemo, useState } from 'react'
 import { BiMessage } from 'react-icons/bi'
 import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5'
 import { useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { v4 } from 'uuid'
 
 type OthersBottomBarProps = {
   userAccount: AccountModel
@@ -18,14 +22,35 @@ type OthersBottomBarProps = {
 
 export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
+  const messages = useAppSelector((state) => state.messages)['Amir_Aryan']
 
   const isFollowed = useMemo(
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
     [myAccount, userAccount]
   )
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(messages)
 
   const { amISubscribed } = useIsUserSubscribed(userAccount)
+
+  const handleCreateMessage = () => {
+    handleCloseModal()
+    if (checkIfExistsRoom(userAccount)) {
+      const roomId = findExistingRoomId(userAccount)
+      navigate(`/messages/${roomId}`)
+    } else {
+      const userInfo: SimplifiedAccountType = {
+        name: userAccount.name,
+        username: userAccount.username,
+        imageUrl: userAccount.imageUrl
+      }
+      const roomId = v4()
+      dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo, roomId }))
+      navigate(`/messages/${roomId}`)
+    }
+  }
 
   const handleFollowUser = () => {
     if (!isFollowed) {
@@ -73,29 +98,30 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const handleCloseModal = () => {
     setOpenUnfollowModal(false)
   }
+
   return (
     <>
       <div className="flex items-center justify-between">
-        <div className="flex gap-5">
+        <div className="flex gap-4">
           <div>
             <button
               onClick={handleFollowUser}
-              className="px-2 py-1 bg-primary-link-button
+              className="px-3 py-1 bg-primary-link-button
                 dark:bg-dark-link-button rounded-md action-button
-                text-black/90 dark:text-white"
+                text-white"
             >
               {isFollowed ? 'followed' : 'follow'}
             </button>
           </div>
           <div>
-            <Link
-              to="/messages"
-              className="px-2 py-1 bg-primary-link-button
+            <button
+              onClick={handleCreateMessage}
+              className="px-4 py-1 bg-primary-link-button
                 dark:bg-dark-link-button rounded-md action-button
-                text-black/90 dark:text-white flex"
+                text-white flex"
             >
               <BiMessage className="w-5 h-6" />
-            </Link>
+            </button>
           </div>
           {userAccount.hasPremium && (
             <div>

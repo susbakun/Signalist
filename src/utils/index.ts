@@ -53,3 +53,7 @@ export const formatMessageDate = (date: number) => {
     sameElse: 'MMM D, YYYY'
   })
 }
+
+export const isEmpty = (array: unknown[]) => {
+  return array.length === 0
+}

@@ -1,7 +1,7 @@
 import { UserPreview } from '@/components'
 import { useAppSelector } from '@/features/Post/postsSlice'
 import { EmptyPage } from '@/pages'
-import { cn } from '@/utils'
+import { cn, isEmpty } from '@/utils'
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { IoSearchOutline } from 'react-icons/io5'
 import { NavLink } from 'react-router-dom'
@@ -20,7 +20,6 @@ export const ExploreTopBar = () => {
   }
 
   const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Only blur the input if the new focus is outside the search results
     if (!e.relatedTarget) {
       setIsInputFocused(false)
     }
@@ -74,15 +73,21 @@ export const ExploreTopBar = () => {
               left-[11%] right-[11%]
             dark:bg-dark-main min-h-[75px]"
             >
-              {searchedUsers.map((user, index) => (
-                <UserPreview
-                  className={cn('border-b border-b-gray-600/20 pb-4 dark:border-b-white/20', {
-                    'border-none pb-0': index === searchedUsers.length - 1
-                  })}
-                  {...user}
-                  key={user.username}
-                />
-              ))}
+              {isEmpty(searchedUsers) ? (
+                <EmptyPage className="h-full items-center text-center pt-2">
+                  <p className="font-normal">No results found</p>
+                </EmptyPage>
+              ) : (
+                searchedUsers.map((user, index) => (
+                  <UserPreview
+                    className={cn('border-b border-b-gray-600/20 pb-4 dark:border-b-white/20', {
+                      'border-none pb-0': index === searchedUsers.length - 1
+                    })}
+                    {...user}
+                    key={user.username}
+                  />
+                ))
+              )}
             </div>
           ) : (
             <EmptyPage
