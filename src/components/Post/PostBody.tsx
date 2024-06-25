@@ -1,6 +1,6 @@
+import { BluredPostComponent } from '@/components'
 import { AccountModel, PostModel } from '@/shared/models'
 import { Link } from 'react-router-dom'
-import { BluredPostComponent } from '../BluredComponent/BluredComponent'
 
 type PostBodyProps = {
   content: PostModel['content']

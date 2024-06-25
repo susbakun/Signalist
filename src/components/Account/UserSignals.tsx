@@ -1,11 +1,11 @@
-import { CreateSignalModal, Signal } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { EmptyPage } from '@/pages'
-import Tippy from '@tippyjs/react'
-import { useState } from 'react'
-import { HiMiniSignal } from 'react-icons/hi2'
-import { useParams } from 'react-router-dom'
-import { roundArrow } from 'tippy.js'
+import { CreateSignalModal, Signal } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { EmptyPage } from "@/pages"
+import Tippy from "@tippyjs/react"
+import { useState } from "react"
+import { HiMiniSignal } from "react-icons/hi2"
+import { useParams } from "react-router-dom"
+import { roundArrow } from "tippy.js"
 
 export const UserSignals = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
@@ -17,7 +17,7 @@ export const UserSignals = () => {
   const mySignals = useAppSelector((state) => state.signals)
     .filter((signal) => signal.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
-  const isItmyAccount = userAccount?.username === 'Amir_Aryan'
+  const isItmyAccount = userAccount?.username === "Amir_Aryan"
 
   const handleCloseCreateSignalModal = () => {
     setOpenCreateSignalModal(false)
@@ -43,7 +43,7 @@ export const UserSignals = () => {
         border-x-gray-600/20"
         >
           {mySignals.map((signal) => (
-            <Signal simplified={true} key={signal.id} signal={signal} />
+            <Signal key={signal.id} signal={signal} />
           ))}
         </ul>
         {isItmyAccount && (

@@ -5,6 +5,7 @@ import usersReducer from '@/features/User/usersSlice'
 import { cryptoApi } from '@/services/cryptoApi'
 import { cryptoNewsApi } from '@/services/cryptoNewsApi'
 import { configureStore } from '@reduxjs/toolkit'
+import { thunk } from 'redux-thunk'
 
 const store = configureStore({
   reducer: {
@@ -16,7 +17,10 @@ const store = configureStore({
     messages: messagesReducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(cryptoApi.middleware).concat(cryptoNewsApi.middleware)
+    getDefaultMiddleware()
+      .concat(cryptoApi.middleware)
+      .concat(cryptoNewsApi.middleware)
+      .concat(thunk)
 })
 
 export default store

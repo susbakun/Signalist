@@ -1,5 +1,6 @@
 import { createPost } from '@/features/Post/postsSlice'
 import { useAppSelector } from '@/features/User/usersSlice'
+import { SimplifiedAccountType } from '@/shared/types'
 import { cn, isDarkMode } from '@/utils'
 import { Modal } from 'flowbite-react'
 import { useState } from 'react'
@@ -17,7 +18,14 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const [isPremium, setIsPremium] = useState(false)
   const [postText, setPostText] = useState('')
 
-  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
+  const myAccount = useAppSelector((state) => state.users).find(
+    (user) => user.username === 'Amir_Aryan'
+  )!
+  const postPublisher: SimplifiedAccountType = {
+    name: myAccount.name,
+    username: myAccount.username,
+    imageUrl: myAccount.imageUrl
+  }
 
   const dispatch = useDispatch()
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -28,7 +36,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   }
 
   const hanldeCreatePost = () => {
-    dispatch(createPost({ content: postText, publisher: me, isPremium }))
+    dispatch(createPost({ content: postText, publisher: postPublisher, isPremium }))
     handleCloseModal!()
     setPostText('')
   }

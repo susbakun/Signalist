@@ -3,20 +3,22 @@ import {
   Loader,
   SignalModalChart,
   SignalModalDatePickers,
+  SignalModalFileInput,
   SignalModalFooter,
   SignalModalTargetsList,
   SignalModalTextArea,
   SignalModalTopInputs
-} from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { createSignal } from '@/features/Signal/signalsSlice'
-import { useGetCryptosQuery } from '@/services/cryptoApi'
-import { CryptoResponseType, SignalModel } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { Label, Modal } from 'flowbite-react'
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { v4 } from 'uuid'
+} from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { createSignal } from "@/features/Signal/signalsSlice"
+import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { CryptoResponseType, SignalModel } from "@/shared/models"
+import { CoinType, SignalAccountType } from "@/shared/types"
+import { Client, ID, Storage } from "appwrite"
+import { Label, Modal } from "flowbite-react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
+import { useDispatch } from "react-redux"
+import { v4 } from "uuid"
 
 type CreateSignalModalProps = {
   openModal: boolean
@@ -24,11 +26,11 @@ type CreateSignalModalProps = {
 }
 
 export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalModalProps) => {
-  const [targetList, setTargetList] = useState<SignalModel['targets']>([])
-  const [dropdownMarkets, setDropDownMarkets] = useState<CryptoResponseType['data']['coins']>([])
-  const [selectedMarket, setSelectedMarket] = useState<SignalModel['market']>({
-    name: 'BTC',
-    uuid: 'Qwsogvtv82FCd'
+  const [targetList, setTargetList] = useState<SignalModel["targets"]>([])
+  const [dropdownMarkets, setDropDownMarkets] = useState<CryptoResponseType["data"]["coins"]>([])
+  const [selectedMarket, setSelectedMarket] = useState<SignalModel["market"]>({
+    name: "BTC",
+    uuid: "Qwsogvtv82FCd"
   })
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [showChart, setShowChart] = useState(false)
@@ -36,15 +38,22 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [closeTime, setCloseTime] = useState<Date>(new Date())
   const [entryValue, setEntryValue] = useState(0.0)
   const [stoplossValue, setStoplossValue] = useState(0.0)
-  const [descriptionText, setDescriptionText] = useState('')
+  const [descriptionText, setDescriptionText] = useState("")
   const [isPremium, setIsPremium] = useState(false)
+  const [chartImageId, setChartImageId] = useState("")
 
   const { data: cryptosList, isLoading } = useGetCryptosQuery(20)
   const dispatch = useDispatch()
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir_Aryan')
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")!
+  const signalPublisher: SignalAccountType = {
+    name: myAccount.name,
+    score: myAccount.score,
+    username: myAccount.username,
+    imageUrl: myAccount.imageUrl
+  }
 
-  const handleSelectMarket = (market: SignalModel['market']) => {
+  const handleSelectMarket = (market: SignalModel["market"]) => {
     setSelectedMarket(market)
     handleToggleDropDown()
   }
@@ -68,16 +77,16 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const getStatus = (
-    openTime: SignalModel['openTime'],
-    closeTime: SignalModel['closeTime']
-  ): SignalModel['status'] => {
+    openTime: SignalModel["openTime"],
+    closeTime: SignalModel["closeTime"]
+  ): SignalModel["status"] => {
     const currentTime = new Date().getTime()
     if (currentTime - openTime >= 0 && currentTime - closeTime < 0) {
-      return 'open'
+      return "open"
     } else if (currentTime - openTime >= 0 && currentTime - closeTime >= 0) {
-      return 'closed'
+      return "closed"
     } else {
-      return 'not_opened'
+      return "not_opened"
     }
   }
 
@@ -99,9 +108,10 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setEntryValue(0.0)
     setStoplossValue(0.0)
     setTargetList([])
-    setDescriptionText('')
+    setDescriptionText("")
+    setChartImageId("")
     setShowChart(false)
-    setSelectedMarket({ name: 'BTC', uuid: 'Qwsogvtv82FCd' })
+    setSelectedMarket({ name: "BTC", uuid: "Qwsogvtv82FCd" })
   }
 
   const handleCreateSignal = () => {
@@ -109,13 +119,13 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
       createSignal({
         openTime: openTime.getTime(),
         closeTime: closeTime.getTime(),
-        showChart,
+        chartImageId,
         market: { ...selectedMarket, name: `${selectedMarket.name}/USD` },
         entry: entryValue,
         stoploss: stoplossValue,
         targets: targetList,
         description: descriptionText,
-        publisher: me,
+        publisher: signalPublisher,
         isPremium,
         status: getStatus(openTime.getTime(), closeTime.getTime())
       })
@@ -147,10 +157,31 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setIsPremium((prev) => !prev)
   }
 
-  const market: CoinType | undefined = useMemo(
+  const handleSendImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
+      try {
+        const response = await storage.createFile("66747baf000aa8c5c2e7", ID.unique(), file)
+        setChartImageId(response.$id)
+
+        console.log("Image uploaded successfully:", response)
+      } catch (error) {
+        console.error("Failed to upload image:", error)
+      }
+    }
+  }
+
+  const market: CoinType = useMemo(
     () => dropdownMarkets.find((market) => market.symbol === selectedMarket.name),
     [selectedMarket, dropdownMarkets]
-  )
+  )!
+
+  const client = new Client()
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("66747b890009cb1b3f8a")
+
+  const storage = new Storage(client)
 
   useEffect(() => {
     if (cryptosList?.data.coins) {
@@ -204,7 +235,6 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                       handleTargetValueChange={handleTargetValueChange}
                     />
                   ))}
-
                   <SignalModalDatePickers
                     openTime={openTime}
                     closeTime={closeTime}
@@ -216,6 +246,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                     descriptionText={descriptionText}
                     handleDescriptionChange={handleDescriptionChange}
                   />
+                  <SignalModalFileInput handleSendImage={handleSendImage} />
                   <SignalModalFooter
                     isPremium={isPremium}
                     handlePremiumToggle={handlePremiumToggle}

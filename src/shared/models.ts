@@ -1,10 +1,11 @@
 import {
   ChatType,
+  SignalAccountType,
   SimplifiedAccountType,
   StatusType,
   SubscriberType,
   SubscriptionPlanType
-} from './types'
+} from "./types"
 
 export type CryptoResponseType = {
   status: string
@@ -25,7 +26,7 @@ export type CryptoResponseType = {
       price: string
       iconUrl: string
       name: string
-      '24hVolume': string
+      "24hVolume": string
     }[]
   }
 }
@@ -41,7 +42,7 @@ export type CryptoDetailsResponseType = {
       iconUrl: string
       name: string
       description: string
-      '24hVolume': string
+      "24hVolume": string
       slug: string
       allTimeHigh: {
         price: string
@@ -98,7 +99,7 @@ export type AccountModel = {
 }
 
 export type CommentModel = {
-  postId: PostModel['id']
+  postId: PostModel["id"]
   commentId: string
   body: string
   likes: number
@@ -131,13 +132,13 @@ export type SignalModel = {
   date: number
   likes: number
   description?: string
-  showChart: boolean
+  chartImageId?: string
   isPremium: boolean
-  publisher: SimplifiedAccountType
+  publisher: SignalAccountType
 }
 
 export type MessageModel = {
-  [username: AccountModel['username']]: {
+  [username: AccountModel["username"]]: {
     [k: string]: {
       userInfo: SimplifiedAccountType
       messages: ChatType[]

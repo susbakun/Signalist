@@ -11,7 +11,7 @@ export const MyBottomBar = () => {
           <button
             className="px-2 py-1 bg-primary-link-button
             dark:bg-dark-link-button rounded-md action-button
-            text-black/90 dark:text-white"
+          text-white"
           >
             Edit Profile
           </button>
@@ -43,7 +43,7 @@ export const MyBottomBar = () => {
           <button
             className="px-2 py-1 bg-primary-link-button
             dark:bg-dark-link-button rounded-md action-button
-            text-black/90 dark:text-white"
+            text-white"
           >
             <IoPersonAddOutline className="w-5 h-5" />
           </button>

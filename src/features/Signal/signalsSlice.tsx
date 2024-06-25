@@ -1,13 +1,13 @@
-import { signalsMock } from '@/assets/mocks'
-import { SignalModel } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { createSlice } from '@reduxjs/toolkit'
-import { v4 } from 'uuid'
+import { signalsMock } from "@/assets/mocks"
+import { SignalModel } from "@/shared/models"
+import { CoinType } from "@/shared/types"
+import { createSlice } from "@reduxjs/toolkit"
+import { v4 } from "uuid"
 
 const initialState = signalsMock
 
 const signalsSlice = createSlice({
-  name: 'signals',
+  name: "signals",
   initialState,
   reducers: {
     createSignal: (state, action) => {
@@ -17,7 +17,6 @@ const signalsSlice = createSlice({
         openTime: action.payload.openTime,
         closeTime: action.payload.closeTime,
         publisher: action.payload.publisher,
-        showChart: action.payload.showChart,
         status: action.payload.status,
         isPremium: action.payload.isPremium,
         likes: 0,
@@ -26,6 +25,9 @@ const signalsSlice = createSlice({
         stoploss: action.payload.stoploss,
         targets: action.payload.targets,
         description: action.payload.description
+      }
+      if (action.payload.chartImageId) {
+        newSignal.chartImageId = action.payload.chartImageId
       }
       state.push(newSignal)
     },
@@ -48,21 +50,31 @@ const signalsSlice = createSlice({
     updateSignalsState: (state, action) => {
       const currentTime = new Date().getTime()
       return state.map((signal) => {
-        const marketName = signal.market.name.split('/')[0]
-        if (signal.status === 'open' && currentTime - signal.closeTime >= -1000) {
+        const marketName = signal.market.name.split("/")[0]
+        if (signal.status === "open" && currentTime - signal.closeTime >= -1000) {
           const currentPrice = action.payload.coins.find(
             (crypto: CoinType) => crypto.symbol === marketName
           )?.price
-          const updatedSignal = { ...signal }
-          updatedSignal.targets = updatedSignal.targets.map((target) => {
+          let score = 0
+          const updatedTargets = signal.targets.map((target) => {
             if (parseFloat(currentPrice) >= target.value) {
+              score += 1
               return { ...target, touched: true }
             }
             return target
           })
-          return { ...updatedSignal, status: 'closed' }
-        } else if (signal.status === 'not_opened' && currentTime - signal.openTime >= -1000) {
-          return { ...signal, status: 'open' }
+          const publisherWithUpdatedScore = {
+            ...signal.publisher,
+            score: signal.publisher.score + score
+          }
+          return {
+            ...signal,
+            publisher: publisherWithUpdatedScore,
+            targets: updatedTargets,
+            status: "closed"
+          }
+        } else if (signal.status === "not_opened" && currentTime - signal.openTime >= -1000) {
+          return { ...signal, status: "open" }
         }
         return signal
       })

@@ -37,7 +37,6 @@ export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) =>
       imageUrl: commentPublisher.imageUrl,
       username: commentPublisher.username
     }
-    console.log(publisher)
     dispatch(postComment({ body: commentBody, publisher, postId }))
   }
   return (

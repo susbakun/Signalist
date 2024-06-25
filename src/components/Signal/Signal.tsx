@@ -1,17 +1,16 @@
-import { SignalContext, SignalFooter, SignalTopBar } from '@/components'
-import { updateSignalsState } from '@/features/Signal/signalsSlice'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { useGetCryptosQuery } from '@/services/cryptoApi'
-import { SignalModel } from '@/shared/models'
-import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
+import { updateSignalsState } from "@/features/Signal/signalsSlice"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { SignalModel } from "@/shared/models"
+import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
 
 type SignalProps = {
   signal: SignalModel
-  simplified?: boolean
 }
 
-export const Signal = ({ signal, simplified }: SignalProps) => {
+export const Signal = ({ signal }: SignalProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
 
@@ -26,6 +25,9 @@ export const Signal = ({ signal, simplified }: SignalProps) => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().getTime())
       dispatch(updateSignalsState(cryptosList?.data))
+      // dispatch(
+      //   updateUserScore({ username: signal.publisher.username, score: signal.publisher.score })
+      // )
     }, 60000)
 
     return () => clearInterval(intervalId)
@@ -42,7 +44,7 @@ export const Signal = ({ signal, simplified }: SignalProps) => {
         date={signal.date}
         signalId={signal.id}
       />
-      <SignalContext simplified={simplified} signal={signal} />
+      <SignalContext signal={signal} />
       <SignalFooter likes={signal.likes} signalId={signal.id} username={publisher.username} />
     </div>
   )

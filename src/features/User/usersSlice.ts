@@ -47,10 +47,21 @@ const usersSlice = createSlice({
         }
         return user
       })
+    },
+    updateUserScore: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.username) {
+          return {
+            ...user,
+            score: action.payload.score
+          }
+        }
+        return user
+      })
     }
   }
 })
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-export const { followUser, unfollowUser } = usersSlice.actions
+export const { followUser, unfollowUser, updateUserScore } = usersSlice.actions
 export default usersSlice.reducer

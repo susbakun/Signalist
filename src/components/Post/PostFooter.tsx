@@ -1,3 +1,4 @@
+import { PostCommentModal, SharePostModal } from '@/components'
 import { dislikePost, likePost } from '@/features/Post/postsSlice'
 import { PostModel } from '@/shared/models'
 import { cn, isDarkMode } from '@/utils'
@@ -8,8 +9,6 @@ import { HiOutlineLightningBolt } from 'react-icons/hi'
 import { HiBolt } from 'react-icons/hi2'
 import { useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
-import { PostCommentModal } from '../Modal/PostCommentModal'
-import { SharePostModal } from '../Modal/SharePostModal'
 
 type PostFooterProps = {
   post: Omit<PostModel, 'comments'>

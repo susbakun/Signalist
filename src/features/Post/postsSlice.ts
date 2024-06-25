@@ -80,7 +80,7 @@ const postsSlice = createSlice({
     postComment: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
-          const postComments = post.comments
+          const postComments = [...post.comments]
           const newComment: CommentModel = {
             body: action.payload.body,
             commentId: v4(),

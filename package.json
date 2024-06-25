@@ -12,6 +12,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
     "@tippyjs/react": "^4.2.6",
+    "appwrite": "^15.0.0",
     "blurhash": "^2.0.5",
     "emoji-picker-react": "^4.9.4",
     "flowbite-react": "^0.9.0",
@@ -28,6 +29,7 @@
     "react-toggle": "^4.1.3",
     "react-ts-tradingview-widgets": "^1.2.4",
     "recharts": "^2.12.6",
+    "redux-thunk": "^3.1.0",
     "tailwind-merge": "^2.3.0",
     "tippy.js": "^6.3.7",
     "uuid": "^9.0.1"

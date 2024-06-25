@@ -1,17 +1,16 @@
-import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from '@/components'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { SignalModel } from '@/shared/models'
-import { getFormattedMarketName, getMarketScale, isDarkMode } from '@/utils'
-import moment from 'jalali-moment'
-import { useState } from 'react'
-import { FaCheck } from 'react-icons/fa'
-import { IoMdLink } from 'react-icons/io'
-import { Link } from 'react-router-dom'
-import { AdvancedRealTimeChart } from 'react-ts-tradingview-widgets'
+import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from "@/components"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { SignalModel } from "@/shared/models"
+import { getMarketScale } from "@/utils"
+import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
+import moment from "jalali-moment"
+import { useEffect, useState } from "react"
+import { FaCheck } from "react-icons/fa"
+import { IoMdLink } from "react-icons/io"
+import { Link } from "react-router-dom"
 
 type SignalContextProps = {
   signal: SignalModel
-  simplified?: boolean
 }
 
 type IsTargetCopiedType = {
@@ -19,21 +18,22 @@ type IsTargetCopiedType = {
   isCopied: boolean
 }[]
 
-export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
+export const SignalContext = ({ signal }: SignalContextProps) => {
   const [isTargetCopied, setIsTargetCopied] = useState<IsTargetCopiedType>(() => {
     return signal.targets.map((target) => ({ id: target.id, isCopied: false }))
   })
-  // const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null)
+  const [chartHref, setChartHref] = useState("")
 
   const { publisher } = signal
-  // const chartRef = useRef(null)
-
   const { amISubscribed } = useIsUserSubscribed(publisher)
 
-  const marketName = getFormattedMarketName(signal.market.name)
+  const client = new Client()
+  const storage = new Storage(client)
+  client.setEndpoint("https://cloud.appwrite.io/v1").setProject("66747b890009cb1b3f8a")
+
   const marketScale = getMarketScale(signal.market.name)
 
-  const handleCopyTargetValue = async (target: SignalModel['targets'][0], index: number) => {
+  const handleCopyTargetValue = async (target: SignalModel["targets"][0], index: number) => {
     setIsTargetCopied((prev) => {
       const updatedTargets = [...prev]
       updatedTargets[index].isCopied = true
@@ -49,34 +49,32 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
     await navigator.clipboard.writeText(target.value.toString())
   }
 
-  // useEffect(() => {
-  //   chartRef.current = document.getElementById('haha')
-  // }, [document.getElementById('haha')])
-
-  // const handleCaptureChart = async () => {
-  //   if (chartRef.current) {
-  //     const canvas = await html2canvas(chartRef.current)
-  //     const dataUrl = canvas.toDataURL('image/png')
-  //     setSnapshotUrl(dataUrl)
-  //   }
-  // }
-
-  // const handleCopyImage = async () => {
-  //   if (snapshotUrl) {
-  //     const response = await fetch(snapshotUrl)
-  //     const blob = await response.blob()
-  //     const clipboardItem = new ClipboardItem({ 'image/png': blob })
-  //     await navigator.clipboard.write([clipboardItem])
-  //     alert('Image copied to clipboard!')
-  //   }
-  // }
+  useEffect(() => {
+    if (signal.chartImageId) {
+      const result = storage.getFilePreview(
+        "66747baf000aa8c5c2e7",
+        signal.chartImageId,
+        0,
+        0,
+        ImageGravity.Center,
+        100,
+        0,
+        "fff",
+        0,
+        1,
+        0,
+        "fff",
+        ImageFormat.Png
+      )
+      setChartHref(result.href)
+    }
+  }, [])
 
   return (
     <div className="flex flex-col gap-2">
       {signal.isPremium && !amISubscribed ? (
         <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
           <BluredSignalComponent />
-
           <Link
             to={`/${publisher.username}/premium`}
             className="absolute top-[50%] left-[50%] -translate-x-[50%]
@@ -92,38 +90,30 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
           {signal.description && <p className="pt-1 pb-4">{signal.description}</p>}
           <div className="flex justify-between detail-text">
             <p className="text-lg">{signal.market.name}</p>
-            {signal.status === 'closed' ? (
+            {signal.status === "closed" ? (
               <div className="text-md flex items-center">
                 closed
                 <RedPulse />
               </div>
-            ) : signal.status === 'not_opened' ? (
+            ) : signal.status === "not_opened" ? (
               <div className="text-md flex items-center">
-                will be opened {moment(signal.openTime).startOf('seconds').fromNow()}
+                will be opened {moment(signal.openTime).startOf("seconds").fromNow()}
                 <BlackPulse />
               </div>
             ) : (
               <div className="text-md flex items-center">
-                will be colsed {moment(signal.closeTime).startOf('seconds').fromNow()}
+                will be colsed {moment(signal.closeTime).startOf("seconds").fromNow()}
                 <GreenPulse />
               </div>
             )}
           </div>
-          {signal.showChart && (
-            <AdvancedRealTimeChart
-              theme={isDarkMode() ? 'dark' : 'light'}
-              width="100%"
-              symbol={marketName}
-              height={simplified ? 400 : 500}
-              hotlist={false}
-              style="3"
-              hide_legend
-              hide_side_toolbar
-              allow_symbol_change={false}
-              range="1D"
-              timezone="Asia/Tehran"
-              container_id="haha"
-            />
+          {chartHref && (
+            <div
+              className="w-full h-full rounded overflow-hidden mb-4"
+              id={`tv_chart_${signal.id}`}
+            >
+              <img className="w-full h-full object-cover" src={chartHref} />
+            </div>
           )}
           <div
             className="bg-white dark:bg-gray-900
@@ -171,7 +161,7 @@ export const SignalContext = ({ signal, simplified }: SignalContextProps) => {
                       </span>
                     )}
                   </span>
-                  {signal.status === 'closed' &&
+                  {signal.status === "closed" &&
                     (target.touched ? (
                       <span
                         className="text-sm text-primary-link-button

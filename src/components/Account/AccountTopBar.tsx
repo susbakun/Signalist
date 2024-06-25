@@ -1,4 +1,5 @@
 import {
+  ProfilePageMoreOptionButton,
   SubscriberSign,
   UserNotificationsButton,
   UserOptionsButton,
@@ -9,7 +10,6 @@ import { AccountModel } from '@/shared/models'
 import { cn, getAvatarPlaceholder } from '@/utils'
 import { Avatar } from 'flowbite-react'
 import { useState } from 'react'
-import { ProfilePageMoreOptionButton } from '../Button/MoreOptionsButton/ProfilePageMoreOptionButton'
 import { UserNumericInfo } from './UserNumericInfo'
 
 type AccountTopBarProps = {
@@ -34,7 +34,7 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
 
   return (
     <div
-      className={cn('flex items-center gap-36 relative', {
+      className={cn('flex items-center gap-28 relative', {
         '2xl:gap-[25%] gap-24 pt-2': !isItmMyAccount
       })}
     >

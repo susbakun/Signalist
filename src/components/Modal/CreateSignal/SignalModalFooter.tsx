@@ -1,6 +1,6 @@
-import { cn, isDarkMode } from '@/utils'
-import { CiLink } from 'react-icons/ci'
-import Toggle from 'react-toggle'
+import { cn, isDarkMode } from "@/utils"
+import { CiLink } from "react-icons/ci"
+import Toggle from "react-toggle"
 
 type SignalModalFooterProps = {
   handleCreateSignal: () => void
@@ -19,7 +19,7 @@ export const SignalModalFooter = ({
         <button className="action-button">
           <CiLink className="w-8 h-8" />
         </button>
-        <label className={cn('flex items-center gap-1', { dark: isDarkMode() })}>
+        <label className={cn("flex items-center gap-1", { dark: isDarkMode() })}>
           <span>Premium</span>
           <Toggle onChange={handlePremiumToggle} defaultChecked={isPremium} icons={false} />
         </label>
