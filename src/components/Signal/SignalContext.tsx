@@ -78,9 +78,9 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
           <Link
             to={`/${publisher.username}/premium`}
             className="absolute top-[50%] left-[50%] -translate-x-[50%]
-        -translate-y-[50%] action-button text-white bg-gradient-to-r
-        dark:from-dark-link-button from-primary-link-button to-[#ff00e5]
-        dark:to-[#ff00e5] px-3 py-2 rounded-md"
+            -translate-y-[50%] action-button text-white bg-gradient-to-r
+            dark:from-dark-link-button from-primary-link-button to-[#ff00e5]
+            dark:to-[#ff00e5] px-3 py-2 rounded-md"
           >
             Subscribe
           </Link>

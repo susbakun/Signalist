@@ -1,13 +1,13 @@
-import { createPost } from '@/features/Post/postsSlice'
-import { useAppSelector } from '@/features/User/usersSlice'
-import { SimplifiedAccountType } from '@/shared/types'
-import { cn, isDarkMode } from '@/utils'
-import { Modal } from 'flowbite-react'
-import { useState } from 'react'
-import { CiLink } from 'react-icons/ci'
-import { useDispatch } from 'react-redux'
-import Toggle from 'react-toggle'
-import './togglebutton.css'
+import { MediaOptionsButton } from "@/components/Button/MediaOptions/MediaOptionsButton"
+import { createPost } from "@/features/Post/postsSlice"
+import { useAppSelector } from "@/features/User/usersSlice"
+import { SimplifiedAccountType } from "@/shared/types"
+import { cn, isDarkMode } from "@/utils"
+import { Modal } from "flowbite-react"
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import Toggle from "react-toggle"
+import "./togglebutton.css"
 
 export type CreatePostModalProps = {
   openModal: boolean
@@ -16,10 +16,10 @@ export type CreatePostModalProps = {
 
 export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModalProps) => {
   const [isPremium, setIsPremium] = useState(false)
-  const [postText, setPostText] = useState('')
+  const [postText, setPostText] = useState("")
 
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === 'Amir_Aryan'
+    (user) => user.username === "Amir_Aryan"
   )!
   const postPublisher: SimplifiedAccountType = {
     name: myAccount.name,
@@ -29,7 +29,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
 
   const dispatch = useDispatch()
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       hanldeCreatePost()
     }
@@ -38,7 +38,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const hanldeCreatePost = () => {
     dispatch(createPost({ content: postText, publisher: postPublisher, isPremium }))
     handleCloseModal!()
-    setPostText('')
+    setPostText("")
   }
 
   const handleTogglePremium = () => {
@@ -68,10 +68,8 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
         </div>
         <div className="flex justify-between px-2 pb-2">
           <div className="flex items-center gap-2">
-            <button className="action-button">
-              <CiLink className="w-8 h-8" />
-            </button>
-            <label className={cn('flex items-center gap-1', { dark: isDarkMode() })}>
+            <MediaOptionsButton />
+            <label className={cn("flex items-center gap-1", { dark: isDarkMode() })}>
               <span>Premium</span>
               <Toggle onChange={handleTogglePremium} defaultChecked={isPremium} icons={false} />
             </label>

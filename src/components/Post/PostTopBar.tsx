@@ -1,13 +1,13 @@
-import { MoreOptionsButton, SubscriberSign } from '@/components'
-import { PostModel } from '@/shared/models'
-import { formatDateFromMS, getAvatarPlaceholder } from '@/utils'
-import { Avatar } from 'flowbite-react'
-import moment from 'jalali-moment'
-import { Link } from 'react-router-dom'
+import { MoreOptionsButton, SubscriberSign } from "@/components"
+import { PostModel } from "@/shared/models"
+import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
+import { Avatar } from "flowbite-react"
+import moment from "jalali-moment"
+import { Link } from "react-router-dom"
 
-type PostUserInfoProps = PostModel['publisher'] & {
-  date: PostModel['date']
-  postId: PostModel['id']
+type PostUserInfoProps = PostModel["publisher"] & {
+  date: PostModel["date"]
+  postId: PostModel["id"]
   subscribed?: boolean
   handleOpenEditPostModal?: () => void
 }
@@ -32,7 +32,7 @@ export const PostTopBar = ({
           <p>{name.toLowerCase()}</p>
           <div className="flex gap-2">
             <p className="text-sm text-gray-600/70 dark:text-white/50">@{username}</p>
-            <p className="detail-text">{moment(postDate).startOf('m').fromNow()}</p>
+            <p className="detail-text">{moment(postDate).startOf("m").fromNow()}</p>
           </div>
         </Link>
       </div>

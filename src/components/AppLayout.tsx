@@ -6,7 +6,7 @@ import {
   UserPosts,
   UserReplies,
   UserSignals
-} from '@/components'
+} from "@/components"
 import {
   ExplorePage,
   FollowingsPosts,
@@ -16,16 +16,16 @@ import {
   SignalsPage,
   SuggestionsPosts,
   UserPage
-} from '@/pages'
-import { messagesRoutRegExp } from '@/shared/constants'
-import { cn } from '@/utils'
-import { ComponentProps } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
-import { UserFollowersModal } from './Modal/UserFollowersModal'
-import { UserFollowingsModal } from './Modal/UserFollowingsModal'
-import { UserPremiumModal } from './Modal/UserPremium/UserPremiumModal'
+} from "@/pages"
+import { messagesRoutRegExp } from "@/shared/constants"
+import { cn } from "@/utils"
+import { ComponentProps } from "react"
+import { Navigate, Route, Routes, useLocation } from "react-router-dom"
+import { UserFollowersModal } from "./Modal/UserFollowersModal"
+import { UserFollowingsModal } from "./Modal/UserFollowingsModal"
+import { UserPremiumModal } from "./Modal/UserPremium/UserPremiumModal"
 
-export const RootLayout = ({ children, ...props }: ComponentProps<'main'>) => {
+export const RootLayout = ({ children, ...props }: ComponentProps<"main">) => {
   return <main {...props}>{children}</main>
 }
 
@@ -35,8 +35,8 @@ export const AppSideBar = () => {
 
   return (
     <aside
-      className={cn('main-sidebar sticky top-0 w-[25%]', {
-        'w-fit': isInMessages
+      className={cn("main-sidebar sticky top-0 w-[25%]", {
+        "w-fit": isInMessages
       })}
     >
       {!isInMessages && (
@@ -75,6 +75,7 @@ export const AppContent = () => {
         <Route path="/messages" element={<MessagesPage />}>
           <Route path=":id" element={<MessageRoom />} />
         </Route>
+        <Route path="*" element={<Navigate replace to="/" />} />
       </Routes>
     </div>
   )
