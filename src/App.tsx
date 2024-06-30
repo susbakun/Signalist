@@ -1,6 +1,5 @@
 import { AppContent, AppSideBar, RootLayout } from "@/components"
 import { useEffect } from "react"
-import { BiMoon } from "react-icons/bi"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
@@ -19,9 +18,9 @@ function App() {
   return (
     <RootLayout className="flex">
       <AppSideBar />
-      <button className="bg-black fixed bottom-0 left-0" onClick={toggleDarkMode}>
+      {/* <button className="bg-black fixed bottom-0 left-0" onClick={toggleDarkMode}>
         <BiMoon />
-      </button>
+      </button> */}
       <AppContent />
       <ToastContainer />
     </RootLayout>
