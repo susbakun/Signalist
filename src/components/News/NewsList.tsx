@@ -1,15 +1,16 @@
-import { Loader, NewsPreview } from '@/components'
-import { useGetCryptoNewsQuery } from '@/services/cryptoNewsApi'
-import { CryptoNewsType } from '@/shared/models'
-import { cn } from '@/utils'
-import { uniqBy } from 'lodash'
-import { useEffect, useState } from 'react'
-import { FaArrowUp } from 'react-icons/fa'
-import { IoChevronDownOutline } from 'react-icons/io5'
+import { Loader, NewsPreview } from "@/components"
+import { useGetCryptoNewsQuery } from "@/services/cryptoNewsApi"
+import { CryptoNewsType } from "@/shared/models"
+import { cn } from "@/utils"
+import { uniqBy } from "lodash"
+import { useEffect, useState } from "react"
+import { FaArrowUp } from "react-icons/fa"
+import { IoChevronDownOutline } from "react-icons/io5"
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton"
 
 export const NewsList = () => {
   const [newsPage, setNewsPage] = useState(1)
-  const [newsList, setNewsList] = useState<CryptoNewsType['articles']>([])
+  const [newsList, setNewsList] = useState<CryptoNewsType["articles"]>([])
   const [isVisible, setIsVisible] = useState(false)
 
   const {
@@ -17,7 +18,7 @@ export const NewsList = () => {
     isLoading,
     isFetching
   } = useGetCryptoNewsQuery({
-    newsCategory: 'Cryptocurrency',
+    newsCategory: "Cryptocurrency",
     count: 5,
     page: newsPage
   })
@@ -27,12 +28,12 @@ export const NewsList = () => {
   }
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
   useEffect(() => {
     if (cryptoNews) {
       //following line won't be needed if we don't have duplicated news
-      setNewsList((prev) => uniqBy([...prev, ...cryptoNews.articles], 'title'))
+      setNewsList((prev) => uniqBy([...prev, ...cryptoNews.articles], "title"))
       // setNewsList((prev) => prev.concat(cryptoNews.articles))
     }
   }, [cryptoNews])
@@ -43,9 +44,9 @@ export const NewsList = () => {
       setIsVisible(scrollTop > window.innerHeight * 0.8)
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener("scroll", handleScroll)
     return () => {
-      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener("scroll", handleScroll)
     }
   }, [])
 
@@ -53,7 +54,11 @@ export const NewsList = () => {
     return (
       <>
         <h4 className="text-xl mb-4">News</h4>
-        <Loader />
+        <SkeletonTheme baseColor="#fff" highlightColor="#444">
+          <p>
+            <Skeleton height={80} borderRadius={5} count={3} />
+          </p>
+        </SkeletonTheme>
       </>
     )
 
@@ -82,11 +87,11 @@ export const NewsList = () => {
       <button
         onClick={scrollToTop}
         className={cn(
-          'main-button transition-all duration-100 ease-out fixed',
+          "main-button transition-all duration-100 ease-out fixed",
           {
-            'translate-x-20': !isVisible
+            "translate-x-20": !isVisible
           },
-          'right-4 bottom-4 px-4 py-4 rounded-full'
+          "right-4 bottom-4 px-4 py-4 rounded-full"
         )}
       >
         <FaArrowUp />

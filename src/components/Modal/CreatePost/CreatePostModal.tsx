@@ -21,6 +21,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
   )!
+
   const postPublisher: SimplifiedAccountType = {
     name: myAccount.name,
     username: myAccount.username,

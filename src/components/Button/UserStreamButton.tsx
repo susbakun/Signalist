@@ -1,13 +1,13 @@
-import Tippy from '@tippyjs/react'
-import { IoIosAddCircle } from 'react-icons/io'
-import { roundArrow } from 'tippy.js'
+import Tippy from "@tippyjs/react"
+import { IoIosAddCircle } from "react-icons/io"
+import { roundArrow } from "tippy.js"
 
 export const UserStreamButton = () => {
   return (
     <Tippy
       content="stream"
       className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-                rounded-md px-1 py-[1px] text-sm"
+      rounded-md px-1 py-[1px] text-sm"
       delay={[1000, 0]}
       placement="bottom"
       animation="fade"
