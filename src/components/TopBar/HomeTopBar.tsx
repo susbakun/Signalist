@@ -1,9 +1,9 @@
-import { Popover } from 'flowbite-react'
-import { FaRegBell } from 'react-icons/fa'
+import { Popover } from "flowbite-react"
+import { FaRegBell } from "react-icons/fa"
 
 export const HomeTopBar = () => {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center mb-2 px-2">
       <Popover
         aria-labelledby="notifications"
         content={

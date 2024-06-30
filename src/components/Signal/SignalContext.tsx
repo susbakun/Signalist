@@ -1,7 +1,7 @@
 import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from "@/components"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { SignalModel } from "@/shared/models"
-import { getMarketScale } from "@/utils"
+import { cn, getMarketScale } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
@@ -23,6 +23,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
     return signal.targets.map((target) => ({ id: target.id, isCopied: false }))
   })
   const [chartHref, setChartHref] = useState("")
+  const [enlarged, setEnlarged] = useState(false)
 
   const { publisher } = signal
   const { amISubscribed } = useIsUserSubscribed(publisher)
@@ -47,6 +48,10 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
       })
     }, 2000)
     await navigator.clipboard.writeText(target.value.toString())
+  }
+
+  const handleClick = () => {
+    setEnlarged((prev) => !prev)
   }
 
   useEffect(() => {
@@ -109,10 +114,24 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
           </div>
           {chartHref && (
             <div
-              className="w-full h-full rounded overflow-hidden mb-4"
-              id={`tv_chart_${signal.id}`}
+              className={cn(
+                "relative w-full h-full rounded mb-4",
+                {
+                  "fixed inset-0 z-50 flex items-center": enlarged
+                },
+                { "justify-center bg-black bg-opacity-75": enlarged }
+              )}
+              onClick={handleClick}
             >
-              <img className="w-full h-full object-cover" src={chartHref} />
+              <img
+                className={cn(
+                  "w-full h-full object-cover cursor-zoom-in",
+                  "transition-transform duration-300",
+                  { "w-[70%] h-[70%] object-contain cursor-zoom-out": enlarged }
+                )}
+                src={chartHref}
+                alt="Chart"
+              />
             </div>
           )}
           <div

@@ -1,17 +1,17 @@
-import { CryptoPreview, Loader, MarketSelectionDrawer } from '@/components'
-import { useGetCryptosQuery } from '@/services/cryptoApi'
-import { CryptoResponseType } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { Table } from 'flowbite-react'
-import { useEffect, useState } from 'react'
-import { IoAddCircleOutline } from 'react-icons/io5'
+import { CryptoPreview, Loader, MarketSelectionDrawer } from "@/components"
+import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { CryptoResponseType } from "@/shared/models"
+import { CoinType } from "@/shared/types"
+import { Table } from "flowbite-react"
+import { useEffect, useState } from "react"
+import { IoAddCircleOutline } from "react-icons/io5"
 
 export const WatchList = () => {
   const { data: cryptosList, isLoading } = useGetCryptosQuery(
     5
     // { pollingInterval: 3000 }
   )
-  const [cryptos, setCrytops] = useState<CryptoResponseType['data']['coins']>([])
+  const [cryptos, setCrytops] = useState<CryptoResponseType["data"]["coins"]>([])
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClose = () => setIsOpen(false)
@@ -21,7 +21,7 @@ export const WatchList = () => {
     setCrytops((prev) => [...prev, coin])
   }
 
-  const handleRemoveFromWatchList = (coinId: CoinType['uuid']) => {
+  const handleRemoveFromWatchList = (coinId: CoinType["uuid"]) => {
     const filteredCryptos = cryptos.filter((crypto) => crypto.uuid !== coinId)
     setCrytops(filteredCryptos)
   }

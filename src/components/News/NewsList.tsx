@@ -54,9 +54,9 @@ export const NewsList = () => {
     return (
       <>
         <h4 className="text-xl mb-4">News</h4>
-        <SkeletonTheme baseColor="#fff" highlightColor="#444">
+        <SkeletonTheme baseColor="rgb(31 41 55)" highlightColor="#4a4a5a">
           <p>
-            <Skeleton height={80} borderRadius={5} count={3} />
+            <Skeleton className="mb-4" height={120} borderRadius={6} count={5} />
           </p>
         </SkeletonTheme>
       </>

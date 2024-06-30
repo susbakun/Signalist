@@ -3,15 +3,17 @@ import { CiLink } from "react-icons/ci"
 import Toggle from "react-toggle"
 
 type SignalModalFooterProps = {
+  isPremium: boolean
+  postButtonDisabled: boolean
   handleCreateSignal: () => void
   handlePremiumToggle: () => void
-  isPremium: boolean
 }
 
 export const SignalModalFooter = ({
+  isPremium,
+  postButtonDisabled,
   handleCreateSignal,
-  handlePremiumToggle,
-  isPremium
+  handlePremiumToggle
 }: SignalModalFooterProps) => {
   return (
     <div className="flex justify-between px-2 pb-2">
@@ -25,9 +27,10 @@ export const SignalModalFooter = ({
         </label>
       </div>
       <button
+        disabled={postButtonDisabled}
         onClick={handleCreateSignal}
         className="action-button dark:text-dark-link-button
-      text-primary-link-button font-bold"
+      text-primary-link-button font-bold disabled:opacity-30"
       >
         Post
       </button>

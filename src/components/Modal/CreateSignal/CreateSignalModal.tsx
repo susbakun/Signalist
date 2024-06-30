@@ -40,7 +40,8 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [stoplossValue, setStoplossValue] = useState(0.0)
   const [descriptionText, setDescriptionText] = useState("")
   const [isPremium, setIsPremium] = useState(false)
-  const [chartImageId, setChartImageId] = useState("")
+  const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
+  const [postButtonDisabled, setPostButtonDisabled] = useState(false)
 
   const { data: cryptosList, isLoading } = useGetCryptosQuery(20)
   const dispatch = useDispatch()
@@ -109,12 +110,14 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setStoplossValue(0.0)
     setTargetList([])
     setDescriptionText("")
-    setChartImageId("")
     setShowChart(false)
+    setPostButtonDisabled(false)
     setSelectedMarket({ name: "BTC", uuid: "Qwsogvtv82FCd" })
   }
 
-  const handleCreateSignal = () => {
+  const handleCreateSignal = async () => {
+    setPostButtonDisabled(true)
+    const chartImageId = await handleSendImage(selectedImage)
     dispatch(
       createSignal({
         openTime: openTime.getTime(),
@@ -157,15 +160,19 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setIsPremium((prev) => !prev)
   }
 
-  const handleSendImage = async (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
+  const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedImage(e.target.files[0])
+    }
+  }
+
+  const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
         const response = await storage.createFile("66747baf000aa8c5c2e7", ID.unique(), file)
-        setChartImageId(response.$id)
-
         console.log("Image uploaded successfully:", response)
+        return response.$id
       } catch (error) {
         console.error("Failed to upload image:", error)
       }
@@ -246,8 +253,9 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                     descriptionText={descriptionText}
                     handleDescriptionChange={handleDescriptionChange}
                   />
-                  <SignalModalFileInput handleSendImage={handleSendImage} />
+                  <SignalModalFileInput handleChangeImage={handleChangeImage} />
                   <SignalModalFooter
+                    postButtonDisabled={postButtonDisabled}
                     isPremium={isPremium}
                     handlePremiumToggle={handlePremiumToggle}
                     handleCreateSignal={handleCreateSignal}
