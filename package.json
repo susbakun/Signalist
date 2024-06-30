@@ -17,6 +17,7 @@
     "emoji-picker-react": "^4.9.4",
     "flowbite-react": "^0.9.0",
     "html2canvas": "^1.4.1",
+    "jalali-moment": "^3.3.11",
     "millify": "^6.1.0",
     "react": "^18.2.0",
     "react-blurhash": "^0.3.0",
