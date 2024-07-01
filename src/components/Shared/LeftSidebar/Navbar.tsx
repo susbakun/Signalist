@@ -1,7 +1,7 @@
-import { messagesRoutRegExp } from '@/shared/constants'
-import { cn } from '@/utils'
-import { ReactNode } from 'react'
-import { BiSolidSearch } from 'react-icons/bi'
+import { messagesRouteRegExp } from "@/shared/constants"
+import { cn } from "@/utils"
+import { ReactNode } from "react"
+import { BiSolidSearch } from "react-icons/bi"
 import {
   IoBarChart,
   IoBarChartOutline,
@@ -10,13 +10,13 @@ import {
   IoMail,
   IoMailOutline,
   IoSearchOutline
-} from 'react-icons/io5'
-import { TbCoinFilled, TbPremiumRights } from 'react-icons/tb'
-import { NavLink, useLocation } from 'react-router-dom'
+} from "react-icons/io5"
+import { TbCoinFilled, TbPremiumRights } from "react-icons/tb"
+import { NavLink, useLocation } from "react-router-dom"
 
 export const Navbar = () => {
   const location = useLocation()
-  const isInMessages = messagesRoutRegExp.test(location.pathname)
+  const isInMessages = messagesRouteRegExp.test(location.pathname)
 
   // Function to determine the appropriate icon based on the active link
   const getIcon = (pathREG: RegExp, activeIcon: ReactNode, inactiveIcon: ReactNode) => {
@@ -24,7 +24,7 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className={cn('flex flex-col gap-4 pr-4', { 'pr-2 pt-8': isInMessages })}>
+    <nav className={cn("flex flex-col gap-4 pr-4", { "pr-2 pt-8": isInMessages })}>
       <NavLink className="link-button" to="/">
         {getIcon(
           /^\/$/,

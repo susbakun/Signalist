@@ -17,7 +17,7 @@ import {
   SuggestionsPosts,
   UserPage
 } from "@/pages"
-import { messagesRoutRegExp } from "@/shared/constants"
+import { messagesRouteRegExp } from "@/shared/constants"
 import { cn } from "@/utils"
 import { ComponentProps } from "react"
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
@@ -31,7 +31,7 @@ export const RootLayout = ({ children, ...props }: ComponentProps<"main">) => {
 
 export const AppSideBar = () => {
   const location = useLocation()
-  const isInMessages = messagesRoutRegExp.test(location.pathname)
+  const isInMessages = messagesRouteRegExp.test(location.pathname)
 
   return (
     <aside

@@ -166,6 +166,10 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     }
   }
 
+  const handleCancelSelectImage = () => {
+    setSelectedImage(undefined)
+  }
+
   const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
@@ -253,7 +257,10 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                     descriptionText={descriptionText}
                     handleDescriptionChange={handleDescriptionChange}
                   />
-                  <SignalModalFileInput handleChangeImage={handleChangeImage} />
+                  <SignalModalFileInput
+                    handleChangeImage={handleChangeImage}
+                    handleCancelSelectImage={handleCancelSelectImage}
+                  />
                   <SignalModalFooter
                     postButtonDisabled={postButtonDisabled}
                     isPremium={isPremium}

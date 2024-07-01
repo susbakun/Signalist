@@ -4,15 +4,25 @@ import { RiErrorWarningLine } from "react-icons/ri"
 
 type SignalModalFileInputProps = {
   handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
+  handleCancelSelectImage: () => void
 }
 
-export const SignalModalFileInput = ({ handleChangeImage }: SignalModalFileInputProps) => {
+export const SignalModalFileInput = ({
+  handleChangeImage,
+  handleCancelSelectImage
+}: SignalModalFileInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const file = inputRef.current?.files?.[0]
 
+  const handleResetInput = () => {
+    setImagePreview(null)
+    handleCancelSelectImage()
+  }
+
   useEffect(() => {
+    console.log("first")
     if (inputRef.current && inputRef.current.files) {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -51,16 +61,21 @@ export const SignalModalFileInput = ({ handleChangeImage }: SignalModalFileInput
           </button>
         </div>
         {inputRef.current && imagePreview && (
-          <div
-            className="text-xs text-black-20 gap-1
-          dark:text-white/50 justify-center flex flex-col"
-          >
-            <p>{inputRef.current.files![0].name}</p>
-            <img
-              src={imagePreview}
-              alt="Image Preview"
-              className="w-[10%] h-[10%] object-cover rounded-lg"
-            />
+          <div className="flex items-center gap-2 -translate-y-2">
+            <div
+              className="text-xs text-black-20 gap-1
+            dark:text-white/50 justify-center flex max-w-min flex-col"
+            >
+              <p className="w-fit">{inputRef.current.files![0].name}</p>
+              <img
+                src={imagePreview}
+                alt="Image Preview"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+            <button onClick={handleResetInput} className="action-button pt-[20%]">
+              &#x2715;
+            </button>
           </div>
         )}
       </div>
