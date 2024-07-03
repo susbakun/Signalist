@@ -72,6 +72,7 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
     })
     handleCloseShareModal()
   }
+
   return (
     <>
       <div className="flex justify-between items-center mt-2">

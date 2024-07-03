@@ -1,15 +1,15 @@
-import { CryptoResponseType, SignalModel } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { ChangeEvent, useState } from 'react'
-import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from 'react-icons/md'
-import { Loader } from '../Shared/Loader'
+import { CryptoResponseType, SignalModel } from "@/shared/models"
+import { CoinType } from "@/shared/types"
+import { ChangeEvent, useState } from "react"
+import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md"
+import { Loader } from "../Shared/Loader"
 
 type CustomDropdownProps = {
-  markets: CryptoResponseType['data']['coins']
+  markets: CryptoResponseType["data"]["coins"]
   selectedMarket: CoinType | undefined
   isLoading: boolean
   isDropDownOpen: boolean
-  handleSelectMarket: (market: SignalModel['market']) => void
+  handleSelectMarket: (market: SignalModel["market"]) => void
   handleToggleDropDown: () => void
 }
 
@@ -21,7 +21,7 @@ export const CustomDropdown = ({
   handleToggleDropDown,
   isDropDownOpen
 }: CustomDropdownProps) => {
-  const [searchedTerm, setSearchedTerm] = useState('')
+  const [searchedTerm, setSearchedTerm] = useState("")
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchedTerm(event.target.value)
@@ -71,7 +71,9 @@ export const CustomDropdown = ({
             />
           </div>
           {!filteredMarkets.length && !isLoading && (
-            <div className="p-2 text-center text-gray-500">No markets found</div>
+            <div className="px-2 pt-3 pb-4 text-center text-black/50 dark:text-white">
+              No markets found
+            </div>
           )}
           {isLoading && <Loader className="h-[80%]" />}
           {filteredMarkets.map((market) => (

@@ -1,19 +1,19 @@
-import { UserUnfollowModal } from '@/components'
-import { ShaerUserButton } from '@/components/Button/ShaerUserButton'
-import { createRoom, useAppSelector } from '@/features/Message/messagesSlice'
-import { followUser, unfollowUser } from '@/features/User/usersSlice'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { useUserMessageRoom } from '@/hooks/useUserMessageRoom'
-import { AccountModel } from '@/shared/models'
-import { SimplifiedAccountType } from '@/shared/types'
-import { isDarkMode } from '@/utils'
-import { useMemo, useState } from 'react'
-import { BiMessage } from 'react-icons/bi'
-import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5'
-import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { v4 } from 'uuid'
+import { SharePostModal, UserUnfollowModal } from "@/components"
+import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
+import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
+import { followUser, unfollowUser } from "@/features/User/usersSlice"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
+import { AccountModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
+import { isDarkMode } from "@/utils"
+import { useMemo, useState } from "react"
+import { BiMessage } from "react-icons/bi"
+import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
+import { useDispatch } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
+import { v4 } from "uuid"
 
 type OthersBottomBarProps = {
   userAccount: AccountModel
@@ -22,7 +22,9 @@ type OthersBottomBarProps = {
 
 export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
-  const messages = useAppSelector((state) => state.messages)['Amir_Aryan']
+  const [openShareModal, setOpenShareModal] = useState(false)
+
+  const messages = useAppSelector((state) => state.messages)["Amir_Aryan"]
 
   const isFollowed = useMemo(
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
@@ -47,7 +49,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
         imageUrl: userAccount.imageUrl
       }
       const roomId = v4()
-      dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo, roomId }))
+      dispatch(createRoom({ myUsername: "Amir_Aryan", userInfo, roomId }))
       navigate(`/messages/${roomId}`)
     }
   }
@@ -55,14 +57,14 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const handleFollowUser = () => {
     if (!isFollowed) {
       toast.success(`You followed user @${userAccount.username}`, {
-        position: 'bottom-left',
+        position: "bottom-left",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: isDarkMode() ? 'dark' : 'light'
+        theme: isDarkMode() ? "dark" : "light"
       })
       dispatch(
         followUser({
@@ -77,14 +79,14 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
 
   const handleAcceptUnfollowModal = () => {
     toast.warn(`You unfollowed user @${userAccount.username}`, {
-      position: 'bottom-left',
+      position: "bottom-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: isDarkMode() ? 'dark' : 'light'
+      theme: isDarkMode() ? "dark" : "light"
     })
     dispatch(
       unfollowUser({
@@ -99,6 +101,38 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
     setOpenUnfollowModal(false)
   }
 
+  const handleOpenShareModal = () => {
+    setOpenShareModal(true)
+  }
+
+  const handleCloseShareModal = () => {
+    setOpenShareModal(false)
+  }
+
+  const handleShareEmail = () => {
+    const title = `See the user @${myAccount?.username}`
+    const body = `See the user @${myAccount?.username}:https://www.signalists/${myAccount?.username}`
+    const shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
+    handleCloseShareModal()
+    window.open(shareUrl)
+  }
+
+  const handleCopyLink = async () => {
+    const link = `https://www.signalists/${myAccount?.username}`
+    await navigator.clipboard.writeText(link)
+    toast.info("Post link is copied", {
+      position: "bottom-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: isDarkMode() ? "dark" : "light"
+    })
+    handleCloseShareModal()
+  }
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -110,7 +144,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
                 dark:bg-dark-link-button rounded-md action-button
                 text-white"
             >
-              {isFollowed ? 'followed' : 'follow'}
+              {isFollowed ? "followed" : "follow"}
             </button>
           </div>
           <div>
@@ -132,19 +166,25 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
                     dark:to-[#ff00e5] rounded-md action-button
                   text-white flex gap-1 items-center"
               >
-                {amISubscribed ? 'charge premium' : 'premium'}
+                {amISubscribed ? "charge premium" : "premium"}
                 {amISubscribed ? <IoLockOpenOutline /> : <IoLockClosed />}
               </Link>
             </div>
           )}
         </div>
-        <ShaerUserButton />
+        <ShaerUserButton handleOpenShareModal={handleOpenShareModal} />
       </div>
       <UserUnfollowModal
         username={userAccount.username}
         openModal={openUnfollowModal}
         handleCloseModal={handleCloseModal}
         handleAcceptUnfollowModal={handleAcceptUnfollowModal}
+      />
+      <SharePostModal
+        openModal={openShareModal}
+        handleCloseModal={handleCloseShareModal}
+        copyLink={handleCopyLink}
+        shareEmail={handleShareEmail}
       />
     </>
   )

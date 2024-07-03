@@ -43,7 +43,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
 
-  const { data: cryptosList, isLoading } = useGetCryptosQuery(20)
+  const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
   const dispatch = useDispatch()
   const users = useAppSelector((state) => state.users)
   const myAccount = users.find((user) => user.username === "Amir_Aryan")!
