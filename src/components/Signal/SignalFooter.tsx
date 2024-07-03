@@ -1,19 +1,20 @@
-import { SharePostModal } from '@/components'
-import { dislikeSignal, likeSignal } from '@/features/Signal/signalsSlice'
-import { AccountModel, SignalModel } from '@/shared/models'
-import { isDarkMode } from '@/utils'
-import millify from 'millify'
-import { useState } from 'react'
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa'
-import { HiOutlineLightningBolt } from 'react-icons/hi'
-import { HiBolt } from 'react-icons/hi2'
-import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
+import { SharePostModal } from "@/components"
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { dislikeSignal, likeSignal } from "@/features/Signal/signalsSlice"
+import { AccountModel, SignalModel } from "@/shared/models"
+import { isDarkMode } from "@/utils"
+import millify from "millify"
+import { useState } from "react"
+import { FaBookmark, FaRegBookmark } from "react-icons/fa"
+import { HiOutlineLightningBolt } from "react-icons/hi"
+import { HiBolt } from "react-icons/hi2"
+import { useDispatch } from "react-redux"
+import { toast } from "react-toastify"
 
 type SignalFooterProps = {
-  signalId: SignalModel['id']
-  likes: SignalModel['likes']
-  username: AccountModel['username']
+  signalId: SignalModel["id"]
+  likes: SignalModel["likes"]
+  username: AccountModel["username"]
 }
 
 export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) => {
@@ -23,11 +24,15 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
 
+  const myAccount = useAppSelector((state) => state.users).find(
+    (user) => user.username === "Amir_Aryan"
+  )
+
   const handleLikeSignal = () => {
     if (isLiked) {
-      dispatch(dislikeSignal({ id: signalId }))
+      dispatch(dislikeSignal({ signalId, user: myAccount }))
     } else {
-      dispatch(likeSignal({ id: signalId }))
+      dispatch(likeSignal({ signalId, user: myAccount }))
     }
     setIsLiked((prev) => !prev)
   }
@@ -55,15 +60,15 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
   const handleCopyLink = async () => {
     const link = `https://www.signalists/explore/${signalId}`
     await navigator.clipboard.writeText(link)
-    toast.info('Post link is copied', {
-      position: 'bottom-center',
+    toast.info("Post link is copied", {
+      position: "bottom-center",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: isDarkMode() ? 'dark' : 'light'
+      theme: isDarkMode() ? "dark" : "light"
     })
     handleCloseShareModal()
   }
@@ -79,7 +84,7 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
                 <HiOutlineLightningBolt className="w-6 h-6" />
               )}
             </button>
-            <span className="detail-text">{millify(likes)}</span>
+            <span className="detail-text">{millify(likes.length)}</span>
           </div>
           <button onClick={handleOpenShareModal} className="action-button">
             Share

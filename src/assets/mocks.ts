@@ -8,7 +8,18 @@ export const postsMock: PostModel[] = [
       "Just bought some Bitcoin! I've been closely following its performance lately, and I finally decided to jump in. The potential for growth in the crypto market is incredibly exciting, and I'm eager to see where this investment takes me. #crypto #bitcoin #investment",
     date: new Date().getTime() - 2 * 24 * 60 * 60 * 1000,
     isPremium: false,
-    likes: 20000,
+    likes: [
+      {
+        name: "susba",
+        username: "susbakun",
+        imageUrl: ""
+      },
+      {
+        name: "Ali",
+        username: "Alid",
+        imageUrl: ""
+      }
+    ],
     publisher: {
       name: "Amirsaeed Aryanmehr",
       username: "Amir_Aryan",
@@ -20,7 +31,18 @@ export const postsMock: PostModel[] = [
         commentId: "1",
         postId: "1",
         date: new Date().getTime(),
-        likes: 0,
+        likes: [
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          }
+        ],
         publisher: {
           name: "Ali",
           username: "Alid",
@@ -31,7 +53,18 @@ export const postsMock: PostModel[] = [
         body: "Welcome to the world of Bitcoin! It's always inspiring to see new investors joining the crypto community. Wishing you the best of luck on your investment journey! 💰 #crypto #investment #welcome",
         commentId: "2",
         postId: "1",
-        likes: 3,
+        likes: [
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          }
+        ],
         date: new Date().getTime() - 60 * 60 * 1000,
         publisher: {
           name: "steve",
@@ -43,7 +76,18 @@ export const postsMock: PostModel[] = [
         body: "Great to see new faces diving into the crypto market! Best of luck with your Bitcoin journey. Remember, patience is key. 🌟 #crypto #Bitcoin #investment",
         commentId: "3",
         postId: "1",
-        likes: 1,
+        likes: [
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          }
+        ],
         date: new Date().getTime() - 5 * 60 * 1000,
         publisher: {
           name: "steve",
@@ -55,7 +99,18 @@ export const postsMock: PostModel[] = [
         body: "Had a query about a transaction and the support team was quick and helpful. A+ service!",
         commentId: "4",
         postId: "1",
-        likes: 10,
+        likes: [
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          }
+        ],
         date: new Date().getTime() - 24 * 60 * 60 * 1000,
         publisher: {
           name: "Ali",
@@ -71,7 +126,23 @@ export const postsMock: PostModel[] = [
       "Ethereum's smart contract capabilities continue to amaze me. The ability to create decentralized applications that run exactly as programmed without any possibility of downtime, censorship, fraud, or third-party interference is revolutionary. It's inspiring to see the innovation happening in the Ethereum ecosystem, and I'm excited to be a part of it. #ethereum #smartcontracts #dapps",
     date: new Date().getTime() - 4 * 60 * 60 * 1000,
     isPremium: false,
-    likes: 1300,
+    likes: [
+      {
+        name: "Ali",
+        username: "Alid",
+        imageUrl: ""
+      },
+      {
+        name: "susba",
+        username: "susbakun",
+        imageUrl: ""
+      },
+      {
+        name: "Amir Pouya",
+        username: "AmirP",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+      }
+    ],
     publisher: {
       name: "Hamid Naseri",
       username: "hamihami",
@@ -82,7 +153,23 @@ export const postsMock: PostModel[] = [
         body: "Couldn't agree more! Ethereum's smart contracts are truly revolutionary. The potential for decentralized applications to disrupt traditional industries is immense. Excited to see what the future holds for Ethereum and the entire blockchain ecosystem! 🌐💡 #ethereum #smartcontracts #innovation",
         commentId: "1",
         postId: "2",
-        likes: 0,
+        likes: [
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          },
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Amir Pouya",
+            username: "AmirP",
+            imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+          }
+        ],
         date: new Date().getTime() - 60 * 60 * 1000,
         publisher: {
           name: "susba",
@@ -98,7 +185,18 @@ export const postsMock: PostModel[] = [
       "The altcoin market has been on fire lately, with many coins seeing significant gains. While Bitcoin has historically dominated the spotlight, it's fascinating to see the rise of alternative cryptocurrencies and the unique solutions they offer. As always, I'm approaching these investments with caution and doing my due diligence, but the potential for profits is certainly enticing. #altcoins #cryptocurrency #investing",
     date: new Date().getTime() - 60 * 60 * 1000,
     isPremium: true,
-    likes: 1300,
+    likes: [
+      {
+        name: "Amir Pouya",
+        username: "AmirP",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+      },
+      {
+        name: "Amirsaeed Aryanmehr",
+        username: "Amir_Aryan",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+      }
+    ],
     publisher: {
       name: "Amir Pouya",
       username: "AmirP",
@@ -109,7 +207,18 @@ export const postsMock: PostModel[] = [
         body: "Couldn't agree more! Ethereum's smart contracts are truly revolutionary. The potential for decentralized applications to disrupt traditional industries is immense. Excited to see what the future holds for Ethereum and the entire blockchain ecosystem! 🌐💡 #ethereum #smartcontracts #innovation",
         commentId: "1",
         postId: "3",
-        likes: 0,
+        likes: [
+          {
+            name: "Amir Pouya",
+            username: "AmirP",
+            imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+          },
+          {
+            name: "Amirsaeed Aryanmehr",
+            username: "Amir_Aryan",
+            imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          }
+        ],
         date: new Date().getTime(),
         publisher: {
           name: "mostafa",
@@ -125,7 +234,18 @@ export const postsMock: PostModel[] = [
       "Keeping a close eye on the latest crypto projects and ICOs (initial coin offerings) is key to staying ahead in this fast-paced industry. With new coins and tokens launching regularly, there's no shortage of opportunities for investors to get involved. However, it's important to approach each investment with caution and conduct thorough research to ensure you're making informed decisions. #ICO #crypto #investing",
     date: new Date().getTime() - 2 * 60 * 1000,
     isPremium: false,
-    likes: 100,
+    likes: [
+      {
+        name: "susba",
+        username: "susbakun",
+        imageUrl: ""
+      },
+      {
+        name: "Ali",
+        username: "Alid",
+        imageUrl: ""
+      }
+    ],
     publisher: {
       name: "Amirsaeed Aryanmehr",
       username: "Amir_Aryan",
@@ -136,7 +256,18 @@ export const postsMock: PostModel[] = [
         body: "Good for me btw, This is not a thing that just falls out of sky!!",
         commentId: "1",
         postId: "4",
-        likes: 0,
+        likes: [
+          {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          {
+            name: "Ali",
+            username: "Alid",
+            imageUrl: ""
+          }
+        ],
         date: new Date().getTime(),
         publisher: {
           name: "Amirsaeed Aryanmehr",
@@ -320,7 +451,18 @@ export const signalsMock: SignalModel[] = [
       uuid: "Qwsogvtv82FCd"
     },
     entry: 61000,
-    likes: 20000,
+    likes: [
+      {
+        name: "susba",
+        username: "susbakun",
+        imageUrl: ""
+      },
+      {
+        name: "Ali",
+        username: "Alid",
+        imageUrl: ""
+      }
+    ],
     isPremium: false,
     chartImageId: "667ac0fc003b8278bd76",
     targets: [
@@ -350,7 +492,18 @@ export const signalsMock: SignalModel[] = [
     chartImageId: "667ac082001aca28162f",
     entry: 600,
     status: "open",
-    likes: 0,
+    likes: [
+      {
+        name: "Amir Pouya",
+        username: "AmirP",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+      },
+      {
+        name: "Amirsaeed Aryanmehr",
+        username: "Amir_Aryan",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+      }
+    ],
     isPremium: true,
     targets: [
       { id: v4(), value: 630, touched: undefined },
@@ -378,7 +531,23 @@ export const signalsMock: SignalModel[] = [
     chartImageId: "667abd34001b0c49c17e",
     entry: 2887,
     status: "closed",
-    likes: 1000,
+    likes: [
+      {
+        name: "Ali",
+        username: "Alid",
+        imageUrl: ""
+      },
+      {
+        name: "susba",
+        username: "susbakun",
+        imageUrl: ""
+      },
+      {
+        name: "Amir Pouya",
+        username: "AmirP",
+        imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+      }
+    ],
     isPremium: true,
     targets: [
       { id: v4(), value: 2900, touched: true },

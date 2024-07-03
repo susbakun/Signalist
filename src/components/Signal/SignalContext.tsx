@@ -50,7 +50,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
     await navigator.clipboard.writeText(target.value.toString())
   }
 
-  const handleClick = () => {
+  const handleImageClick = () => {
     setEnlarged((prev) => !prev)
   }
 
@@ -121,13 +121,15 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
                 },
                 { "justify-center bg-black bg-opacity-75": enlarged }
               )}
-              onClick={handleClick}
+              onClick={handleImageClick}
             >
               <img
                 className={cn(
-                  "w-full h-full object-cover cursor-zoom-in",
+                  "w-full h-full object-cover cursor-pointer",
                   "transition-transform duration-300",
-                  { "w-[70%] h-[70%] object-contain cursor-zoom-out": enlarged }
+                  {
+                    "w-[70%] h-[70%] object-contain": enlarged
+                  }
                 )}
                 src={chartHref}
                 alt="Chart"

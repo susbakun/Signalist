@@ -1,18 +1,19 @@
-import { PostCommentModal, SharePostModal } from '@/components'
-import { dislikePost, likePost } from '@/features/Post/postsSlice'
-import { PostModel } from '@/shared/models'
-import { cn, isDarkMode } from '@/utils'
-import millify from 'millify'
-import { useState } from 'react'
-import { FaBookmark, FaCommentSlash, FaRegBookmark, FaRegComment } from 'react-icons/fa'
-import { HiOutlineLightningBolt } from 'react-icons/hi'
-import { HiBolt } from 'react-icons/hi2'
-import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
+import { PostCommentModal, SharePostModal } from "@/components"
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { dislikePost, likePost } from "@/features/Post/postsSlice"
+import { PostModel } from "@/shared/models"
+import { cn, isDarkMode } from "@/utils"
+import millify from "millify"
+import { useState } from "react"
+import { FaBookmark, FaCommentSlash, FaRegBookmark, FaRegComment } from "react-icons/fa"
+import { HiOutlineLightningBolt } from "react-icons/hi"
+import { HiBolt } from "react-icons/hi2"
+import { useDispatch } from "react-redux"
+import { toast } from "react-toastify"
 
 type PostFooterProps = {
-  post: Omit<PostModel, 'comments'>
-  comments?: PostModel['comments']
+  post: Omit<PostModel, "comments">
+  comments?: PostModel["comments"]
   simplified?: boolean
   amISubscribed?: boolean
   handleOpenEditPostModal?: () => void
@@ -26,7 +27,10 @@ export const PostFooter = ({
   handleOpenEditPostModal
 }: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
+  const [isLiked, setIsLiked] = useState(() => {
+    return post.likes.some((user) => user.username === "Amir_Aryan")
+  })
+
   const [openShareModal, setOpenShareModal] = useState(false)
   const [openCommentsModal, setOpenCommentsModal] = useState(false)
 
@@ -34,11 +38,15 @@ export const PostFooter = ({
 
   const { publisher } = post
 
+  const myAccount = useAppSelector((state) => state.users).find(
+    (user) => user.username === "Amir_Aryan"
+  )
+
   const handleLikePost = () => {
-    if (isLiked) {
-      dispatch(likePost({ id: post.id }))
+    if (!isLiked) {
+      dispatch(likePost({ postId: post.id, user: myAccount }))
     } else {
-      dispatch(dislikePost({ id: post.id }))
+      dispatch(dislikePost({ postId: post.id, user: myAccount }))
     }
     setIsLiked((prev) => !prev)
   }
@@ -74,15 +82,15 @@ export const PostFooter = ({
   const handleCopyLink = async () => {
     const link = `https://www.signalists/explore/${post.id}`
     await navigator.clipboard.writeText(link)
-    toast.info('Post link is copied', {
-      position: 'bottom-center',
+    toast.info("Post link is copied", {
+      position: "bottom-center",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: isDarkMode() ? 'dark' : 'light'
+      theme: isDarkMode() ? "dark" : "light"
     })
     handleCloseShareModal()
   }
@@ -90,7 +98,7 @@ export const PostFooter = ({
   return (
     <>
       <div
-        className={cn('flex justify-between items-center mt-2', { '-translate-x-2': simplified })}
+        className={cn("flex justify-between items-center mt-2", { "-translate-x-2": simplified })}
       >
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-[2px]">
@@ -101,7 +109,7 @@ export const PostFooter = ({
                 <HiOutlineLightningBolt className="w-6 h-6" />
               )}
             </button>
-            <span className="detail-text">{millify(post.likes)}</span>
+            <span className="detail-text">{millify(post.likes.length)}</span>
           </div>
           {comments && (
             <div className="flex items-center gap-1">

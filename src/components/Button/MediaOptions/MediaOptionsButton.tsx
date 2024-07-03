@@ -1,16 +1,20 @@
 import { Popover } from "flowbite-react"
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import { CiLink } from "react-icons/ci"
 import { MediaOptionsButtonContent } from "./MediaOptionsButtonContent"
 
-export const MediaOptionsButton = () => {
+type MediaOptionsButtonProps = {
+  handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
+}
+
+export const MediaOptionsButton = ({ handleChangeImage }: MediaOptionsButtonProps) => {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <Popover
       trigger="click"
       placement="top"
       aria-labelledby="more-options"
-      content={<MediaOptionsButtonContent />}
+      content={<MediaOptionsButtonContent handleChangeImage={handleChangeImage} />}
       open={isOpen}
       onOpenChange={setIsOpen}
     >

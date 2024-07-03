@@ -22,7 +22,6 @@ export const SignalModalFileInput = ({
   }
 
   useEffect(() => {
-    console.log("first")
     if (inputRef.current && inputRef.current.files) {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -52,8 +51,9 @@ export const SignalModalFileInput = ({
         />
         <div>
           <button
-            className="px-2 py-2 text-sm action-button text-white rounded-lg bg-primary-link-button
-          dark:bg-dark-link-button flex items-center text-nowrap"
+            className="px-2 py-2 text-sm action-button text-white rounded-lg
+          dark:bg-dark-link-button flex items-center text-nowrap
+          bg-primary-link-button"
             onClick={() => inputRef.current?.click()}
           >
             <MdOutlineFileUpload className="w-4 h-4 mr-2" />

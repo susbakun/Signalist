@@ -1,14 +1,14 @@
-import { postsMock } from '@/assets/mocks'
-import { CommentModel, PostModel } from '@/shared/models'
-import { RootState } from '@/shared/types'
-import { createSlice } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useSelector } from 'react-redux'
-import { v4 } from 'uuid'
+import { postsMock } from "@/assets/mocks"
+import { CommentModel, PostModel } from "@/shared/models"
+import { RootState, SimplifiedAccountType } from "@/shared/types"
+import { createSlice } from "@reduxjs/toolkit"
+import { TypedUseSelectorHook, useSelector } from "react-redux"
+import { v4 } from "uuid"
 
 const initialState = postsMock
 
 const postsSlice = createSlice({
-  name: 'posts',
+  name: "posts",
   initialState,
   reducers: {
     createPost: (state, action) => {
@@ -16,10 +16,13 @@ const postsSlice = createSlice({
         id: v4(),
         isPremium: action.payload.isPremium,
         content: action.payload.content,
-        likes: 0,
+        likes: [],
         publisher: action.payload.publisher,
         date: new Date().getTime(),
         comments: []
+      }
+      if (action.payload.postImageId) {
+        newPost.postImageId = action.payload.postImageId
       }
       state.push(newPost)
     },
@@ -31,16 +34,24 @@ const postsSlice = createSlice({
     },
     likePost: (state, action) => {
       return state.map((post) => {
-        if (post.id === action.payload.id) {
-          return { ...post, likes: post.likes - 1 }
+        if (post.id === action.payload.postId) {
+          if (post.likes.every((user) => user.username !== action.payload.user.username)) {
+            const newLikesList: SimplifiedAccountType[] = [...post.likes, action.payload.user]
+            return { ...post, likes: newLikesList }
+          }
         }
         return post
       })
     },
     dislikePost: (state, action) => {
       return state.map((post) => {
-        if (post.id === action.payload.id) {
-          return { ...post, likes: post.likes + 1 }
+        if (post.id === action.payload.postId) {
+          if (post.likes.some((user) => user.username === action.payload.user.username)) {
+            const newLikesList: SimplifiedAccountType[] = post.likes.filter(
+              (user) => user.username !== action.payload.user.username
+            )
+            return { ...post, likes: newLikesList }
+          }
         }
         return post
       })
@@ -48,33 +59,32 @@ const postsSlice = createSlice({
     likeComment: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
-          const newComments = post.comments.map((comment) => {
-            if (comment.commentId === action.payload.commentId) {
-              return { ...comment, likes: comment.likes + 1 }
-            } else {
-              return comment
-            }
-          })
-          return { ...post, comments: newComments }
-        } else {
-          return post
+          const likedComment: CommentModel = post.comments.find(
+            (commnet) => commnet.commentId === action.payload.commentId
+          )!
+          const updatedCommentPost = [...likedComment.likes, action.payload.user]
+          return { ...post, comments: [...post.comments, ...updatedCommentPost] }
         }
+        return post
       })
     },
     dislikeComment: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
-          const newComments = post.comments.map((comment) => {
-            if (comment.commentId === action.payload.commentId) {
-              return { ...comment, likes: comment.likes - 1 }
-            } else {
-              return comment
-            }
-          })
-          return { ...post, comments: newComments }
-        } else {
-          return post
+          const dislikedComment: CommentModel = post.comments.find(
+            (commnet) => commnet.commentId === action.payload.commendId
+          )!
+          const updatedCommentPost: CommentModel = {
+            ...dislikedComment,
+            likes: [
+              ...dislikedComment.likes.filter(
+                (user) => user.username !== action.payload.user.username
+              )
+            ]
+          }
+          return { ...post, comments: [...post.comments, updatedCommentPost] }
         }
+        return post
       })
     },
     postComment: (state, action) => {
@@ -85,7 +95,7 @@ const postsSlice = createSlice({
             body: action.payload.body,
             commentId: v4(),
             date: new Date().getTime(),
-            likes: 0,
+            likes: [],
             postId: action.payload.postId,
             publisher: action.payload.publisher
           }
@@ -98,7 +108,15 @@ const postsSlice = createSlice({
     editPost: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
-          return { ...post, content: action.payload.content, date: new Date().getTime() }
+          const editedPost: PostModel = {
+            ...post,
+            content: action.payload.content,
+            date: new Date().getTime()
+          }
+          if (action.payload.postImageId) {
+            editedPost.postImageId = action.payload.postImageId
+          }
+          return editedPost
         }
         return post
       })

@@ -1,7 +1,7 @@
-import { EditPostModal, PostBody, PostFooter, PostTopBar } from '@/components'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { PostModel } from '@/shared/models'
-import { useState } from 'react'
+import { EditPostModal, PostBody, PostFooter, PostTopBar } from "@/components"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { PostModel } from "@/shared/models"
+import { useState } from "react"
 
 type PostProps = {
   post: PostModel
@@ -40,6 +40,7 @@ export const Post = ({ post }: PostProps) => {
           publisherUsername={publisher.username}
           amISubscribed={amISubscribed}
           content={post.content}
+          postImageId={post.postImageId}
         />
         <PostFooter
           handleOpenEditPostModal={handleOpenEditPostModal}

@@ -1,6 +1,6 @@
 import { signalsMock } from "@/assets/mocks"
 import { SignalModel } from "@/shared/models"
-import { CoinType } from "@/shared/types"
+import { CoinType, SimplifiedAccountType } from "@/shared/types"
 import { createSlice } from "@reduxjs/toolkit"
 import { v4 } from "uuid"
 
@@ -19,7 +19,7 @@ const signalsSlice = createSlice({
         publisher: action.payload.publisher,
         status: action.payload.status,
         isPremium: action.payload.isPremium,
-        likes: 0,
+        likes: [],
         market: action.payload.market,
         entry: action.payload.entry,
         stoploss: action.payload.stoploss,
@@ -33,16 +33,24 @@ const signalsSlice = createSlice({
     },
     likeSignal: (state, action) => {
       return state.map((signal) => {
-        if (signal.id === action.payload.id) {
-          return { ...signal, likes: signal.likes + 1 }
+        if (signal.id === action.payload.signalId) {
+          if (signal.likes.every((user) => user.username !== action.payload.user.username)) {
+            const newLikesList: SimplifiedAccountType[] = [...signal.likes, action.payload.user]
+            return { ...signal, likes: newLikesList }
+          }
         }
         return signal
       })
     },
     dislikeSignal: (state, action) => {
       return state.map((signal) => {
-        if (signal.id === action.payload.id) {
-          return { ...signal, likes: signal.likes - 1 }
+        if (signal.id === action.payload.signalId) {
+          if (signal.likes.some((user) => user.username === action.payload.user.username)) {
+            const newLikesList: SimplifiedAccountType[] = signal.likes.filter(
+              (user) => user.username !== action.payload.user.username
+            )
+            return { ...signal, likes: newLikesList }
+          }
         }
         return signal
       })

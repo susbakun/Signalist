@@ -102,7 +102,7 @@ export type CommentModel = {
   postId: PostModel["id"]
   commentId: string
   body: string
-  likes: number
+  likes: SimplifiedAccountType[]
   date: number
   publisher: SimplifiedAccountType
 }
@@ -111,10 +111,11 @@ export type PostModel = {
   id: string
   content: string
   date: number
-  likes: number
+  likes: SimplifiedAccountType[]
   comments: CommentModel[]
   isPremium: boolean
   publisher: SimplifiedAccountType
+  postImageId?: string
 }
 
 export type SignalModel = {
@@ -130,7 +131,7 @@ export type SignalModel = {
   closeTime: number
   status: StatusType
   date: number
-  likes: number
+  likes: SimplifiedAccountType[]
   description?: string
   chartImageId?: string
   isPremium: boolean
