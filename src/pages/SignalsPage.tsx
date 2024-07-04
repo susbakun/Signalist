@@ -1,6 +1,6 @@
-import { CreateSignalButton, CreateSignalModal, Signal, StreamingUser } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { useState } from 'react'
+import { CreateSignalButton, CreateSignalModal, Signal, StreamingUser } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { useState } from "react"
 
 export const SignalsPage = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
@@ -46,8 +46,8 @@ const ExploreSignals = () => {
 
 const RightSidebar = () => {
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir_Aryan')
-  let selectedUsers = [...users.filter((user) => user.username !== me?.username)]
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  let selectedUsers = [...users.filter((user) => user.username !== myAccount?.username)]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
 
   return (

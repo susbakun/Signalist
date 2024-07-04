@@ -1,12 +1,12 @@
-import { AccountModel } from '@/shared/models'
-import { Popover } from 'flowbite-react'
-import { TfiMore } from 'react-icons/tfi'
-import { MoreOptionsButtonContent } from './MoreOptionsButtonContent'
+import { AccountModel } from "@/shared/models"
+import { Popover } from "flowbite-react"
+import { TfiMore } from "react-icons/tfi"
+import { MoreOptionsButtonContent } from "./MoreOptionsButtonContent"
 
 type ProfilePageMoreOptionButtonProps = {
   open: boolean
   myAccount: AccountModel
-  userUsername: AccountModel['username']
+  userUsername: AccountModel["username"]
   handleClose: () => void
   handleOpen: () => void
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -26,10 +26,10 @@ export const ProfilePageMoreOptionButton = ({
       aria-labelledby="more-options"
       content={
         <MoreOptionsButtonContent
-          follower={myAccount!}
+          myAccount={myAccount!}
           isForUserPage={true}
           closePopover={handleClose}
-          username={userUsername}
+          userUsername={userUsername}
         />
       }
       open={open}

@@ -96,6 +96,7 @@ export type AccountModel = {
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
   // bookmarks: (SignalModel | PostModel)[]
+  blockedAccounts: SimplifiedAccountType[]
 }
 
 export type CommentModel = {

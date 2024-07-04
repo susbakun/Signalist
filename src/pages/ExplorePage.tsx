@@ -1,8 +1,9 @@
-import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from '@/components'
-import { useAppSelector } from '@/features/User/usersSlice'
-import { editPostRouteRegExp } from '@/shared/constants'
-import { useEffect, useState } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from "@/components"
+import { useAppSelector } from "@/features/User/usersSlice"
+import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { editPostRouteRegExp } from "@/shared/constants"
+import { useEffect, useState } from "react"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 
 export const ExplorePage = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
@@ -10,8 +11,8 @@ export const ExplorePage = () => {
   const location = useLocation()
 
   useEffect(() => {
-    if (location.pathname == '/explore') {
-      navigate('followings')
+    if (location.pathname == "/explore") {
+      navigate("followings")
     }
     if (editPostRouteRegExp.test(location.pathname)) {
       setOpenCreatePostModal(true)
@@ -53,9 +54,15 @@ const ExplorePosts = () => {
 
 export const RightSideBar = () => {
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === 'Amir_Aryan')
-  let selectedUsers = [...users.filter((user) => user.username !== me?.username)]
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const { isUserBlocked } = userIsUserBlocked(myAccount)
+  let selectedUsers = [
+    ...users.filter(
+      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+    )
+  ]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
+
   return (
     <aside className="w-[38%] h-screen flex flex-col pt-8 px-8 sticky top-0">
       <div
@@ -65,7 +72,7 @@ export const RightSideBar = () => {
         <h2 className="text-xl font-bold">Who to follow</h2>
         <div className="flex flex-col gap-4">
           {selectedUsers.map((user) => (
-            <UserPreview follower={me!} key={user.username} {...user} />
+            <UserPreview follower={myAccount!} key={user.username} {...user} />
           ))}
         </div>
       </div>

@@ -1,12 +1,12 @@
-import { messagesMock } from '@/assets/mocks'
-import { RootState } from '@/shared/types'
-import { createSlice } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useSelector } from 'react-redux'
+import { messagesMock } from "@/assets/mocks"
+import { ChatType, RootState } from "@/shared/types"
+import { createSlice } from "@reduxjs/toolkit"
+import { TypedUseSelectorHook, useSelector } from "react-redux"
 
 const initialState = messagesMock
 
 const messagesSlice = createSlice({
-  name: 'posts',
+  name: "posts",
   initialState,
   reducers: {
     createRoom: (state, action) => {
@@ -16,13 +16,16 @@ const messagesSlice = createSlice({
       }
     },
     sendMessage: (state, action) => {
-      const newMessage = {
+      const newMessage: ChatType = {
         sender: action.payload.sender,
         date: new Date().getTime(),
         text: action.payload.text
       }
-      state[action.payload.sender.username][action.payload.roomId]['messages'] = [
-        ...state[action.payload.sender.username][action.payload.roomId]['messages'],
+      if (action.payload.messageImageId) {
+        newMessage.messageImageId = action.payload.messageImageId
+      }
+      state[action.payload.sender.username][action.payload.roomId]["messages"] = [
+        ...state[action.payload.sender.username][action.payload.roomId]["messages"],
         newMessage
       ]
     }

@@ -1,19 +1,20 @@
-import { UserPreview } from '@/components/Shared/UserPreview'
-import { createRoom, useAppSelector } from '@/features/Message/messagesSlice'
-import { useUserMessageRoom } from '@/hooks/useUserMessageRoom'
-import { EmptyPage } from '@/pages'
-import { AccountModel, MessageModel } from '@/shared/models'
-import { SimplifiedAccountType } from '@/shared/types'
-import { cn } from '@/utils'
-import { Modal } from 'flowbite-react'
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { v4 } from 'uuid'
+import { UserPreview } from "@/components/Shared/UserPreview"
+import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
+import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
+import { EmptyPage } from "@/pages"
+import { AccountModel, MessageModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
+import { cn } from "@/utils"
+import { Modal } from "flowbite-react"
+import { ChangeEvent, useCallback, useMemo, useState } from "react"
+import { useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { v4 } from "uuid"
 
 type CreateMessageModalProps = {
   openModal: boolean
-  myMessages: MessageModel['']
+  myMessages: MessageModel[""]
   handleCloseModal: () => void
 }
 
@@ -22,23 +23,28 @@ export const CreateMessageModal = ({
   handleCloseModal,
   myMessages
 }: CreateMessageModalProps) => {
-  const [searched, setSearched] = useState('')
+  const [searched, setSearched] = useState("")
 
-  const users = useAppSelector((state) => state.users).filter(
-    (user) => user.username !== 'Amir_Aryan'
-  )
+  const users = useAppSelector((state) => state.users)
+
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+
+  const exceptMeUsers = users.filter((user) => user.username !== "Amir_Aryan")
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { isUserBlocked } = userIsUserBlocked(myAccount)
 
   const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(myMessages)
 
   const handleSearchUsers = useCallback(() => {
-    return users.filter(
+    return exceptMeUsers.filter(
       (user) =>
-        user.username.toLowerCase().includes(searched.toLowerCase()) ||
-        user.name.toLocaleLowerCase().includes(searched)
+        (user.username.toLowerCase().includes(searched.toLowerCase()) ||
+          user.name.toLocaleLowerCase().includes(searched)) &&
+        !isUserBlocked(user.username)
     )
-  }, [users, searched])
+  }, [exceptMeUsers, searched])
 
   const searchedUsers = useMemo(() => handleSearchUsers(), [handleSearchUsers])
 
@@ -58,7 +64,7 @@ export const CreateMessageModal = ({
         imageUrl: user.imageUrl
       }
       const roomId = v4()
-      dispatch(createRoom({ myUsername: 'Amir_Aryan', userInfo, roomId }))
+      dispatch(createRoom({ myUsername: "Amir_Aryan", userInfo, roomId }))
       navigate(roomId)
     }
   }
@@ -85,8 +91,8 @@ export const CreateMessageModal = ({
           {searchedUsers.length > 0 ? (
             searchedUsers.map((user, index) => (
               <UserPreview
-                className={cn('border-b pt-2 border-b-gray-600/20 pb-4 dark:border-b-white/20', {
-                  'border-none pb-0': index === searchedUsers.length - 1
+                className={cn("border-b pt-2 border-b-gray-600/20 pb-4 dark:border-b-white/20", {
+                  "border-none pb-0": index === searchedUsers.length - 1
                 })}
                 {...user}
                 isForMessageRoom

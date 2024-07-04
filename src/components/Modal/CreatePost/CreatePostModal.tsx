@@ -64,13 +64,12 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
     hanldeResetForm()
   }
 
+  const handleTogglePremium = () => {
+    setIsPremium((prev) => !prev)
+  }
   const handleResetFileInput = () => {
     setImagePreview(null)
     handleCancelSelectImage()
-  }
-
-  const handleTogglePremium = () => {
-    setIsPremium((prev) => !prev)
   }
 
   const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {

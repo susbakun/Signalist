@@ -1,16 +1,18 @@
-import { CreateMessageModal } from '@/components'
-import { MessageModel } from '@/shared/models'
-import { SimplifiedAccountType } from '@/shared/types'
-import { getAvatarPlaceholder } from '@/utils'
-import Tippy from '@tippyjs/react'
-import { Avatar } from 'flowbite-react'
-import { useState } from 'react'
-import { TbMessagePlus } from 'react-icons/tb'
-import { Link } from 'react-router-dom'
-import { roundArrow } from 'tippy.js'
+import { CreateMessageModal } from "@/components"
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { MessageModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
+import { getAvatarPlaceholder } from "@/utils"
+import Tippy from "@tippyjs/react"
+import { Avatar } from "flowbite-react"
+import { useState } from "react"
+import { TbMessagePlus } from "react-icons/tb"
+import { Link } from "react-router-dom"
+import { roundArrow } from "tippy.js"
 
 type MessageRoomsProps = {
-  myMessages: MessageModel['']
+  myMessages: MessageModel[""]
 }
 
 export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
@@ -25,6 +27,12 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
   const handleCloseCreateMessageModal = () => {
     setShowCreateMessageModal(false)
   }
+
+  const myAccount = useAppSelector((state) => state.users).find(
+    (user) => user.username === "Amir_Aryan"
+  )
+
+  const { isUserBlocked } = userIsUserBlocked(myAccount)
 
   const getDesiredUserAvatar = (userInfo: SimplifiedAccountType, placeholder?: string) => {
     if (userInfo.imageUrl) {
@@ -54,7 +62,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
   const getMessageInfo = (messageId: string) => {
     const lastMessage =
-      myMessages[messageId]['messages'][myMessages[messageId]['messages'].length - 1]
+      myMessages[messageId]["messages"][myMessages[messageId]["messages"].length - 1]
     const { userInfo } = myMessages[messageId]
     const placeholder = getAvatarPlaceholder(userInfo.name)
     let text
@@ -88,6 +96,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
         </div>
         {messagesIds.map((messageId) => {
           const { placeholder, text, userInfo } = getMessageInfo(messageId)
+          if (isUserBlocked(userInfo.username)) return
           return (
             <Link
               key={messageId}

@@ -1,12 +1,12 @@
-import { usersMock } from '@/assets/mocks'
-import { RootState } from '@/shared/types'
-import { createSlice } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useSelector } from 'react-redux'
+import { usersMock } from "@/assets/mocks"
+import { RootState, SimplifiedAccountType } from "@/shared/types"
+import { createSlice } from "@reduxjs/toolkit"
+import { TypedUseSelectorHook, useSelector } from "react-redux"
 
 const initialState = usersMock
 
 const usersSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState,
   reducers: {
     followUser: (state, action) => {
@@ -58,10 +58,25 @@ const usersSlice = createSlice({
         }
         return user
       })
+    },
+    blockUser: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.blockerUsername) {
+          const { name, username, imageUrl }: SimplifiedAccountType = state.find(
+            (user) => user.username === action.payload.blockedUsername
+          )!
+          const blockedUser = { name, username, imageUrl }
+          return {
+            ...user,
+            blockedAccounts: [...user.blockedAccounts, blockedUser]
+          }
+        }
+        return user
+      })
     }
   }
 })
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-export const { followUser, unfollowUser, updateUserScore } = usersSlice.actions
+export const { followUser, unfollowUser, updateUserScore, blockUser } = usersSlice.actions
 export default usersSlice.reducer

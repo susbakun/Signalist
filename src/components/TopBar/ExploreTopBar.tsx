@@ -1,16 +1,19 @@
-import { UserPreview } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { EmptyPage } from '@/pages'
-import { cn, isEmpty } from '@/utils'
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { IoSearchOutline } from 'react-icons/io5'
-import { NavLink } from 'react-router-dom'
+import { UserPreview } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { EmptyPage } from "@/pages"
+import { cn, isEmpty } from "@/utils"
+import { ChangeEvent, useCallback, useMemo, useState } from "react"
+import { IoSearchOutline } from "react-icons/io5"
+import { NavLink } from "react-router-dom"
 
 export const ExploreTopBar = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
-  const [searched, setSearched] = useState('')
+  const [searched, setSearched] = useState("")
 
   const users = useAppSelector((state) => state.users)
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const { isUserBlocked } = userIsUserBlocked(myAccount)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearched(e.target.value)
@@ -28,12 +31,15 @@ export const ExploreTopBar = () => {
   const handleSearchUsers = useCallback(() => {
     return users.filter(
       (user) =>
-        user.username.toLowerCase().includes(searched.toLowerCase()) ||
-        user.name.toLocaleLowerCase().includes(searched)
+        (user.username.toLowerCase().includes(searched.toLowerCase()) ||
+          user.name.toLocaleLowerCase().includes(searched)) &&
+        !isUserBlocked(user.username)
     )
   }, [users, searched])
 
   const searchedUsers = useMemo(() => handleSearchUsers(), [handleSearchUsers])
+
+  console.log(searchedUsers)
 
   return (
     <div
@@ -56,9 +62,9 @@ export const ExploreTopBar = () => {
             value={searched}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
-            className={cn('custom-input pl-4 inline-block w-full', {
-              'w-[80%]': isInputFocused,
-              'pl-8': isInputFocused
+            className={cn("custom-input pl-4 inline-block w-full", {
+              "w-[80%]": isInputFocused,
+              "pl-8": isInputFocused
             })}
             placeholder="Search"
           />
@@ -80,8 +86,8 @@ export const ExploreTopBar = () => {
               ) : (
                 searchedUsers.map((user, index) => (
                   <UserPreview
-                    className={cn('border-b border-b-gray-600/20 pb-4 dark:border-b-white/20', {
-                      'border-none pb-0': index === searchedUsers.length - 1
+                    className={cn("border-b border-b-gray-600/20 pb-4 dark:border-b-white/20", {
+                      "border-none pb-0": index === searchedUsers.length - 1
                     })}
                     {...user}
                     key={user.username}

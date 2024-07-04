@@ -4,3 +4,4 @@ export const editPostRouteRegExp = /\/(explore\/)?(suggests|posts)\/editPost\/.*
 export const tradingviewScriptSrc =
   "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
 export const tradingviewSupportHost = "https://www.tradingview.com"
+export const nobitexMarketChart = "https://nobitex.ir/nobitex-cdn/charts/"

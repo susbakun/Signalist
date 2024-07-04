@@ -1,36 +1,28 @@
-import { MediaOptionsButton, MessageImagePreviewModal } from "@/components"
 import { cn, isDarkMode } from "@/utils"
-import Tippy from "@tippyjs/react"
 import EmojiPicker, { Theme } from "emoji-picker-react"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { BsEmojiGrin } from "react-icons/bs"
-import { roundArrow } from "tippy.js"
 
-type MessageRoomInputProps = {
+type MessageWithImagePreviewInputProps = {
   messageText: string
   isEmojiPickerOpen: boolean
-  selectedImage: File | undefined
-  handleSendMessage: () => Promise<void>
-  handleToggleEmojiPicker: () => void
+  sendButtonDisabled: boolean
   handleSelectEmoji: (emoji: string) => void
+  handleToggleEmojiPicker: () => void
   handleChangeMessageText: (e: ChangeEvent<HTMLTextAreaElement>) => void
-  handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
+  handleSendMessage: () => Promise<void>
 }
 
-export const MessageRoomInput = ({
+export const MessageWithImagePreviewInput = ({
   messageText,
-  handleSendMessage,
-  selectedImage,
   isEmojiPickerOpen,
+  sendButtonDisabled,
   handleSelectEmoji,
-  handleChangeMessageText,
   handleToggleEmojiPicker,
-  handleChangeImage
-}: MessageRoomInputProps) => {
+  handleChangeMessageText,
+  handleSendMessage
+}: MessageWithImagePreviewInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false)
-
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [isImagePreviewModalOpen, setIsImagePreviewModalOpen] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -49,27 +41,12 @@ export const MessageRoomInput = ({
     }
   }
 
-  const handleCloseImagePreviewModal = () => {
-    setIsImagePreviewModalOpen(false)
-  }
-
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
     }
   }, [messageText])
-
-  useEffect(() => {
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string)
-    }
-    if (selectedImage) {
-      setIsImagePreviewModalOpen(true)
-      reader.readAsDataURL(selectedImage)
-    }
-  }, [selectedImage])
 
   return (
     <>
@@ -111,34 +88,20 @@ export const MessageRoomInput = ({
         </button>
         <textarea
           ref={textareaRef}
-          value={isImagePreviewModalOpen ? "" : messageText}
+          value={messageText}
           onChange={handleChangeMessageText}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           className="w-full px-1 py-2 bg-gray-200 dark:bg-gray-800
-        dark:text-gray-100 placeholder-gray-500 text-gray-600
-          border-none ring-0 focus:ring-0 resize-none max-h-40 overflow-y-auto"
+              dark:text-gray-100 placeholder-gray-500 text-gray-600
+                border-none ring-0 focus:ring-0 resize-none max-h-40 overflow-y-auto"
           onFocus={handleFocusOrBlurInput}
           onBlur={handleFocusOrBlurInput}
           rows={1}
         ></textarea>
         <div className="flex gap-2 items-center">
-          <Tippy
-            content="Media"
-            className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-            rounded-md px-1 py-[2px] text-sm"
-            delay={[1000, 0]}
-            placement="top"
-            animation="fade"
-            arrow={roundArrow}
-            offset={[0, 8]}
-            duration={10}
-            hideOnClick={true}
-          >
-            <MediaOptionsButton handleChangeImage={handleChangeImage} />
-          </Tippy>
           <button
-            disabled={isInputEmpty()}
+            disabled={isInputEmpty() || sendButtonDisabled}
             onClick={handleSendMessage}
             className="text-primary-link-button py-0 disabled:opacity-50"
           >
@@ -146,15 +109,6 @@ export const MessageRoomInput = ({
           </button>
         </div>
       </div>
-      <MessageImagePreviewModal
-        isOpen={isImagePreviewModalOpen}
-        imagePreview={imagePreview}
-        messageText={messageText}
-        sendMessage={handleSendMessage}
-        handleChangeMessageText={handleChangeMessageText}
-        handleSelectEmoji={handleSelectEmoji}
-        closeModal={handleCloseImagePreviewModal}
-      />
     </>
   )
 }

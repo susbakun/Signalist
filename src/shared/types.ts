@@ -1,15 +1,20 @@
-import RootStore from '@/app/store'
-import { AccountModel, CryptoResponseType } from './models'
+import RootStore from "@/app/store"
+import { AccountModel, CryptoResponseType } from "./models"
 
 export type RootState = ReturnType<typeof RootStore.getState>
-export type CoinType = CryptoResponseType['data']['coins'][0]
-export type StatusType = 'closed' | 'open' | 'not_opened'
-export type SimplifiedAccountType = Pick<AccountModel, 'name' | 'username' | 'imageUrl'>
-export type SignalAccountType = SimplifiedAccountType & { score: AccountModel['score'] }
-type DurationType = '30 days' | '3 months' | '6 months' | '12 months'
+export type CoinType = CryptoResponseType["data"]["coins"][0]
+export type StatusType = "closed" | "open" | "not_opened"
+export type SimplifiedAccountType = Pick<AccountModel, "name" | "username" | "imageUrl">
+export type SignalAccountType = SimplifiedAccountType & { score: AccountModel["score"] }
+type DurationType = "30 days" | "3 months" | "6 months" | "12 months"
 export type SubscriptionPlanType = { duration: DurationType; price: number }[]
 export type SubscriberType = {
-  username: AccountModel['username']
+  username: AccountModel["username"]
   expireDate: number
 }
-export type ChatType = { sender: SimplifiedAccountType; text: string; date: number }
+export type ChatType = {
+  sender: SimplifiedAccountType
+  text: string
+  date: number
+  messageImageId?: string
+}

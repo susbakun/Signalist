@@ -20,7 +20,9 @@ type SignalFooterProps = {
 export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) => {
   const dispatch = useDispatch()
 
-  const [isLiked, setIsLiked] = useState(false)
+  const [isLiked, setIsLiked] = useState(() => {
+    return likes.some((user) => user.username === "Amir_Aryan")
+  })
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
 

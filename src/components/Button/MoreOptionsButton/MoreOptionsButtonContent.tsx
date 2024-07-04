@@ -1,26 +1,26 @@
-import { blockUser, deletePost } from '@/features/Post/postsSlice'
-import { followUser, unfollowUser } from '@/features/User/usersSlice'
-import { AccountModel, PostModel, SignalModel } from '@/shared/models'
-import { isDarkMode } from '@/utils'
-import { useMemo } from 'react'
-import { IoHeartDislikeOutline, IoPersonAddOutline, IoPersonRemoveOutline } from 'react-icons/io5'
-import { MdBlock, MdOutlineReport } from 'react-icons/md'
-import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
+import { deletePost } from "@/features/Post/postsSlice"
+import { blockUser, followUser, unfollowUser } from "@/features/User/usersSlice"
+import { AccountModel, PostModel, SignalModel } from "@/shared/models"
+import { isDarkMode } from "@/utils"
+import { useMemo } from "react"
+import { IoHeartDislikeOutline, IoPersonAddOutline, IoPersonRemoveOutline } from "react-icons/io5"
+import { MdBlock, MdOutlineReport } from "react-icons/md"
+import { useDispatch } from "react-redux"
+import { toast } from "react-toastify"
 
 type MoreOptionsButtonContentProps = {
-  username: AccountModel['username']
-  postId?: PostModel['id']
-  signalId?: SignalModel['id']
-  follower: AccountModel
+  userUsername: AccountModel["username"]
+  postId?: PostModel["id"]
+  signalId?: SignalModel["id"]
+  myAccount: AccountModel
   isForComment?: boolean
   isForUserPage?: boolean
   closePopover: () => void
 }
 
 export const MoreOptionsButtonContent = ({
-  username,
-  follower,
+  userUsername,
+  myAccount,
   signalId,
   closePopover,
   isForUserPage,
@@ -30,35 +30,39 @@ export const MoreOptionsButtonContent = ({
   const dispatch = useDispatch()
 
   const isFollowed = useMemo(
-    () => follower.followings.some((following) => following.username === username),
-    [follower, username]
+    () => myAccount.followings.some((following) => following.username === userUsername),
+    [myAccount, userUsername]
   )
 
   const handleFollowUser = () => {
     if (!isFollowed) {
-      toast.success(`You followed user @${username}`, {
-        position: 'bottom-left',
+      toast.success(`You followed user @${userUsername}`, {
+        position: "bottom-left",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: isDarkMode() ? 'dark' : 'light'
+        theme: isDarkMode() ? "dark" : "light"
       })
-      dispatch(followUser({ followerUsername: follower.username, followingUsername: username }))
+      dispatch(
+        followUser({ myAccountUsername: myAccount.username, followingUsername: userUsername })
+      )
     } else {
-      toast.warn(`You unfollowed user @${username}`, {
-        position: 'bottom-left',
+      toast.warn(`You unfollowed user @${userUsername}`, {
+        position: "bottom-left",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: isDarkMode() ? 'dark' : 'light'
+        theme: isDarkMode() ? "dark" : "light"
       })
-      dispatch(unfollowUser({ followerUsername: follower.username, followingUsername: username }))
+      dispatch(
+        unfollowUser({ myAccountUsername: myAccount.username, followingUsername: userUsername })
+      )
     }
     closePopover()
   }
@@ -69,31 +73,31 @@ export const MoreOptionsButtonContent = ({
   }
 
   const handleBlockUser = () => {
-    dispatch(blockUser({ username }))
+    dispatch(blockUser({ blockerUsername: myAccount.username, blockedUsername: userUsername }))
     closePopover()
-    toast.warn(`You blockes user @${username}`, {
-      position: 'bottom-left',
+    toast.warn(`You blockes user @${userUsername}`, {
+      position: "bottom-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: isDarkMode() ? 'dark' : 'light'
+      theme: isDarkMode() ? "dark" : "light"
     })
   }
 
   const handleReportUser = () => {
     closePopover()
-    toast.error(`This ${isForComment ? 'Comment' : signalId ? 'Signal' : 'Post'} is reported`, {
-      position: 'bottom-left',
+    toast.error(`This ${isForComment ? "Comment" : signalId ? "Signal" : "Post"} is reported`, {
+      position: "bottom-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
-      theme: isDarkMode() ? 'dark' : 'light'
+      theme: isDarkMode() ? "dark" : "light"
     })
   }
 
@@ -102,7 +106,7 @@ export const MoreOptionsButtonContent = ({
       {!isForUserPage && (
         <button onClick={handleFollowUser} className="option-button px-2 py-2">
           {isFollowed ? <IoPersonRemoveOutline /> : <IoPersonAddOutline />}
-          {isFollowed ? 'unfollow' : 'follow'}
+          {isFollowed ? "unfollow" : "follow"}
         </button>
       )}
       {!isForComment && !signalId && !isForUserPage && (
@@ -112,11 +116,12 @@ export const MoreOptionsButtonContent = ({
       )}
       <button onClick={handleBlockUser} className="option-button px-2 py-2">
         <MdBlock />
-        Block @{username}
+        Block @{userUsername}
       </button>
       <button onClick={handleReportUser} className="option-button border-none px-2 py-2">
         <MdOutlineReport />
-        Report {isForComment ? 'Comment' : signalId ? 'Signal' : isForUserPage ? username : 'Post'}
+        Report{" "}
+        {isForComment ? "Comment" : signalId ? "Signal" : isForUserPage ? userUsername : "Post"}
       </button>
     </div>
   )

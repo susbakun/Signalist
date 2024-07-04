@@ -51,6 +51,7 @@ export const PostBody = ({
       setPostImageHref(result.href)
     }
   }, [postImageId])
+
   return isPremium && !amISubscribed ? (
     <div className="relative rounded-lg overflow-x-hidden">
       <BluredPostComponent />

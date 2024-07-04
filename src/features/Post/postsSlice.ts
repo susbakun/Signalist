@@ -26,9 +26,6 @@ const postsSlice = createSlice({
       }
       state.push(newPost)
     },
-    blockUser: (state, action) => {
-      return state.filter((post) => post.publisher.username !== action.payload.username)
-    },
     deletePost: (state, action) => {
       return state.filter((post) => post.id !== action.payload.id)
     },
@@ -127,7 +124,6 @@ const postsSlice = createSlice({
 export const {
   createPost,
   deletePost,
-  blockUser,
   likePost,
   dislikePost,
   likeComment,

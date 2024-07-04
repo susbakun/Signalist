@@ -1,23 +1,39 @@
-import { AccountModel } from '@/shared/models'
-import { cn, getAvatarPlaceholder, isDarkMode } from '@/utils'
-import { Avatar } from 'flowbite-react'
-import { ComponentProps } from 'react'
-import { TbExternalLink } from 'react-icons/tb'
-import { Link } from 'react-router-dom'
-import { twMerge } from 'tailwind-merge'
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { AccountModel } from "@/shared/models"
+import { cn, getAvatarPlaceholder, isDarkMode } from "@/utils"
+import { Avatar } from "flowbite-react"
+import { ComponentProps, useEffect, useState } from "react"
+import { TbExternalLink } from "react-icons/tb"
+import { Link } from "react-router-dom"
+import { twMerge } from "tailwind-merge"
 
-type StreamingUserProps = Pick<AccountModel, 'name' | 'username' | 'imageUrl'> &
-  ComponentProps<'div'>
+type StreamingUserProps = Pick<AccountModel, "name" | "username" | "imageUrl"> &
+  ComponentProps<"div">
 
 export const StreamingUser = ({ name, username, imageUrl, className }: StreamingUserProps) => {
+  const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
+
   const placeholder = getAvatarPlaceholder(name)
+  const users = useAppSelector((state) => state.users)
+  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+
+  const { isUserBlocked: determineIsUserBlocked } = userIsUserBlocked(myAccount)
+
+  useEffect(() => {
+    if (myAccount) {
+      setIsUserBlocked(determineIsUserBlocked(username))
+    }
+  }, [myAccount])
+
+  if (isUserBlocked) return
 
   return (
     <>
-      <div className={twMerge('flex jusfity-between', className)}>
+      <div className={twMerge("flex jusfity-between", className)}>
         <div className="flex gap-2 items-center flex-1">
           <Avatar
-            className={cn('gradient-border p-[1px] rounded-full', { dark: isDarkMode() })}
+            className={cn("gradient-border p-[1px] rounded-full", { dark: isDarkMode() })}
             placeholderInitials={placeholder}
             size="md"
             img={imageUrl}

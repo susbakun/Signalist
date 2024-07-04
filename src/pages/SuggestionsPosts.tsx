@@ -1,6 +1,6 @@
-import { Post } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { EmptyPage } from './EmptyPage'
+import { Post } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { EmptyPage } from "./EmptyPage"
 
 export const SuggestionsPosts = () => {
   const posts = useAppSelector((state) => state.posts)

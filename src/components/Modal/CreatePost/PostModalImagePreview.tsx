@@ -14,7 +14,7 @@ export const PostModalImagePreview = ({
       <div className="flex items-center gap-2 my-2">
         <div
           className="text-xs text-black-20 gap-1
-                dark:text-white/50 justify-center flex max-w-min flex-col"
+        dark:text-white/50 justify-center flex max-w-min flex-col"
         >
           <p className="w-fit">{selectedImage.name}</p>
           <img
