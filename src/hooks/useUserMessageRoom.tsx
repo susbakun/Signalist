@@ -1,6 +1,6 @@
-import { AccountModel, MessageModel } from '@/shared/models'
+import { AccountModel, MessageModel } from "@/shared/models"
 
-export const useUserMessageRoom = (messages: MessageModel['']) => {
+export const useUserMessageRoom = (messages: MessageModel[""]) => {
   const checkIfExistsRoom = (user: AccountModel) => {
     return Object.keys(messages).some((messageId) => {
       if (messages[messageId].userInfo.username === user.username) {

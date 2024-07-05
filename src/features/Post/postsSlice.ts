@@ -26,7 +26,7 @@ const postsSlice = createSlice({
       }
       state.push(newPost)
     },
-    deletePost: (state, action) => {
+    removePostFromInterests: (state, action) => {
       return state.filter((post) => post.id !== action.payload.id)
     },
     likePost: (state, action) => {
@@ -49,6 +49,36 @@ const postsSlice = createSlice({
             )
             return { ...post, likes: newLikesList }
           }
+        }
+        return post
+      })
+    },
+    postComment: (state, action) => {
+      return state.map((post) => {
+        if (post.id === action.payload.postId) {
+          const postComments = [...post.comments]
+          const newComment: CommentModel = {
+            body: action.payload.body,
+            commentId: v4(),
+            date: new Date().getTime(),
+            likes: [],
+            postId: action.payload.postId,
+            publisher: action.payload.publisher
+          }
+          postComments.push(newComment)
+          return { ...post, comments: postComments }
+        }
+        return post
+      })
+    },
+
+    deleteComment: (state, action) => {
+      return state.map((post) => {
+        if (post.id === action.payload.postId) {
+          const updatedCommentPost = post.comments.filter(
+            (comment) => comment.commentId !== action.payload.commentId
+          )
+          return { ...post, comments: updatedCommentPost }
         }
         return post
       })
@@ -84,24 +114,6 @@ const postsSlice = createSlice({
         return post
       })
     },
-    postComment: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const postComments = [...post.comments]
-          const newComment: CommentModel = {
-            body: action.payload.body,
-            commentId: v4(),
-            date: new Date().getTime(),
-            likes: [],
-            postId: action.payload.postId,
-            publisher: action.payload.publisher
-          }
-          postComments.push(newComment)
-          return { ...post, comments: postComments }
-        }
-        return post
-      })
-    },
     editPost: (state, action) => {
       return state.map((post) => {
         if (post.id === action.payload.postId) {
@@ -113,6 +125,9 @@ const postsSlice = createSlice({
           if (action.payload.postImageId) {
             editedPost.postImageId = action.payload.postImageId
           }
+          if (action.payload.removePostId) {
+            editedPost.postImageId = ""
+          }
           return editedPost
         }
         return post
@@ -123,13 +138,14 @@ const postsSlice = createSlice({
 
 export const {
   createPost,
-  deletePost,
+  removePostFromInterests,
   likePost,
   dislikePost,
   likeComment,
   editPost,
   postComment,
-  dislikeComment
+  dislikeComment,
+  deleteComment
 } = postsSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default postsSlice.reducer

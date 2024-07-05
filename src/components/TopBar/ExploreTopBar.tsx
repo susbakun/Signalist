@@ -39,8 +39,6 @@ export const ExploreTopBar = () => {
 
   const searchedUsers = useMemo(() => handleSearchUsers(), [handleSearchUsers])
 
-  console.log(searchedUsers)
-
   return (
     <div
       className="flex flex-col gap-8 sticky top-0 pt-8

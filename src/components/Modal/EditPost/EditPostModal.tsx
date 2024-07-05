@@ -79,11 +79,13 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   }
 
   useEffect(() => {
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string)
+    if (!post.postImageId) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      if (selectedImage) reader.readAsDataURL(selectedImage)
     }
-    if (selectedImage) reader.readAsDataURL(selectedImage)
   }, [selectedImage])
 
   return (
@@ -99,9 +101,9 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
           handleKeyDown={handleKeyDown}
         />
         <PostModalImagePreview
-          handleResetInput={handleResetFileInput}
-          imagePreview={imagePreview}
           selectedImage={selectedImage}
+          imagePreview={imagePreview}
+          handleResetInput={handleResetFileInput}
         />
         <PostModalFooter
           isPremium={isPremium}

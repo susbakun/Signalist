@@ -31,7 +31,6 @@ export const MessageRoom = () => {
   const storage = new Storage(client)
 
   const handleSendMessage = async () => {
-    if (messageText.trim() === "") return
     const messageImageId = await handleSendImage(selectedImage)
     setMessageText("")
     setIsEmojiPickerOpen(false)

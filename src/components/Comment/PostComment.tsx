@@ -21,7 +21,7 @@ export const PostComment = ({
         "border-none": isLastComment
       })}
     >
-      <CommentTopBar user={publisher} date={date} />
+      <CommentTopBar postId={postId} commentId={commentId} user={publisher} date={date} />
       <CommentBody body={body} />
       <CommentFooter likes={likes} commentId={commentId} postId={postId} />
     </div>

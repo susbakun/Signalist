@@ -30,10 +30,6 @@ export const MessageWithImagePreviewInput = ({
     setIsInputFocused((prev) => !prev)
   }
 
-  const isInputEmpty = () => {
-    return messageText === ""
-  }
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
@@ -101,7 +97,7 @@ export const MessageWithImagePreviewInput = ({
         ></textarea>
         <div className="flex gap-2 items-center">
           <button
-            disabled={isInputEmpty() || sendButtonDisabled}
+            disabled={sendButtonDisabled}
             onClick={handleSendMessage}
             className="text-primary-link-button py-0 disabled:opacity-50"
           >

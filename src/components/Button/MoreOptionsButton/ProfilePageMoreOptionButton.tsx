@@ -1,3 +1,5 @@
+import { ToastContainer } from "@/components/Shared/ToastContainer"
+import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel } from "@/shared/models"
 import { Popover } from "flowbite-react"
 import { TfiMore } from "react-icons/tfi"
@@ -20,24 +22,29 @@ export const ProfilePageMoreOptionButton = ({
   handleOpen,
   setIsOpen
 }: ProfilePageMoreOptionButtonProps) => {
+  const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   return (
-    <Popover
-      trigger="click"
-      aria-labelledby="more-options"
-      content={
-        <MoreOptionsButtonContent
-          myAccount={myAccount!}
-          isForUserPage={true}
-          closePopover={handleClose}
-          userUsername={userUsername}
-        />
-      }
-      open={open}
-      onOpenChange={setIsOpen}
-    >
-      <button onClick={handleOpen} className="action-button">
-        <TfiMore className="w-6 h-6" />
-      </button>
-    </Popover>
+    <>
+      <Popover
+        trigger="click"
+        aria-labelledby="more-options"
+        content={
+          <MoreOptionsButtonContent
+            handleShowToast={handleShowToast}
+            myAccount={myAccount!}
+            isForUserPage={true}
+            closePopover={handleClose}
+            userUsername={userUsername}
+          />
+        }
+        open={open}
+        onOpenChange={setIsOpen}
+      >
+        <button onClick={handleOpen} className="action-button">
+          <TfiMore className="w-6 h-6" />
+        </button>
+      </Popover>
+      <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
+    </>
   )
 }

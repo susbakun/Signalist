@@ -1,18 +1,29 @@
 import { MoreOptionsButton } from "@/components"
-import { CommentModel } from "@/shared/models"
+import { deleteComment } from "@/features/Post/postsSlice"
+import { CommentModel, PostModel } from "@/shared/models"
 import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
 import { Avatar } from "flowbite-react"
 import moment from "jalali-moment"
+import { useDispatch } from "react-redux"
 import { Link } from "react-router-dom"
 
 type CommentTopBarProps = {
   user: CommentModel["publisher"]
   date: CommentModel["date"]
+  commentId: CommentModel["commentId"]
+  postId: PostModel["id"]
 }
 
-export const CommentTopBar = ({ user, date }: CommentTopBarProps) => {
+export const CommentTopBar = ({ user, date, commentId, postId }: CommentTopBarProps) => {
   const placeholder = getAvatarPlaceholder(user.name)
   const postDate = formatDateFromMS(date)
+
+  const dispatch = useDispatch()
+
+  const handleDeleteComment = () => {
+    dispatch(deleteComment({ commentId, postId }))
+  }
+
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
@@ -25,7 +36,11 @@ export const CommentTopBar = ({ user, date }: CommentTopBarProps) => {
           </div>
         </Link>
       </div>
-      <MoreOptionsButton isForComment username={user.username} />
+      <MoreOptionsButton
+        isForComment
+        username={user.username}
+        handleDeleteComment={handleDeleteComment}
+      />
     </div>
   )
 }

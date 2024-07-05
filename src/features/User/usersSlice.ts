@@ -68,7 +68,9 @@ const usersSlice = createSlice({
           const blockedUser = { name, username, imageUrl }
           return {
             ...user,
-            blockedAccounts: [...user.blockedAccounts, blockedUser]
+            blockedAccounts: [...user.blockedAccounts, blockedUser],
+            followers: [...user.followers.filter((user) => user.username !== username)],
+            followings: [...user.followings.filter((user) => user.username !== username)]
           }
         }
         return user

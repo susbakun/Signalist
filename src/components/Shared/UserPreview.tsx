@@ -1,13 +1,13 @@
-import { UserUnfollowModal } from "@/components"
+import { ToastContainer, UserUnfollowModal } from "@/components"
 import { followUser, unfollowUser } from "@/features/User/usersSlice"
+import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel } from "@/shared/models"
-import { cn, getAvatarPlaceholder, isDarkMode } from "@/utils"
+import { cn, getAvatarPlaceholder } from "@/utils"
 import { Avatar } from "flowbite-react"
 import { ComponentProps, useMemo, useState } from "react"
 import { TbMessage } from "react-icons/tb"
 import { useDispatch } from "react-redux"
 import { Link } from "react-router-dom"
-import { toast } from "react-toastify"
 import { twMerge } from "tailwind-merge"
 
 type UserPreviewProps = Pick<AccountModel, "name" | "username" | "imageUrl"> &
@@ -28,6 +28,7 @@ export const UserPreview = ({
 }: UserPreviewProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
 
+  const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const isFollowed = useMemo(
     () => follower?.followings.some((following) => following.username === userUsername),
     [userUsername, follower]
@@ -39,20 +40,11 @@ export const UserPreview = ({
 
   const handleUserFollow = () => {
     if (!isFollowed) {
-      toast.success(`You followed user @${userUsername}`, {
-        position: "bottom-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: isDarkMode() ? "dark" : "light"
-      })
+      handleShowToast(`You followed user @${userUsername}`, "follow")
       dispatch(
         followUser({
-          followeruserUsername: follower?.username,
-          followinguserUsername: userUsername
+          followerUsername: follower?.username,
+          followingUsername: userUsername
         })
       )
     } else {
@@ -61,16 +53,7 @@ export const UserPreview = ({
   }
 
   const handleAcceptUnfollowModal = () => {
-    toast.warn(`You unfollowed user @${userUsername}`, {
-      position: "bottom-left",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: isDarkMode() ? "dark" : "light"
-    })
+    handleShowToast(`You unfollowed user @${userUsername}`, "unfollow")
     dispatch(
       unfollowUser({
         followeruserUsername: follower?.username,
@@ -134,6 +117,7 @@ export const UserPreview = ({
         handleCloseModal={handleCloseModal}
         handleAcceptUnfollowModal={handleAcceptUnfollowModal}
       />
+      <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
     </>
   )
 }

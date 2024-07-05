@@ -1,18 +1,17 @@
-import { SharePostModal, UserUnfollowModal } from "@/components"
+import { SharePostModal, ToastContainer, UserUnfollowModal } from "@/components"
 import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
 import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
 import { followUser, unfollowUser } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { useToastContainer } from "@/hooks/useToastContainer"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
-import { isDarkMode } from "@/utils"
 import { useMemo, useState } from "react"
 import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
 import { useDispatch } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
 import { v4 } from "uuid"
 
 type OthersBottomBarProps = {
@@ -32,9 +31,8 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   )
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
+  const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(messages)
-
   const { amISubscribed } = useIsUserSubscribed(userAccount)
 
   const handleCreateMessage = () => {
@@ -56,16 +54,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
 
   const handleFollowUser = () => {
     if (!isFollowed) {
-      toast.success(`You followed user @${userAccount.username}`, {
-        position: "bottom-left",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: isDarkMode() ? "dark" : "light"
-      })
+      handleShowToast(`You followed user @${userAccount.username}`, "follow")
       dispatch(
         followUser({
           followerUsername: myAccount?.username,
@@ -78,16 +67,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   }
 
   const handleAcceptUnfollowModal = () => {
-    toast.warn(`You unfollowed user @${userAccount.username}`, {
-      position: "bottom-left",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: isDarkMode() ? "dark" : "light"
-    })
+    handleShowToast(`You unfollowed user @${userAccount.username}`, "unfollow")
     dispatch(
       unfollowUser({
         followerUsername: myAccount?.username,
@@ -120,16 +100,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const handleCopyLink = async () => {
     const link = `https://www.signalists/${myAccount?.username}`
     await navigator.clipboard.writeText(link)
-    toast.info("Post link is copied", {
-      position: "bottom-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: isDarkMode() ? "dark" : "light"
-    })
+    handleShowToast("Post link is copied", "copy_link")
     handleCloseShareModal()
   }
 
@@ -186,6 +157,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
         copyLink={handleCopyLink}
         shareEmail={handleShareEmail}
       />
+      <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
     </>
   )
 }

@@ -1,7 +1,5 @@
 import { AppContent, AppSideBar, RootLayout } from "@/components"
 import { useEffect } from "react"
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
 
 function App() {
   const toggleDarkMode = () => {
@@ -22,7 +20,6 @@ function App() {
         <BiMoon />
       </button> */}
       <AppContent />
-      <ToastContainer />
     </RootLayout>
   )
 }

@@ -292,7 +292,8 @@ export const usersMock: AccountModel[] = [
     followings: [],
     score: 20,
     imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "mostafa",
@@ -319,7 +320,8 @@ export const usersMock: AccountModel[] = [
     ],
     score: 1,
     imageUrl: "",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "steve",
@@ -359,7 +361,8 @@ export const usersMock: AccountModel[] = [
     ],
     score: 18,
     imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "Hamid Naseri",
@@ -380,7 +383,8 @@ export const usersMock: AccountModel[] = [
     ],
     score: 5,
     imageUrl: "https://i.pravatar.cc/150?img=8",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "Ali",
@@ -396,7 +400,8 @@ export const usersMock: AccountModel[] = [
     ],
     score: 23,
     imageUrl: "",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "Amir Pouya",
@@ -430,7 +435,8 @@ export const usersMock: AccountModel[] = [
     followings: [],
     score: 25,
     imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   },
   {
     name: "susba",
@@ -446,7 +452,8 @@ export const usersMock: AccountModel[] = [
     ],
     score: 8,
     imageUrl: "",
-    blockedAccounts: []
+    blockedAccounts: [],
+    bookmarks: []
   }
 ]
 

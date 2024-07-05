@@ -1,15 +1,14 @@
-import { SharePostModal } from "@/components"
+import { SharePostModal, ToastContainer } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { dislikeSignal, likeSignal } from "@/features/Signal/signalsSlice"
+import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel, SignalModel } from "@/shared/models"
-import { isDarkMode } from "@/utils"
 import millify from "millify"
 import { useState } from "react"
 import { FaBookmark, FaRegBookmark } from "react-icons/fa"
 import { HiOutlineLightningBolt } from "react-icons/hi"
 import { HiBolt } from "react-icons/hi2"
 import { useDispatch } from "react-redux"
-import { toast } from "react-toastify"
 
 type SignalFooterProps = {
   signalId: SignalModel["id"]
@@ -18,17 +17,17 @@ type SignalFooterProps = {
 }
 
 export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) => {
-  const dispatch = useDispatch()
-
   const [isLiked, setIsLiked] = useState(() => {
     return likes.some((user) => user.username === "Amir_Aryan")
   })
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
 
+  const dispatch = useDispatch()
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
   )
+  const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
   const handleLikeSignal = () => {
     if (isLiked) {
@@ -62,16 +61,7 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
   const handleCopyLink = async () => {
     const link = `https://www.signalists/explore/${signalId}`
     await navigator.clipboard.writeText(link)
-    toast.info("Post link is copied", {
-      position: "bottom-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: isDarkMode() ? "dark" : "light"
-    })
+    handleShowToast("Signal link is copied", "copy_link")
     handleCloseShareModal()
   }
 
@@ -107,6 +97,7 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
         copyLink={handleCopyLink}
         shareEmail={handleShareEmail}
       />
+      <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
     </>
   )
 }
