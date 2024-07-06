@@ -31,7 +31,7 @@ export const PostModalFooter = ({
         disabled={postButtonDisabled}
         onClick={hanldeCreatePost}
         className="action-button dark:text-dark-link-button
-          text-primary-link-button font-bold disabled:opacity-30"
+      text-primary-link-button font-bold disabled:opacity-30"
       >
         Post
       </button>

@@ -12,6 +12,7 @@ import {
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { createSignal } from "@/features/Signal/signalsSlice"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { appwriteEndpoint } from "@/shared/constants"
 import { CryptoResponseType, SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
@@ -174,7 +175,11 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile("66747baf000aa8c5c2e7", ID.unique(), file)
+        const response = await storage.createFile(
+          import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID,
+          ID.unique(),
+          file
+        )
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {
@@ -189,8 +194,8 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   )!
 
   const client = new Client()
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject("66747b890009cb1b3f8a")
+    .setEndpoint(appwriteEndpoint)
+    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
 
   const storage = new Storage(client)
 

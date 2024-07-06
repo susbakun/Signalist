@@ -1,5 +1,6 @@
 import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from "@/components"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { appwriteEndpoint } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { cn, getMarketScale } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
@@ -30,7 +31,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
 
   const client = new Client()
   const storage = new Storage(client)
-  client.setEndpoint("https://cloud.appwrite.io/v1").setProject("66747b890009cb1b3f8a")
+  client.setEndpoint(appwriteEndpoint).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
 
   const marketScale = getMarketScale(signal.market.name)
 
@@ -57,7 +58,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   useEffect(() => {
     if (signal.chartImageId) {
       const result = storage.getFilePreview(
-        "66747baf000aa8c5c2e7",
+        import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID,
         signal.chartImageId,
         0,
         0,

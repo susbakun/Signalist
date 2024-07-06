@@ -1,4 +1,5 @@
 import { BluredPostComponent } from "@/components"
+import { appwriteEndpoint } from "@/shared/constants"
 import { AccountModel, PostModel } from "@/shared/models"
 import { cn } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
@@ -25,7 +26,7 @@ export const PostBody = ({
 
   const client = new Client()
   const storage = new Storage(client)
-  client.setEndpoint("https://cloud.appwrite.io/v1").setProject("66747b890009cb1b3f8a")
+  client.setEndpoint(appwriteEndpoint).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
 
   const handleImageClick = () => {
     setEnlarged((prev) => !prev)
@@ -34,7 +35,7 @@ export const PostBody = ({
   useEffect(() => {
     if (postImageId) {
       const result = storage.getFilePreview(
-        "6684ee4300354ad8d7bb",
+        import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID,
         postImageId,
         0,
         0,
@@ -49,6 +50,8 @@ export const PostBody = ({
         ImageFormat.Png
       )
       setPostImageHref(result.href)
+    } else if (!postImageId) {
+      setPostImageHref("")
     }
   }, [postImageId])
 

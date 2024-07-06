@@ -1,5 +1,6 @@
 import { MessageRoomInput, MessageRoomMessages } from "@/components"
 import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
+import { appwriteEndpoint } from "@/shared/constants"
 import { ChatType, SimplifiedAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useState } from "react"
@@ -25,8 +26,8 @@ export const MessageRoom = () => {
   const { id } = useParams()
 
   const client = new Client()
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject("66747b890009cb1b3f8a")
+    .setEndpoint(appwriteEndpoint)
+    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
 
   const storage = new Storage(client)
 
@@ -47,7 +48,11 @@ export const MessageRoom = () => {
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile("6685c7c700292b19c096", ID.unique(), file)
+        const response = await storage.createFile(
+          "import.meta.env.VITE_APPWRITE_MESSAGES_BUCKET_ID",
+          ID.unique(),
+          file
+        )
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {

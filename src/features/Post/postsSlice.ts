@@ -125,7 +125,7 @@ const postsSlice = createSlice({
           if (action.payload.postImageId) {
             editedPost.postImageId = action.payload.postImageId
           }
-          if (action.payload.removePostId) {
+          if (action.payload.removePostImage) {
             editedPost.postImageId = ""
           }
           return editedPost

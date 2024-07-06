@@ -1,3 +1,6 @@
+import Tippy from "@tippyjs/react"
+import { roundArrow } from "tippy.js"
+
 type PostImagePreviewProps = {
   selectedImage: File | undefined
   imagePreview: string | null
@@ -5,27 +8,39 @@ type PostImagePreviewProps = {
 }
 
 export const PostModalImagePreview = ({
-  selectedImage,
   imagePreview,
   handleResetInput
 }: PostImagePreviewProps) => {
-  if (selectedImage && imagePreview) {
+  if (imagePreview) {
     return (
       <div className="flex items-center gap-2 my-2">
-        <div
-          className="text-xs text-black-20 gap-1
-        dark:text-white/50 justify-center flex max-w-min flex-col"
-        >
-          <p className="w-fit">{selectedImage.name}</p>
+        <div className="w-full h-full flex items-center relative">
           <img
             src={imagePreview}
             alt="Image Preview"
             className="w-full h-full object-cover rounded-lg"
           />
+          <Tippy
+            content="delete post image"
+            className="dark:bg-gray-700 bg-gray-900
+            rounded-md px-1 py-[1px] text-sm text-white
+            font-sans"
+            delay={[1000, 0]}
+            placement="bottom"
+            animation="fade"
+            arrow={roundArrow}
+            duration={10}
+            hideOnClick={true}
+          >
+            <button
+              onClick={handleResetInput}
+              className="action-button
+              absolute top-2 right-2 text-gray-200"
+            >
+              &#x2715;
+            </button>
+          </Tippy>
         </div>
-        <button onClick={handleResetInput} className="action-button translate-y-[40%]">
-          &#x2715;
-        </button>
       </div>
     )
   }

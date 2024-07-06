@@ -13,9 +13,9 @@ export const PostTextArea = ({
 }: PostTextAreaProps) => {
   return (
     <div
-      className="h-[20vh] dark:bg-gray-600
-          w-full flex justify-center px-2
-        bg-gray-200 rounded-md"
+      className="h-[25vh] dark:bg-gray-600
+      w-full flex justify-center px-2
+    bg-gray-200 rounded-lg"
     >
       <textarea
         value={postText}
@@ -23,7 +23,7 @@ export const PostTextArea = ({
         onKeyDown={handleKeyDown}
         placeholder="Add a text..."
         className="resize-none border-none outline-none
-            dark:bg-gray-600 w-full h-full bg-gray-200 rounded-md"
+      dark:bg-gray-600 w-full h-full bg-gray-200 rounded-lg"
       ></textarea>
     </div>
   )
