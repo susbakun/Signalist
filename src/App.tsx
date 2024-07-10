@@ -3,7 +3,6 @@ import { useEffect } from "react"
 import { toggleDarkMode } from "./utils"
 
 function App() {
-  console.log(import.meta.env.MODE)
   useEffect(() => {
     if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       toggleDarkMode()
