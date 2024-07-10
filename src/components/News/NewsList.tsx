@@ -1,7 +1,7 @@
 import { Loader, NewsPreview } from "@/components"
 import { useGetCryptoNewsQuery } from "@/services/cryptoNewsApi"
 import { CryptoNewsType } from "@/shared/models"
-import { cn } from "@/utils"
+import { cn, isDarkMode } from "@/utils"
 import { uniqBy } from "lodash"
 import { useEffect, useState } from "react"
 import { FaArrowUp } from "react-icons/fa"
@@ -54,7 +54,10 @@ export const NewsList = () => {
     return (
       <>
         <h4 className="text-xl mb-4">News</h4>
-        <SkeletonTheme baseColor="rgb(31 41 55)" highlightColor="#4a4a5a">
+        <SkeletonTheme
+          baseColor={isDarkMode() ? "rgb(31 41 55)" : "rgb(31 41 55)"}
+          highlightColor={isDarkMode() ? "#4a4a5a" : "#F5F5F5"}
+        >
           <p>
             <Skeleton className="mb-4" height={120} borderRadius={6} count={5} />
           </p>

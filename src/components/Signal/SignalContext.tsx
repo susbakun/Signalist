@@ -1,6 +1,6 @@
 import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from "@/components"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { cn, getMarketScale } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
@@ -31,7 +31,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
 
   const client = new Client()
   const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const marketScale = getMarketScale(signal.market.name)
 
@@ -58,7 +58,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   useEffect(() => {
     if (signal.chartImageId) {
       const result = storage.getFilePreview(
-        import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID,
+        appwriteSignalsBucketId,
         signal.chartImageId,
         0,
         0,
@@ -139,7 +139,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
           )}
           <div
             className="bg-white dark:bg-gray-900
-          p-4 rounded-lg border-2 border-white/20"
+          p-4 rounded-lg border border-white/20"
           >
             <div className="flex justify-center gap-10">
               <div className="flex items-center">

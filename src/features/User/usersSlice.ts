@@ -75,10 +75,81 @@ const usersSlice = createSlice({
         }
         return user
       })
+    },
+    bookmarkPost: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.userUsername) {
+          const updatedBookmarkedPostsList = [...user.bookmarks.posts]
+          updatedBookmarkedPostsList.push(action.payload.post)
+          return {
+            ...user,
+            bookmarks: { signals: user.bookmarks.signals, posts: updatedBookmarkedPostsList }
+          }
+        } else {
+          return user
+        }
+      })
+    },
+    unBookmarkPost: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.userUsername) {
+          const updatedBookmarkedPostsList = [
+            ...user.bookmarks.posts.filter(
+              (bookmarkedPost) => bookmarkedPost.id !== action.payload.postId
+            )
+          ]
+          return {
+            ...user,
+            bookmarks: { signals: user.bookmarks.signals, posts: updatedBookmarkedPostsList }
+          }
+        } else {
+          return user
+        }
+      })
+    },
+    bookmarkSignal: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.userUsername) {
+          const updatedBookmarkedSignalsList = [...user.bookmarks.signals]
+          updatedBookmarkedSignalsList.push(action.payload.signal)
+          return {
+            ...user,
+            bookmarks: { signals: updatedBookmarkedSignalsList, posts: user.bookmarks.posts }
+          }
+        } else {
+          return user
+        }
+      })
+    },
+    unBookmarkSignal: (state, action) => {
+      return state.map((user) => {
+        if (user.username === action.payload.userUsername) {
+          const updatedBookmarkedSignalsList = [
+            ...user.bookmarks.signals.filter(
+              (bookmarkedSignal) => bookmarkedSignal.id !== action.payload.signalId
+            )
+          ]
+          return {
+            ...user,
+            bookmarks: { signals: updatedBookmarkedSignalsList, posts: user.bookmarks.posts }
+          }
+        } else {
+          return user
+        }
+      })
     }
   }
 })
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-export const { followUser, unfollowUser, updateUserScore, blockUser } = usersSlice.actions
+export const {
+  followUser,
+  unfollowUser,
+  updateUserScore,
+  blockUser,
+  bookmarkPost,
+  bookmarkSignal,
+  unBookmarkSignal,
+  unBookmarkPost
+} = usersSlice.actions
 export default usersSlice.reducer

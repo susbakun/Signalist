@@ -1,5 +1,6 @@
 import { MediaOptionsButton } from "@/components"
 import { cn, isDarkMode } from "@/utils"
+import { Spinner } from "flowbite-react"
 import { ChangeEvent } from "react"
 import Toggle from "react-toggle"
 
@@ -19,7 +20,7 @@ export const PostModalFooter = ({
   hanldeCreatePost
 }: PostModalFooterProps) => {
   return (
-    <div className="flex justify-between px-2 pb-2">
+    <div className="flex justify-between px-2 py-2">
       <div className="flex items-center gap-2">
         <MediaOptionsButton handleChangeImage={handleChangeImage} />
         <label className={cn("flex items-center gap-1", { dark: isDarkMode() })}>
@@ -30,9 +31,13 @@ export const PostModalFooter = ({
       <button
         disabled={postButtonDisabled}
         onClick={hanldeCreatePost}
-        className="action-button dark:text-dark-link-button
-      text-primary-link-button font-bold disabled:opacity-30"
+        className="action-button text-white
+        font-bold disabled:opacity-30
+        px-[10px] py-1 rounded-lg flex items-center gap-2 dark:bg-dark-link-button
+        bg-primary-link-button
+      "
       >
+        {postButtonDisabled && <Spinner color="success" size="md" />}
         Post
       </button>
     </div>

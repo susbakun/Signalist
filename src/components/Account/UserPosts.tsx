@@ -1,11 +1,11 @@
-import { CreatePostModal, Post } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { EmptyPage } from '@/pages'
-import Tippy from '@tippyjs/react'
-import { useState } from 'react'
-import { GoPlusCircle } from 'react-icons/go'
-import { useParams } from 'react-router-dom'
-import { roundArrow } from 'tippy.js'
+import { CreatePostModal, Post } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { EmptyPage } from "@/pages"
+import Tippy from "@tippyjs/react"
+import { useState } from "react"
+import { GoPlusCircle } from "react-icons/go"
+import { useParams } from "react-router-dom"
+import { roundArrow } from "tippy.js"
 
 export const UserPosts = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
@@ -17,7 +17,7 @@ export const UserPosts = () => {
   const myPosts = useAppSelector((state) => state.posts)
     .filter((post) => post.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
-  const isItmyAccount = userAccount?.username === 'Amir_Aryan'
+  const isItmyAccount = userAccount?.username === "Amir_Aryan"
 
   const handleCloseCreatePostModal = () => {
     setOpenCreatePostModal(false)
@@ -40,7 +40,12 @@ export const UserPosts = () => {
       border-x border-x-gray-600/20 dark:border-white/20"
       >
         {myPosts.map((post) => (
-          <Post key={post.id} post={post} />
+          <Post
+            className="border-y border-y-gray-600/20 
+          dark:border-y-white/20 px-4 py-6"
+            key={post.id}
+            post={post}
+          />
         ))}
         {isItmyAccount && (
           <Tippy

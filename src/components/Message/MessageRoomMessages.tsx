@@ -1,4 +1,4 @@
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
 import { formatMessageDate } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
@@ -24,7 +24,7 @@ export const MessageRoomMessages = ({
 
   const client = new Client()
   const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const handleImageEnlarge = (messageImageHref: string) => {
     setEnlarged(true)
@@ -43,7 +43,7 @@ export const MessageRoomMessages = ({
         if (message.messageImageId) {
           try {
             const result = storage.getFilePreview(
-              "import.meta.env.VITE_APPWRITE_MESSAGES_BUCKET_ID",
+              appwriteMessagesBucketId,
               message.messageImageId,
               0,
               0,

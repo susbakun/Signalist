@@ -1,10 +1,14 @@
 import {
   AccountPreview,
+  BookmarkedPosts,
+  BookmarkedSignals,
+  BookmarksModal,
   Header,
   MessageRoom,
   Navbar,
   UserPosts,
   UserReplies,
+  UserSettings,
   UserSignals
 } from "@/components"
 import {
@@ -21,9 +25,9 @@ import { messagesRouteRegExp } from "@/shared/constants"
 import { cn } from "@/utils"
 import { ComponentProps } from "react"
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
-import { UserFollowersModal } from "./Modal/UserFollowersModal"
-import { UserFollowingsModal } from "./Modal/UserFollowingsModal"
-import { UserPremiumModal } from "./Modal/UserPremium/UserPremiumModal"
+import { UserFollowersModal } from "./Modal/UserPage/UserFollowersModal"
+import { UserFollowingsModal } from "./Modal/UserPage/UserFollowingsModal"
+import { UserPremiumModal } from "./Modal/UserPage/UserPremium/UserPremiumModal"
 
 export const RootLayout = ({ children, ...props }: ComponentProps<"main">) => {
   return <main {...props}>{children}</main>
@@ -71,6 +75,11 @@ export const AppContent = () => {
           <Route path="followings" element={<UserFollowingsModal />} />
           <Route path="followers" element={<UserFollowersModal />} />
           <Route path="premium" element={<UserPremiumModal />} />
+          <Route path="bookmarks" element={<BookmarksModal />}>
+            <Route path="posts" element={<BookmarkedPosts />} />
+            <Route path="signals" element={<BookmarkedSignals />} />
+          </Route>
+          <Route path="settings" element={<UserSettings />}></Route>
         </Route>
         <Route path="/messages" element={<MessagesPage />}>
           <Route path=":id" element={<MessageRoom />} />

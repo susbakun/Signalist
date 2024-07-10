@@ -5,14 +5,15 @@ import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { SignalModel } from "@/shared/models"
-import { useEffect, useState } from "react"
+import { ComponentProps, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import { twMerge } from "tailwind-merge"
 
 type SignalProps = {
   signal: SignalModel
-}
+} & ComponentProps<"div">
 
-export const Signal = ({ signal }: SignalProps) => {
+export const Signal = ({ signal, className }: SignalProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
@@ -52,8 +53,11 @@ export const Signal = ({ signal }: SignalProps) => {
 
   return (
     <div
-      className="flex flex-col gap-8 px-4 py-6 border-b
-    border-b-gray-600/20 dark:border-b-white/20"
+      className={twMerge(
+        "flex flex-col gap-8 px-4 py-6 border-b",
+        "border-b-gray-600/20 dark:border-b-white/20",
+        className
+      )}
     >
       <SignalTopBar
         subscribed={amISubscribed}
@@ -62,7 +66,7 @@ export const Signal = ({ signal }: SignalProps) => {
         signalId={signal.id}
       />
       <SignalContext signal={signal} />
-      <SignalFooter likes={signal.likes} signalId={signal.id} username={publisher.username} />
+      <SignalFooter signal={signal} username={publisher.username} />
     </div>
   )
 }

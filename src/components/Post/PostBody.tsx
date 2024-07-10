@@ -1,5 +1,5 @@
 import { BluredPostComponent } from "@/components"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { AccountModel, PostModel } from "@/shared/models"
 import { cn } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
@@ -26,7 +26,7 @@ export const PostBody = ({
 
   const client = new Client()
   const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const handleImageClick = () => {
     setEnlarged((prev) => !prev)
@@ -35,7 +35,7 @@ export const PostBody = ({
   useEffect(() => {
     if (postImageId) {
       const result = storage.getFilePreview(
-        import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID,
+        appwritePostsBucketId,
         postImageId,
         0,
         0,

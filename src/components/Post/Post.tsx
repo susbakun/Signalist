@@ -3,13 +3,14 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { PostModel } from "@/shared/models"
-import { useEffect, useState } from "react"
+import { ComponentProps, useEffect, useState } from "react"
+import { twMerge } from "tailwind-merge"
 
 type PostProps = {
   post: PostModel
-}
+} & ComponentProps<"div">
 
-export const Post = ({ post }: PostProps) => {
+export const Post = ({ post, className }: PostProps) => {
   const { publisher } = post
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
@@ -40,10 +41,7 @@ export const Post = ({ post }: PostProps) => {
 
   return (
     <>
-      <div
-        className="border-y border-y-gray-600/20 dark:border-y-white/20 px-4 py-6 flex
-      flex-col gap-4"
-      >
+      <div className={twMerge("flex flex-col gap-4", className)}>
         <PostTopBar
           handleOpenEditPostModal={handleOpenEditPostModal}
           subscribed={amISubscribed}

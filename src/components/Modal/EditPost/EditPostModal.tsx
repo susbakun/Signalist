@@ -1,6 +1,6 @@
 import { PostModalFooter, PostModalImagePreview } from "@/components"
 import { editPost } from "@/features/Post/postsSlice"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { PostModel } from "@/shared/models"
 import { Client, ID, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
@@ -22,9 +22,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [postButtonDisabled, setPostButtonDisabled] = useState(true)
 
-  const client = new Client()
-    .setEndpoint(appwriteEndpoint)
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const storage = new Storage(client)
 
@@ -77,11 +75,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile(
-          import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID,
-          ID.unique(),
-          file
-        )
+        const response = await storage.createFile(appwritePostsBucketId, ID.unique(), file)
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {
@@ -107,7 +101,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
     setPostButtonDisabled(true)
     if (post.postImageId) {
       const result = storage.getFilePreview(
-        import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID,
+        appwritePostsBucketId,
         post.postImageId,
         0,
         0,

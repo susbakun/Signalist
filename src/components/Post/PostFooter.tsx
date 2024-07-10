@@ -1,11 +1,13 @@
 import { PostCommentModal, SharePostModal, ToastContainer } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { dislikePost, likePost } from "@/features/Post/postsSlice"
+import { bookmarkPost, unBookmarkPost } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { PostModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
 import { cn } from "@/utils"
 import millify from "millify"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaBookmark, FaCommentSlash, FaRegBookmark, FaRegComment } from "react-icons/fa"
 import { HiOutlineLightningBolt } from "react-icons/hi"
 import { HiBolt } from "react-icons/hi2"
@@ -44,15 +46,28 @@ export const PostFooter = ({
   )
 
   const handleLikePost = () => {
+    if (!myAccount) return
+
+    const user: SimplifiedAccountType = {
+      name: myAccount.name,
+      username: myAccount.username,
+      imageUrl: myAccount.imageUrl
+    }
+
     if (!isLiked) {
-      dispatch(likePost({ postId: post.id, user: myAccount }))
+      dispatch(likePost({ postId: post.id, user }))
     } else {
-      dispatch(dislikePost({ postId: post.id, user: myAccount }))
+      dispatch(dislikePost({ postId: post.id, user }))
     }
     setIsLiked((prev) => !prev)
   }
 
-  const handleBookmark = () => {
+  const handleBookmarkPost = () => {
+    if (!isBookmarked) {
+      dispatch(bookmarkPost({ userUsername: myAccount?.username, post: post }))
+    } else {
+      dispatch(unBookmarkPost({ userUsername: myAccount?.username, postId: post.id }))
+    }
     setIsBookmarked((prev) => !prev)
   }
 
@@ -86,6 +101,15 @@ export const PostFooter = ({
     handleShowToast("Post link is copied", "copy_link")
     handleCloseShareModal()
   }
+
+  useEffect(() => {
+    if (myAccount) {
+      const isPostBookmarked = myAccount.bookmarks.posts.some(
+        (bookmarkedPost) => bookmarkedPost.id === post.id
+      )
+      setIsBookmarked(isPostBookmarked)
+    }
+  }, [myAccount])
 
   return (
     <>
@@ -128,7 +152,7 @@ export const PostFooter = ({
             </>
           )}
         </div>
-        <button onClick={handleBookmark} className="action-button">
+        <button onClick={handleBookmarkPost} className="action-button">
           {isBookmarked ? (
             <FaBookmark className="w-5 h-5" />
           ) : (

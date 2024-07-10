@@ -1,6 +1,6 @@
 import { MessageRoomInput, MessageRoomMessages } from "@/components"
 import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType, SimplifiedAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useState } from "react"
@@ -16,6 +16,7 @@ export const MessageRoom = () => {
   const [messageText, setMessageText] = useState("")
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
+  const [isMessageSending, setIsMessageSending] = useState(false)
 
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
@@ -25,15 +26,15 @@ export const MessageRoom = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
 
-  const client = new Client()
-    .setEndpoint(appwriteEndpoint)
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const storage = new Storage(client)
 
   const handleSendMessage = async () => {
+    setIsMessageSending(true)
     const messageImageId = await handleSendImage(selectedImage)
     setMessageText("")
+    setIsMessageSending(false)
     setIsEmojiPickerOpen(false)
     dispatch(sendMessage({ sender: myAccount, text: messageText, roomId: id, messageImageId }))
   }
@@ -48,11 +49,7 @@ export const MessageRoom = () => {
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile(
-          "import.meta.env.VITE_APPWRITE_MESSAGES_BUCKET_ID",
-          ID.unique(),
-          file
-        )
+        const response = await storage.createFile(appwriteMessagesBucketId, ID.unique(), file)
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {
@@ -90,6 +87,7 @@ export const MessageRoom = () => {
         handleSendMessage={handleSendMessage}
         handleToggleEmojiPicker={handleToggleEmojiPicker}
         handleChangeImage={handleChangeImage}
+        isMessageSending={isMessageSending}
       />
     </>
   )

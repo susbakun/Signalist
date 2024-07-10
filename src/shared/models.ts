@@ -1,4 +1,5 @@
 import {
+  BookmarkType,
   ChatType,
   SignalAccountType,
   SimplifiedAccountType,
@@ -95,7 +96,7 @@ export type AccountModel = {
   hasPremium?: boolean
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
-  bookmarks: (SignalModel | PostModel)[]
+  bookmarks: BookmarkType
   blockedAccounts: SimplifiedAccountType[]
 }
 

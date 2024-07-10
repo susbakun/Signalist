@@ -12,7 +12,7 @@ import {
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { createSignal } from "@/features/Signal/signalsSlice"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { CryptoResponseType, SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
@@ -175,11 +175,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile(
-          import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID,
-          ID.unique(),
-          file
-        )
+        const response = await storage.createFile(appwriteSignalsBucketId, ID.unique(), file)
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {
@@ -193,9 +189,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     [selectedMarket, dropdownMarkets]
   )!
 
-  const client = new Client()
-    .setEndpoint(appwriteEndpoint)
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const storage = new Storage(client)
 

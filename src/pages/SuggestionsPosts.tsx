@@ -14,7 +14,12 @@ export const SuggestionsPosts = () => {
   return (
     <div className="flex flex-col">
       {sortedPosts.map((post) => (
-        <Post key={post.id} post={post} />
+        <Post
+          className="border-b border-b-gray-600/20 
+        dark:border-b-white/20 px-4 py-6"
+          key={post.id}
+          post={post}
+        />
       ))}
     </div>
   )

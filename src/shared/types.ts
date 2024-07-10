@@ -1,5 +1,5 @@
 import RootStore from "@/app/store"
-import { AccountModel, CryptoResponseType } from "./models"
+import { AccountModel, CryptoResponseType, PostModel, SignalModel } from "./models"
 
 export type RootState = ReturnType<typeof RootStore.getState>
 export type CoinType = CryptoResponseType["data"]["coins"][0]
@@ -18,3 +18,4 @@ export type ChatType = {
   date: number
   messageImageId?: string
 }
+export type BookmarkType = { signals: SignalModel[]; posts: PostModel[] }

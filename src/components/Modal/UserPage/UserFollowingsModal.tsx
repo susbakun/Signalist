@@ -1,14 +1,14 @@
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { EmptyPage } from '@/pages'
-import { cn } from '@/utils'
-import { Modal } from 'flowbite-react'
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { UserPreview } from '../Shared/UserPreview'
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { EmptyPage } from "@/pages"
+import { cn } from "@/utils"
+import { Modal } from "flowbite-react"
+import { ChangeEvent, useCallback, useMemo, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { UserPreview } from "../../Shared/UserPreview"
 
 export const UserFollowingsModal = () => {
   const [openModal, setOpenModal] = useState(true)
-  const [searched, setSearched] = useState('')
+  const [searched, setSearched] = useState("")
 
   const navigate = useNavigate()
 
@@ -58,8 +58,8 @@ export const UserFollowingsModal = () => {
             {searchedUsers.length > 0 ? (
               searchedUsers.map((user, index) => (
                 <UserPreview
-                  className={cn('border-b border-b-gray-600/20 pb-4 dark:border-b-white/20', {
-                    'border-none pb-0': index === searchedUsers.length - 1
+                  className={cn("border-b border-b-gray-600/20 pb-4 dark:border-b-white/20", {
+                    "border-none pb-0": index === searchedUsers.length - 1
                   })}
                   {...user}
                   follower={me}

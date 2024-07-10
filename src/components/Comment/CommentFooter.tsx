@@ -1,6 +1,7 @@
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { dislikeComment, likeComment } from "@/features/Post/postsSlice"
 import { CommentModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
 import millify from "millify"
 import { useState } from "react"
 import { HiOutlineLightningBolt } from "react-icons/hi"
@@ -24,10 +25,17 @@ export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) 
   )
 
   const handleLikeComment = () => {
+    if (!myAccount) return
+
+    const user: SimplifiedAccountType = {
+      name: myAccount.name,
+      username: myAccount.username,
+      imageUrl: myAccount.imageUrl
+    }
     if (!isLiked) {
-      dispatch(likeComment({ commentId, postId, user: myAccount }))
+      dispatch(likeComment({ commentId, postId, user }))
     } else {
-      dispatch(dislikeComment({ commentId, postId, user: myAccount }))
+      dispatch(dislikeComment({ commentId, postId, user }))
     }
     setIsLiked((prev) => !prev)
   }

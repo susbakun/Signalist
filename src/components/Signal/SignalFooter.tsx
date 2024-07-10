@@ -1,24 +1,25 @@
 import { SharePostModal, ToastContainer } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { dislikeSignal, likeSignal } from "@/features/Signal/signalsSlice"
+import { bookmarkSignal, unBookmarkSignal } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel, SignalModel } from "@/shared/models"
+import { SimplifiedAccountType } from "@/shared/types"
 import millify from "millify"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaBookmark, FaRegBookmark } from "react-icons/fa"
 import { HiOutlineLightningBolt } from "react-icons/hi"
 import { HiBolt } from "react-icons/hi2"
 import { useDispatch } from "react-redux"
 
 type SignalFooterProps = {
-  signalId: SignalModel["id"]
-  likes: SignalModel["likes"]
+  signal: SignalModel
   username: AccountModel["username"]
 }
 
-export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) => {
+export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
   const [isLiked, setIsLiked] = useState(() => {
-    return likes.some((user) => user.username === "Amir_Aryan")
+    return signal.likes.some((user) => user.username === "Amir_Aryan")
   })
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
@@ -30,15 +31,28 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
   const handleLikeSignal = () => {
+    if (!myAccount) return
+
+    const user: SimplifiedAccountType = {
+      name: myAccount.name,
+      username: myAccount.username,
+      imageUrl: myAccount.imageUrl
+    }
+
     if (isLiked) {
-      dispatch(dislikeSignal({ signalId, user: myAccount }))
+      dispatch(dislikeSignal({ signalId: signal.id, user }))
     } else {
-      dispatch(likeSignal({ signalId, user: myAccount }))
+      dispatch(likeSignal({ signalId: signal.id, user }))
     }
     setIsLiked((prev) => !prev)
   }
 
   const handleBookmark = () => {
+    if (!isBookmarked) {
+      dispatch(bookmarkSignal({ userUsername: myAccount?.username, signal }))
+    } else {
+      dispatch(unBookmarkSignal({ signalId: signal.id, userUsername: myAccount?.username }))
+    }
     setIsBookmarked((prev) => !prev)
   }
 
@@ -52,18 +66,27 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
 
   const handleShareEmail = () => {
     const title = `See this post by @${username}`
-    const body = `See this post by @${username}:https://www.signalists/explore/${signalId}`
+    const body = `See this post by @${username}:https://www.signalists/explore/${signal.id}`
     const shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
     handleCloseShareModal()
     window.open(shareUrl)
   }
 
   const handleCopyLink = async () => {
-    const link = `https://www.signalists/explore/${signalId}`
+    const link = `https://www.signalists/explore/${signal.id}`
     await navigator.clipboard.writeText(link)
     handleShowToast("Signal link is copied", "copy_link")
     handleCloseShareModal()
   }
+
+  useEffect(() => {
+    if (myAccount) {
+      const isSignalBookmarked = myAccount.bookmarks.signals.some(
+        (bookmarkedSignal) => bookmarkedSignal.id === signal.id
+      )
+      setIsBookmarked(isSignalBookmarked)
+    }
+  }, [myAccount])
 
   return (
     <>
@@ -77,7 +100,7 @@ export const SignalFooter = ({ signalId, username, likes }: SignalFooterProps) =
                 <HiOutlineLightningBolt className="w-6 h-6" />
               )}
             </button>
-            <span className="detail-text">{millify(likes.length)}</span>
+            <span className="detail-text">{millify(signal.likes.length)}</span>
           </div>
           <button onClick={handleOpenShareModal} className="action-button">
             Share

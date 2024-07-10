@@ -89,8 +89,14 @@ const postsSlice = createSlice({
           const likedComment: CommentModel = post.comments.find(
             (commnet) => commnet.commentId === action.payload.commentId
           )!
-          const updatedCommentPost = [...likedComment.likes, action.payload.user]
-          return { ...post, comments: [...post.comments, ...updatedCommentPost] }
+
+          const exceptLikedComments: CommentModel[] = post.comments.filter(
+            (commnet) => commnet.commentId !== action.payload.commentId
+          )
+
+          const updatedCommentPost = { ...likedComment }
+          updatedCommentPost.likes = [...updatedCommentPost.likes, action.payload.user]
+          return { ...post, comments: [...exceptLikedComments, updatedCommentPost] }
         }
         return post
       })
@@ -99,8 +105,9 @@ const postsSlice = createSlice({
       return state.map((post) => {
         if (post.id === action.payload.postId) {
           const dislikedComment: CommentModel = post.comments.find(
-            (commnet) => commnet.commentId === action.payload.commendId
+            (comment) => comment.commentId === action.payload.commentId
           )!
+
           const updatedCommentPost: CommentModel = {
             ...dislikedComment,
             likes: [
@@ -109,7 +116,12 @@ const postsSlice = createSlice({
               )
             ]
           }
-          return { ...post, comments: [...post.comments, updatedCommentPost] }
+
+          const exceptDisLikedComments: CommentModel[] = post.comments.filter(
+            (commnet) => commnet.commentId !== action.payload.commentId
+          )
+
+          return { ...post, comments: [...exceptDisLikedComments, updatedCommentPost] }
         }
         return post
       })

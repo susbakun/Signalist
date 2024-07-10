@@ -61,3 +61,8 @@ export const isEmpty = (array: unknown[]) => {
 export const getFormattedSignalMarketName = (marketName: SignalModel["market"]["name"]) => {
   return marketName.split("/").join()
 }
+
+export const toggleDarkMode = () => {
+  document.documentElement.classList.toggle("dark")
+  document.body.classList.toggle("darkmode")
+}

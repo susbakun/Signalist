@@ -1,5 +1,5 @@
 import { cn, isDarkMode } from "@/utils"
-import { CiLink } from "react-icons/ci"
+import { Spinner } from "flowbite-react"
 import Toggle from "react-toggle"
 
 type SignalModalFooterProps = {
@@ -18,9 +18,6 @@ export const SignalModalFooter = ({
   return (
     <div className="flex justify-between px-2 pb-2">
       <div className="flex items-center gap-2">
-        <button className="action-button">
-          <CiLink className="w-8 h-8" />
-        </button>
         <label className={cn("flex items-center gap-1", { dark: isDarkMode() })}>
           <span>Premium</span>
           <Toggle onChange={handlePremiumToggle} defaultChecked={isPremium} icons={false} />
@@ -29,9 +26,13 @@ export const SignalModalFooter = ({
       <button
         disabled={postButtonDisabled}
         onClick={handleCreateSignal}
-        className="action-button dark:text-dark-link-button
-      text-primary-link-button font-bold disabled:opacity-30"
+        className="action-button text-white
+        font-bold disabled:opacity-30
+        px-[10px] py-1 rounded-lg flex items-center gap-2 dark:bg-dark-link-button
+        bg-primary-link-button
+      "
       >
+        {postButtonDisabled && <Spinner color="success" size="md" />}
         Post
       </button>
     </div>

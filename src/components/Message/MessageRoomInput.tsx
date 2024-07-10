@@ -2,6 +2,7 @@ import { MediaOptionsButton, MessageImagePreviewModal } from "@/components"
 import { cn, isDarkMode } from "@/utils"
 import Tippy from "@tippyjs/react"
 import EmojiPicker, { Theme } from "emoji-picker-react"
+import { Spinner } from "flowbite-react"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { BsEmojiGrin } from "react-icons/bs"
 import { roundArrow } from "tippy.js"
@@ -10,6 +11,7 @@ type MessageRoomInputProps = {
   messageText: string
   isEmojiPickerOpen: boolean
   selectedImage: File | undefined
+  isMessageSending: boolean
   handleSendMessage: () => Promise<void>
   handleToggleEmojiPicker: () => void
   handleSelectEmoji: (emoji: string) => void
@@ -19,16 +21,16 @@ type MessageRoomInputProps = {
 
 export const MessageRoomInput = ({
   messageText,
-  handleSendMessage,
   selectedImage,
   isEmojiPickerOpen,
+  isMessageSending,
+  handleSendMessage,
   handleSelectEmoji,
   handleChangeMessageText,
   handleToggleEmojiPicker,
   handleChangeImage
 }: MessageRoomInputProps) => {
   const [isInputFocused, setIsInputFocused] = useState(false)
-
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isImagePreviewModalOpen, setIsImagePreviewModalOpen] = useState(false)
 
@@ -140,8 +142,12 @@ export const MessageRoomInput = ({
           <button
             disabled={isInputEmpty()}
             onClick={handleSendMessage}
-            className="text-primary-link-button py-0 disabled:opacity-50"
+            className="action-button text-white
+            font-bold disabled:opacity-30
+            px-[10px] py-1 rounded-lg flex items-center gap-2 dark:bg-dark-link-button
+          bg-primary-link-button"
           >
+            {isMessageSending && <Spinner color="success" size="md" />}
             Send
           </button>
         </div>

@@ -1,6 +1,6 @@
 import { createPost } from "@/features/Post/postsSlice"
 import { useAppSelector } from "@/features/User/usersSlice"
-import { appwriteEndpoint } from "@/shared/constants"
+import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { SimplifiedAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
@@ -33,9 +33,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
     imageUrl: myAccount.imageUrl
   }
 
-  const client = new Client()
-    .setEndpoint(appwriteEndpoint)
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID)
+  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const storage = new Storage(client)
 
@@ -87,11 +85,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
     if (selectedFile) {
       const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile(
-          import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID,
-          ID.unique(),
-          file
-        )
+        const response = await storage.createFile(appwritePostsBucketId, ID.unique(), file)
         console.log("Image uploaded successfully:", response)
         return response.$id
       } catch (error) {

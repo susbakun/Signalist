@@ -35,11 +35,11 @@ const ExploreSignals = () => {
     border-r-gray-600/20"
     >
       <h2 className="text-2xl px-4 pt-11 pb-2 font-bold">Signals</h2>
-      <ul className="flex flex-col justify-center">
+      <div className="flex flex-col justify-center">
         {sortedSignals.map((signal) => (
           <Signal key={signal.id} signal={signal} />
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
