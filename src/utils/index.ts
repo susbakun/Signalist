@@ -66,3 +66,7 @@ export const toggleDarkMode = () => {
   document.documentElement.classList.toggle("dark")
   document.body.classList.toggle("darkmode")
 }
+
+export const isDevmode = () => {
+  return import.meta.env.MODE === "development"
+}
