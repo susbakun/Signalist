@@ -5,6 +5,7 @@ import { ChangeEvent, useState } from "react"
 type MessageIMagePreviewModalProps = {
   isOpen: boolean
   messageText: string
+  isMessageSending: boolean
   imagePreview: string | null
   handleSelectEmoji: (emoji: string) => void
   handleChangeMessageText: (e: ChangeEvent<HTMLTextAreaElement>) => void
@@ -16,6 +17,7 @@ export const MessageImagePreviewModal = ({
   isOpen,
   messageText,
   imagePreview,
+  isMessageSending,
   handleChangeMessageText,
   handleSelectEmoji,
   sendMessage,
@@ -54,13 +56,14 @@ export const MessageImagePreviewModal = ({
         </Modal.Body>
         <Modal.Footer>
           <MessageWithImagePreviewInput
+            isMessageSending={isMessageSending}
+            messageText={messageText}
+            sendButtonDisabled={sendButtonDisabled}
+            isEmojiPickerOpen={isEmojiPickerOpen}
             handleChangeMessageText={handleChangeMessageText}
             handleSelectEmoji={handleSelectEmoji}
             handleSendMessage={handleSendMessage}
             handleToggleEmojiPicker={handleToggleEmojiPicker}
-            isEmojiPickerOpen={isEmojiPickerOpen}
-            messageText={messageText}
-            sendButtonDisabled={sendButtonDisabled}
           />
         </Modal.Footer>
       </Modal>

@@ -144,10 +144,10 @@ export const MessageRoomInput = ({
             onClick={handleSendMessage}
             className="action-button text-white
             font-bold disabled:opacity-30
-            px-[10px] py-1 rounded-lg flex items-center gap-2 dark:bg-dark-link-button
-          bg-primary-link-button"
+            px-[10px] py-1 rounded-lg flex items-center gap-2 
+            dark:bg-dark-link-button bg-primary-link-button"
           >
-            {isMessageSending && <Spinner color="success" size="md" />}
+            {isMessageSending && !isImagePreviewModalOpen && <Spinner color="success" size="md" />}
             Send
           </button>
         </div>
@@ -157,6 +157,7 @@ export const MessageRoomInput = ({
         imagePreview={imagePreview}
         messageText={messageText}
         sendMessage={handleSendMessage}
+        isMessageSending={isMessageSending}
         handleChangeMessageText={handleChangeMessageText}
         handleSelectEmoji={handleSelectEmoji}
         closeModal={handleCloseImagePreviewModal}

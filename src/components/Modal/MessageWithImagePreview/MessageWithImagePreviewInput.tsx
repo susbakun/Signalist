@@ -1,5 +1,6 @@
 import { cn, isDarkMode } from "@/utils"
 import EmojiPicker, { Theme } from "emoji-picker-react"
+import { Spinner } from "flowbite-react"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { BsEmojiGrin } from "react-icons/bs"
 
@@ -7,6 +8,7 @@ type MessageWithImagePreviewInputProps = {
   messageText: string
   isEmojiPickerOpen: boolean
   sendButtonDisabled: boolean
+  isMessageSending: boolean
   handleSelectEmoji: (emoji: string) => void
   handleToggleEmojiPicker: () => void
   handleChangeMessageText: (e: ChangeEvent<HTMLTextAreaElement>) => void
@@ -17,6 +19,7 @@ export const MessageWithImagePreviewInput = ({
   messageText,
   isEmojiPickerOpen,
   sendButtonDisabled,
+  isMessageSending,
   handleSelectEmoji,
   handleToggleEmojiPicker,
   handleChangeMessageText,
@@ -99,8 +102,12 @@ export const MessageWithImagePreviewInput = ({
           <button
             disabled={sendButtonDisabled}
             onClick={handleSendMessage}
-            className="text-primary-link-button py-0 disabled:opacity-50"
+            className="action-button text-white
+            font-bold disabled:opacity-30
+            px-[10px] py-1 rounded-lg flex items-center gap-2
+            dark:bg-dark-link-button bg-primary-link-button"
           >
+            {isMessageSending && <Spinner color="success" size="md" />}
             Send
           </button>
         </div>

@@ -71,7 +71,8 @@ export const PostBody = ({
             key={index}
             to={`/hashtag/${hashtag}`}
             className="dark:text-dark-link-button
-            text-primary-link-button hover:opacity-70 px-[2px]"
+            text-primary-link-button hover:opacity-70 px-[2px]
+            transition-all duration-100 ease-out"
           >
             {word}
           </Link>
@@ -100,7 +101,7 @@ export const PostBody = ({
   } else {
     return (
       <div className="flex flex-col gap-3">
-        <div className="text-justify mb-1">{parseContent(content)}</div>
+        <div className="mb-1">{parseContent(content)}</div>
         {isImageLoading && <Loader className="h-[350px]" />}{" "}
         {postImageHref && (
           <div

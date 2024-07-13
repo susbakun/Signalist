@@ -8,7 +8,7 @@ import Tippy from "@tippyjs/react"
 import { Avatar } from "flowbite-react"
 import { useState } from "react"
 import { TbMessagePlus } from "react-icons/tb"
-import { Link } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import { roundArrow } from "tippy.js"
 
 type MessageRoomsProps = {
@@ -98,11 +98,10 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
           const { placeholder, text, userInfo } = getMessageInfo(messageId)
           if (isUserBlocked(userInfo.username)) return
           return (
-            <Link
+            <NavLink
               key={messageId}
               className="flex items-center p-3 mb-3 bg-white
-          dark:bg-gray-700 rounded-xl cursor-pointer hover:dark:bg-gray-600
-          hover:bg-gray-300"
+            dark:bg-gray-700 rounded-xl cursor-pointer messageRooms"
               to={messageId}
             >
               {getDesiredUserAvatar(userInfo, placeholder)}
@@ -110,7 +109,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                 <h3 className="text-lg font-semibold">{userInfo.username}</h3>
                 {text && <p className="text-gray-400">{text}</p>}
               </div>
-            </Link>
+            </NavLink>
           )
         })}
       </div>

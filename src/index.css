@@ -32,8 +32,8 @@
     display: none;
   }
 
-  input[type='number']::-webkit-inner-spin-button,
-  input[type='number']::-webkit-outer-spin-button {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -156,7 +156,7 @@
   }
 
   .gradient-border::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -2px;
     left: -2px;
@@ -170,5 +170,10 @@
   .gradient-border > * {
     position: relative;
     z-index: 1;
+  }
+
+  .messageRooms.active,
+  .messageRooms:hover {
+    @apply bg-gray-300 dark:bg-gray-500/80;
   }
 }
