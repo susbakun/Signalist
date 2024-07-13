@@ -1,9 +1,10 @@
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
-import { formatMessageDate } from "@/utils"
+import { cn, formatMessageDate } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
+import { Loader } from "../Shared/Loader"
 
 type MessageRoomMessagesProps = {
   messages: ChatType[]
@@ -21,6 +22,7 @@ export const MessageRoomMessages = ({
   const [messageImageHrefs, setMessageImageHrefs] = useState<HrefsObjectType>({})
   const [enlargedImageHref, setEnlargedImageHref] = useState<string>("")
   const [enlarged, setEnlarged] = useState(false)
+  const [isImageLoading, setisImageLoading] = useState(false)
 
   const client = new Client()
   const storage = new Storage(client)
@@ -36,11 +38,16 @@ export const MessageRoomMessages = ({
     setEnlargedImageHref("")
   }
 
+  const handleImageLoaded = () => {
+    setisImageLoading(false)
+  }
+
   useEffect(() => {
     const fetchImages = async () => {
       const hrefs: HrefsObjectType = {}
       for (const message of messages) {
         if (message.messageImageId) {
+          setisImageLoading(true)
           try {
             const result = storage.getFilePreview(
               appwriteMessagesBucketId,
@@ -100,16 +107,20 @@ export const MessageRoomMessages = ({
                     : "dark:bg-gray-700 bg-gray-200 text-gray-600 dark:text-gray-100"
                 }`}
               >
+                {isImageLoading && <Loader className="h-[350px]" />}{" "}
                 {messageImageHref && (
                   <div
                     className={"relative w-full h-full rounded mb-4"}
                     onClick={() => handleImageEnlarge(messageImageHref)}
                   >
                     <img
-                      className={
-                        "w-full h-full object-cover cursor-pointer transition-transform duration-300"
-                      }
+                      className={cn(
+                        "w-full h-full object-cover cursor-pointer",
+                        "transition-transform duration-300 opacity-100",
+                        { "opacity-0": isImageLoading }
+                      )}
                       src={messageImageHref}
+                      onLoad={handleImageLoaded}
                       alt="message image"
                     />
                   </div>
@@ -126,7 +137,8 @@ export const MessageRoomMessages = ({
       </div>
       {enlarged && enlargedImageHref && (
         <div
-          className="fixed inset-0 z-50 h-screen flex items-center justify-center bg-black bg-opacity-75"
+          className="fixed inset-0 z-50 h-screen flex items-center
+          justify-center bg-black bg-opacity-75"
           onClick={handleCloseEnlargedImageView}
         >
           <img

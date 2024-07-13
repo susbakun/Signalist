@@ -36,7 +36,7 @@ export const WatchList = () => {
     return (
       <>
         <h4 className="text-xl">WatchList</h4>
-        <Loader className="h-[80vh]" />
+        <Loader className="h-[50vh]" />
       </>
     )
 

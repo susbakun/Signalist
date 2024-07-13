@@ -1,4 +1,4 @@
-import { BlackPulse, BluredSignalComponent, GreenPulse, RedPulse } from "@/components"
+import { BlackPulse, BluredSignalComponent, GreenPulse, Loader, RedPulse } from "@/components"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
@@ -25,6 +25,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   })
   const [chartHref, setChartHref] = useState("")
   const [enlarged, setEnlarged] = useState(false)
+  const [isImageLoading, setisImageLoading] = useState(false)
 
   const { publisher } = signal
   const { amISubscribed } = useIsUserSubscribed(publisher)
@@ -55,8 +56,13 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
     setEnlarged((prev) => !prev)
   }
 
+  const handleImageLoaded = () => {
+    setisImageLoading(false)
+  }
+
   useEffect(() => {
     if (signal.chartImageId) {
+      setisImageLoading(true)
       const result = storage.getFilePreview(
         appwriteSignalsBucketId,
         signal.chartImageId,
@@ -113,6 +119,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
               </div>
             )}
           </div>
+          {isImageLoading && <Loader className="h-[342px]" />}{" "}
           {chartHref && (
             <div
               className={cn(
@@ -127,13 +134,16 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
               <img
                 className={cn(
                   "w-full h-full object-cover cursor-pointer",
-                  "transition-transform duration-300",
+                  "transition-opacity duration-300 opacity-100",
                   {
-                    "w-[70%] h-[70%] object-contain": enlarged
+                    "w-[70%] h-[70%] object-contain": enlarged,
+                    "opacity-0 h-0": isImageLoading
                   }
                 )}
                 src={chartHref}
                 alt="Chart"
+                onLoad={handleImageLoaded}
+                onError={handleImageLoaded}
               />
             </div>
           )}
