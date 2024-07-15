@@ -51,10 +51,7 @@ const usersSlice = createSlice({
     updateUserScore: (state, action) => {
       return state.map((user) => {
         if (user.username === action.payload.username) {
-          return {
-            ...user,
-            score: action.payload.score
-          }
+          //
         }
         return user
       })

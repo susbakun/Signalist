@@ -34,9 +34,7 @@ export const Signal = ({ signal, className }: SignalProps) => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date().getTime())
       dispatch(updateSignalsState(cryptosList?.data))
-      // dispatch(
-      //   updateUserScore({ username: signal.publisher.username, score: signal.publisher.score })
-      // )
+      // dispatch(updateUserScore({ username: signal.publisher.username, signal }))
     }, 60000)
 
     return () => clearInterval(intervalId)

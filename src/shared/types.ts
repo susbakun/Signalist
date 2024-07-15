@@ -19,3 +19,4 @@ export type ChatType = {
   messageImageId?: string
 }
 export type BookmarkType = { signals: SignalModel[]; posts: PostModel[] }
+export type ThemeModeType = "Os Default" | "Dark" | "Light"

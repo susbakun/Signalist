@@ -33,8 +33,8 @@ export const PostModalFooter = ({
         onClick={hanldeCreatePost}
         className="action-button text-white
         font-bold disabled:opacity-30
-        px-[10px] py-1 rounded-lg flex items-center gap-2 dark:bg-dark-link-button
-        bg-primary-link-button
+        px-[10px] py-1 rounded-lg flex items-center gap-2
+        dark:bg-dark-link-button bg-primary-link-button
       "
       >
         {postButtonDisabled && <Spinner color="success" size="md" />}

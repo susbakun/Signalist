@@ -62,9 +62,41 @@ export const getFormattedSignalMarketName = (marketName: SignalModel["market"]["
   return marketName.split("/").join()
 }
 
-export const toggleDarkMode = () => {
-  document.documentElement.classList.toggle("dark")
-  document.body.classList.toggle("darkmode")
+export const toggleThemeMode = (themeMode: string) => {
+  document.documentElement.classList.remove("dark", "light", "os-default")
+  document.body.classList.remove("darkmode", "lightmode", "os-defaultmode")
+
+  switch (themeMode) {
+    case "Dark":
+      console.log("second")
+      document.documentElement.classList.add("dark")
+      document.body.classList.add("darkmode")
+      break
+    case "Light":
+      console.log("Third")
+      document.documentElement.classList.add("light")
+      document.body.classList.add("lightmode")
+      break
+    case "Os Default":
+      applyOsDefaultTheme()
+      break
+    default:
+      break
+  }
+}
+
+export const applyOsDefaultTheme = () => {
+  const userPrefersDark =
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+  const userPrefersLight =
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+  if (userPrefersDark) {
+    toggleThemeMode("Dark")
+  } else if (userPrefersLight) {
+    toggleThemeMode("Light")
+  } else {
+    toggleThemeMode("Os Default")
+  }
 }
 
 export const isDevmode = () => {
