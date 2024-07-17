@@ -1,3 +1,4 @@
+import { PostTextArea } from "@/components"
 import { createPost } from "@/features/Post/postsSlice"
 import { useAppSelector } from "@/features/User/usersSlice"
 import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
@@ -8,7 +9,6 @@ import { ChangeEvent, KeyboardEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { PostModalFooter } from "./PostModalFooter"
 import { PostModalImagePreview } from "./PostModalImagePreview"
-import { PostTextArea } from "./PostTextArea"
 import "./togglebutton.css"
 
 export type CreatePostModalProps = {

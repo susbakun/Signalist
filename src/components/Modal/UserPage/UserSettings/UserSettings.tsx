@@ -7,7 +7,9 @@ import { SelectThemeModeDropDown } from "./SelectThemeModeDropDown"
 
 export const UserSettings = () => {
   const [openModal, setOpenModal] = useState(true)
-  const [themeMode, setThemeMode] = useState<ThemeModeType>("Os Default")
+  const [themeMode, setThemeMode] = useState<ThemeModeType>(() => {
+    return (localStorage.getItem("themeMode") || "Os Default") as ThemeModeType
+  })
 
   const { username: myUsername } = useParams()
   const navigate = useNavigate()
@@ -39,7 +41,7 @@ export const UserSettings = () => {
       </Modal.Header>
       <Modal.Body>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-gray-900 dark:text-gray-100">Dark Mode</span>
+          <span className="text-gray-900 dark:text-gray-100">Theme Mode</span>
           <SelectThemeModeDropDown
             label={themeMode}
             options={["Dark", "Light", "Os Default"]}

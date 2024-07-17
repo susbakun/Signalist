@@ -1,4 +1,4 @@
-import { PostModalFooter, PostModalImagePreview } from "@/components"
+import { PostModalFooter, PostModalImagePreview, PostTextArea } from "@/components"
 import { editPost } from "@/features/Post/postsSlice"
 import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { PostModel } from "@/shared/models"
@@ -6,7 +6,6 @@ import { Client, ID, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
-import { PostTextArea } from "../CreatePost/PostTextArea"
 import "./togglebutton.css"
 
 export type EditPostModalProps = {
@@ -21,12 +20,14 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [postButtonDisabled, setPostButtonDisabled] = useState(true)
+  const [isPostSending, setIsPostSending] = useState(false)
 
   const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const storage = new Storage(client)
 
   const dispatch = useDispatch()
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
@@ -36,11 +37,13 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
 
   const handleEditPost = async () => {
     setPostButtonDisabled(true)
+    setIsPostSending(true)
     const postImageId = await handleSendImage(selectedImage)
     const removePostImage = postImageId ? false : true
     dispatch(editPost({ content: postText, postId: post.id, postImageId, removePostImage }))
     handleResetFileInput()
     setPostButtonDisabled(false)
+    setIsPostSending(false)
     handleCloseModal!()
   }
 
@@ -148,6 +151,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
         />
         <PostModalFooter
           isPremium={isPremium}
+          isPostSending={isPostSending}
           handleChangeImage={handleChangeImage}
           handleTogglePremium={handleTogglePremium}
           hanldeCreatePost={handleEditPost}

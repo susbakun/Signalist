@@ -68,7 +68,6 @@ export const toggleThemeMode = (themeMode: string) => {
 
   switch (themeMode) {
     case "Dark":
-      console.log("second")
       document.documentElement.classList.add("dark")
       document.body.classList.add("darkmode")
       break

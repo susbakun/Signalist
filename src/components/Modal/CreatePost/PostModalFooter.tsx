@@ -6,6 +6,7 @@ import Toggle from "react-toggle"
 
 type PostModalFooterProps = {
   isPremium: boolean
+  isPostSending: boolean
   postButtonDisabled: boolean
   handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
   handleTogglePremium: () => void
@@ -14,6 +15,7 @@ type PostModalFooterProps = {
 
 export const PostModalFooter = ({
   isPremium,
+  isPostSending,
   postButtonDisabled,
   handleTogglePremium,
   handleChangeImage,
@@ -34,10 +36,9 @@ export const PostModalFooter = ({
         className="action-button text-white
         font-bold disabled:opacity-30
         px-[10px] py-1 rounded-lg flex items-center gap-2
-        dark:bg-dark-link-button bg-primary-link-button
-      "
+        dark:bg-dark-link-button bg-primary-link-button"
       >
-        {postButtonDisabled && <Spinner color="success" size="md" />}
+        {isPostSending && <Spinner color="success" size="md" />}
         Post
       </button>
     </div>

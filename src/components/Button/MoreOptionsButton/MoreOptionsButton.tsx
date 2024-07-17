@@ -39,7 +39,7 @@ export const MoreOptionsButton = ({
     setIsOpen(false)
   }
 
-  if (isForComment && handleDeleteComment)
+  if (isForComment && handleDeleteComment && myAccount?.username === username)
     return (
       <Popover
         trigger="click"
@@ -53,14 +53,13 @@ export const MoreOptionsButton = ({
         </button>
       </Popover>
     )
-
-  if (myAccount?.username === username && !signalId)
+  else if (myAccount?.username === username && !signalId)
     return (
       <button onClick={handleOpenEditPostModal} className="action-button">
         <MdOutlineModeEditOutline className="w-6 h-6" />
       </button>
     )
-  else if (myAccount?.username !== username && (signalId || postId))
+  else if (myAccount?.username !== username && (signalId || postId || isForComment))
     return (
       <>
         <Popover
@@ -87,4 +86,7 @@ export const MoreOptionsButton = ({
         <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
       </>
     )
+  else {
+    console.log(postId)
+  }
 }

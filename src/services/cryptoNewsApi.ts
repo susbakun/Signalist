@@ -1,8 +1,8 @@
-import { CryptoNewsType } from '@/shared/models'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { CryptoNewsType } from "@/shared/models"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 const cryptoNewsHeaders = {
-  'X-Api-Key': import.meta.env.VITE_X_API_KEY
+  "X-Api-Key": import.meta.env.VITE_X_API_KEY
 }
 
 type NewsQueryInput = {
@@ -11,12 +11,12 @@ type NewsQueryInput = {
   count: number
 }
 
-const baseUrl = 'https://newsapi.org/v2/'
+const baseUrl = "https://newsapi.org/v2/"
 
 const createRequest = (url: string) => ({ url, headers: cryptoNewsHeaders })
 
 export const cryptoNewsApi = createApi({
-  reducerPath: 'cryptoNewsApi',
+  reducerPath: "cryptoNewsApi",
   baseQuery: fetchBaseQuery({ baseUrl }),
   endpoints: (builder) => ({
     getCryptoNews: builder.query<CryptoNewsType, NewsQueryInput>({

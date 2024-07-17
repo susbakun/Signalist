@@ -71,29 +71,27 @@ export const MoreOptionsButtonContent = ({
   }
 
   return (
-    <>
-      <div className="flex flex-col text-md font-bold justify-center text-center">
-        {!isForUserPage && (
-          <button onClick={handleFollowUser} className="option-button px-2 py-2">
-            {isFollowed ? <IoPersonRemoveOutline /> : <IoPersonAddOutline />}
-            {isFollowed ? "unfollow" : "follow"}
-          </button>
-        )}
-        {!isForComment && !signalId && !isForUserPage && (
-          <button onClick={handleNotInterested} className="option-button px-2 py-2">
-            <IoHeartDislikeOutline /> Not Interested
-          </button>
-        )}
-        <button onClick={handleBlockUser} className="option-button px-2 py-2">
-          <MdBlock />
-          Block @{userUsername}
+    <div className="flex flex-col text-md font-bold justify-center text-center">
+      {!isForUserPage && (
+        <button onClick={handleFollowUser} className="option-button px-2 py-2">
+          {isFollowed ? <IoPersonRemoveOutline /> : <IoPersonAddOutline />}
+          {isFollowed ? "unfollow" : "follow"}
         </button>
-        <button onClick={handleReportUser} className="option-button border-none px-2 py-2">
-          <MdOutlineReport />
-          Report{" "}
-          {isForComment ? "Comment" : signalId ? "Signal" : isForUserPage ? userUsername : "Post"}
+      )}
+      {!isForComment && !signalId && !isForUserPage && (
+        <button onClick={handleNotInterested} className="option-button px-2 py-2">
+          <IoHeartDislikeOutline /> Not Interested
         </button>
-      </div>
-    </>
+      )}
+      <button onClick={handleBlockUser} className="option-button px-2 py-2">
+        <MdBlock />
+        Block @{userUsername}
+      </button>
+      <button onClick={handleReportUser} className="option-button border-none px-2 py-2">
+        <MdOutlineReport />
+        Report{" "}
+        {isForComment ? "Comment" : signalId ? "Signal" : isForUserPage ? userUsername : "Post"}
+      </button>
+    </div>
   )
 }
