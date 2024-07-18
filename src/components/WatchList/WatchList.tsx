@@ -1,8 +1,10 @@
 import { CryptoPreview, Loader, MarketSelectionDrawer } from "@/components"
+import { EmptyPage } from "@/pages"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { CryptoResponseType } from "@/shared/models"
 import { CoinType } from "@/shared/types"
 import { Table } from "flowbite-react"
+import { isEmpty } from "lodash"
 import { useEffect, useState } from "react"
 import { IoAddCircleOutline } from "react-icons/io5"
 
@@ -32,7 +34,7 @@ export const WatchList = () => {
     }
   }, [cryptosList])
 
-  if (!cryptos?.length || isLoading)
+  if (isLoading)
     return (
       <>
         <h4 className="text-xl">WatchList</h4>
@@ -48,35 +50,41 @@ export const WatchList = () => {
           <IoAddCircleOutline className="w-6 h-6" />
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <MarketSelectionDrawer
-          selectedCryptos={cryptos}
-          isOpen={isOpen}
-          closeDrawer={handleClose}
-          selectMarket={handleSelectMarket}
-        />
-        <Table>
-          <Table.Head>
-            <Table.HeadCell className="text-center">Market</Table.HeadCell>
-            <Table.HeadCell className="text-center">Current Price</Table.HeadCell>
-            <Table.HeadCell className="text-center">24h Volume</Table.HeadCell>
-            <Table.HeadCell className="text-center">Weekly Chart</Table.HeadCell>
-            <Table.HeadCell className="text-center">24h Change</Table.HeadCell>
-            <Table.HeadCell>
-              <span className="sr-only">Select</span>
-            </Table.HeadCell>
-          </Table.Head>
-          <Table.Body className="divide-y">
-            {cryptos.map((crypto) => (
-              <CryptoPreview
-                removeMarket={handleRemoveFromWatchList}
-                {...crypto}
-                key={crypto.uuid}
-              />
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
+      {isEmpty(cryptos) ? (
+        <EmptyPage className="flex justify-center font-medium">
+          <h3>Your watchlist is empty</h3>
+        </EmptyPage>
+      ) : (
+        <div className="overflow-x-auto">
+          <MarketSelectionDrawer
+            selectedCryptos={cryptos}
+            isOpen={isOpen}
+            closeDrawer={handleClose}
+            selectMarket={handleSelectMarket}
+          />
+          <Table>
+            <Table.Head>
+              <Table.HeadCell className="text-center">Market</Table.HeadCell>
+              <Table.HeadCell className="text-center">Current Price</Table.HeadCell>
+              <Table.HeadCell className="text-center">24h Volume</Table.HeadCell>
+              <Table.HeadCell className="text-center">Weekly Chart</Table.HeadCell>
+              <Table.HeadCell className="text-center">24h Change</Table.HeadCell>
+              <Table.HeadCell>
+                <span className="sr-only">Select</span>
+              </Table.HeadCell>
+            </Table.Head>
+            <Table.Body className="divide-y">
+              {cryptos.map((crypto) => (
+                <CryptoPreview
+                  removeMarket={handleRemoveFromWatchList}
+                  {...crypto}
+                  key={crypto.uuid}
+                />
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+      )}
     </section>
   )
 }

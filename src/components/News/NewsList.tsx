@@ -55,11 +55,11 @@ export const NewsList = () => {
       <>
         <h4 className="text-xl mb-4">News</h4>
         <SkeletonTheme
-          baseColor={isDarkMode() ? "rgb(31 41 55)" : "rgb(31 41 55)"}
-          highlightColor={isDarkMode() ? "#4a4a5a" : "#F5F5F5"}
+          baseColor={isDarkMode() ? "rgb(31 41 55)" : "rgb(255 255 255)"}
+          highlightColor={isDarkMode() ? "#4a4a5a" : "#ececec"}
         >
           <p>
-            <Skeleton className="mb-4" height={120} borderRadius={6} count={5} />
+            <Skeleton className="mb-4" height={140} borderRadius={6} count={5} />
           </p>
         </SkeletonTheme>
       </>

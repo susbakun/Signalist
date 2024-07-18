@@ -72,7 +72,6 @@ export const toggleThemeMode = (themeMode: string) => {
       document.body.classList.add("darkmode")
       break
     case "Light":
-      console.log("Third")
       document.documentElement.classList.add("light")
       document.body.classList.add("lightmode")
       break

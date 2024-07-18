@@ -291,6 +291,7 @@ export const usersMock: AccountModel[] = [
     ],
     followings: [],
     score: 20,
+    hasPremium: false,
     imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg",
     blockedAccounts: [],
     bookmarks: { signals: [], posts: [] }
@@ -321,6 +322,7 @@ export const usersMock: AccountModel[] = [
     score: 1,
     imageUrl: "",
     blockedAccounts: [],
+    hasPremium: false,
     bookmarks: { signals: [], posts: [] }
   },
   {
@@ -382,6 +384,7 @@ export const usersMock: AccountModel[] = [
       }
     ],
     score: 5,
+    hasPremium: false,
     imageUrl: "https://i.pravatar.cc/150?img=8",
     blockedAccounts: [],
     bookmarks: { signals: [], posts: [] }
@@ -399,6 +402,7 @@ export const usersMock: AccountModel[] = [
       }
     ],
     score: 23,
+    hasPremium: false,
     imageUrl: "",
     blockedAccounts: [],
     bookmarks: { signals: [], posts: [] }
@@ -451,6 +455,7 @@ export const usersMock: AccountModel[] = [
       }
     ],
     score: 8,
+    hasPremium: false,
     imageUrl: "",
     blockedAccounts: [],
     bookmarks: { signals: [], posts: [] }

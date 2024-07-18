@@ -93,7 +93,7 @@ export type AccountModel = {
   score: number
   subscribers?: SubscriberType[]
   susbscriptionPlan?: SubscriptionPlanType
-  hasPremium?: boolean
+  hasPremium: boolean
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
   bookmarks: BookmarkType

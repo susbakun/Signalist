@@ -71,13 +71,13 @@ export const SelectThemeModeDropDown = ({
           aria-orientation="vertical"
           aria-labelledby="options-menu"
         >
-          <div className="py-1">
+          <div>
             {options.map((option) => (
               <button
                 key={option}
                 className="block px-4 py-2 text-sm dark:text-white 
                 dark:bg-gray-800 w-full text-left dark:hover:bg-gray-600
-                bg-white text-gray-700 hover:bg-gray-200"
+                bg-white text-gray-700 hover:bg-gray-200 rounded-lg"
                 role="menuitem"
                 onClick={() => handleSelect(option)}
               >
