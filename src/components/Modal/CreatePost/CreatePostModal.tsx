@@ -22,6 +22,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
+  const [isPostSending, setIsPostSending] = useState(false)
 
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
@@ -54,10 +55,12 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
     handleCloseModal!()
     setPostText("")
     setPostButtonDisabled(false)
+    setIsPostSending(false)
   }
 
   const handleCreatePost = async () => {
     setPostButtonDisabled(true)
+    setIsPostSending(true)
     const postImageId = await handleSendImage(selectedImage)
     dispatch(createPost({ content: postText, publisher: postPublisher, isPremium, postImageId }))
     hanldeResetForm()
@@ -121,6 +124,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
         />
         <PostModalFooter
           isPremium={isPremium}
+          isPostSending={isPostSending}
           handleChangeImage={handleChangeImage}
           handleTogglePremium={handleTogglePremium}
           hanldeCreatePost={handleCreatePost}

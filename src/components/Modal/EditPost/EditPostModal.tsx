@@ -35,16 +35,20 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
     }
   }
 
+  const handleResetForm = () => {
+    handleResetFileInput()
+    setPostButtonDisabled(false)
+    setIsPostSending(false)
+    handleCloseModal!()
+  }
+
   const handleEditPost = async () => {
     setPostButtonDisabled(true)
     setIsPostSending(true)
     const postImageId = await handleSendImage(selectedImage)
     const removePostImage = postImageId ? false : true
     dispatch(editPost({ content: postText, postId: post.id, postImageId, removePostImage }))
-    handleResetFileInput()
-    setPostButtonDisabled(false)
-    setIsPostSending(false)
-    handleCloseModal!()
+    handleResetForm()
   }
 
   const handlePostTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
