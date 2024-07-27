@@ -1,4 +1,5 @@
 import { usersMock } from "@/assets/mocks"
+import { AccountModel, SignalModel } from "@/shared/models"
 import { RootState, SimplifiedAccountType } from "@/shared/types"
 import { createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
@@ -49,11 +50,26 @@ const usersSlice = createSlice({
       })
     },
     updateUserScore: (state, action) => {
+      const currentTime = new Date().getTime()
+      const signal: SignalModel = action.payload.signal
+
       return state.map((user) => {
-        if (user.username === action.payload.username) {
-          //
+        const updatedScoreUser: AccountModel = { ...user }
+        if (user.username === signal.publisher.username) {
+          const isSignalRecentlyClosed =
+            currentTime - signal.closeTime >= 0 && currentTime - signal.closeTime <= 70000
+
+          if (isSignalRecentlyClosed) {
+            console.log("first")
+            signal.targets.forEach((target) => {
+              console.log(target)
+              if (target.touched) {
+                updatedScoreUser.score += 1
+              }
+            })
+          }
         }
-        return user
+        return updatedScoreUser
       })
     },
     blockUser: (state, action) => {

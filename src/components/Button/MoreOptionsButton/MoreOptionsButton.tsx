@@ -86,7 +86,4 @@ export const MoreOptionsButton = ({
         <ToastContainer toastType={toastType} showToast={showToast} toastContent={toastContent} />
       </>
     )
-  else {
-    console.log(postId)
-  }
 }

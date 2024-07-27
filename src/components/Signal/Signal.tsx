@@ -1,6 +1,7 @@
 import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { updateSignalsState } from "@/features/Signal/signalsSlice"
+import { updateUserScore } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
@@ -30,11 +31,15 @@ export const Signal = ({ signal, className }: SignalProps) => {
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const { isUserBlocked: determineIsUserBlocked } = userIsUserBlocked(myAccount)
 
+  const updateSignalStatus = () => {
+    setCurrentTime(new Date().getTime())
+    dispatch(updateSignalsState(cryptosList?.data))
+  }
+
   useEffect(() => {
+    updateSignalStatus()
     const intervalId = setInterval(() => {
-      setCurrentTime(new Date().getTime())
-      dispatch(updateSignalsState(cryptosList?.data))
-      // dispatch(updateUserScore({ username: signal.publisher.username, signal }))
+      updateSignalStatus()
     }, 60000)
 
     return () => clearInterval(intervalId)
@@ -46,6 +51,11 @@ export const Signal = ({ signal, className }: SignalProps) => {
       setIsUserBlocked(determineIsUserBlocked(userUsername))
     }
   }, [myAccount])
+
+  useEffect(() => {
+    console.log("first")
+    dispatch(updateUserScore({ signal }))
+  }, [signal])
 
   if (isUserBlocked) return
 
