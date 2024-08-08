@@ -50,9 +50,9 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const myAccount = users.find((user) => user.username === "Amir_Aryan")!
   const signalPublisher: SignalAccountType = {
     name: myAccount.name,
-    score: myAccount.score,
     username: myAccount.username,
-    imageUrl: myAccount.imageUrl
+    imageUrl: myAccount.imageUrl,
+    score: myAccount.score
   }
 
   const handleSelectMarket = (market: SignalModel["market"]) => {

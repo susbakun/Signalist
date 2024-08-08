@@ -498,6 +498,7 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "Amirsaeed Aryanmehr",
       username: "Amir_Aryan",
+      score: 20,
       imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
     }
   },
@@ -536,7 +537,8 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "Amir Pouya",
       username: "AmirP",
-      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg",
+      score: 25
     }
   },
   {
@@ -579,7 +581,8 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "steve",
       username: "stuDent",
-      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
+      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg",
+      score: 18
     }
   }
 ]

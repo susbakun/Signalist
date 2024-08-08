@@ -1,6 +1,7 @@
 import {
   BookmarkType,
   ChatType,
+  SignalAccountType,
   SimplifiedAccountType,
   StatusType,
   SubscriberType,
@@ -136,7 +137,7 @@ export type SignalModel = {
   description?: string
   chartImageId?: string
   isPremium: boolean
-  publisher: SimplifiedAccountType
+  publisher: SignalAccountType
 }
 
 export type MessageModel = {
