@@ -1,15 +1,12 @@
-import { CreateMessageModal } from "@/components"
+import { CreateMessageModal, MessageRoomsTopBar } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { MessageModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import { getAvatarPlaceholder } from "@/utils"
-import Tippy from "@tippyjs/react"
 import { Avatar } from "flowbite-react"
 import { useState } from "react"
-import { TbMessagePlus } from "react-icons/tb"
 import { NavLink } from "react-router-dom"
-import { roundArrow } from "tippy.js"
 
 type MessageRoomsProps = {
   myMessages: MessageModel[""]
@@ -74,26 +71,8 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
   return (
     <>
-      <div className="w-1/3 bg-gray-200/80 dark:bg-gray-800 p-4 overflow-y-auto">
-        <div className="flex justify-between mb-4 items-center">
-          <h2 className="text-2xl font-bold">Chats</h2>
-          <Tippy
-            content="New message"
-            className="dark:bg-gray-900 bg-gray-900 text-white font-sans
-            rounded-md px-1 py-[2px] text-sm"
-            delay={[1000, 0]}
-            placement="bottom-end"
-            animation="fade"
-            arrow={roundArrow}
-            offset={[0, 8]}
-            duration={10}
-            hideOnClick={true}
-          >
-            <button onClick={handleOpenCreateMessageModal} className="action-button">
-              <TbMessagePlus className="w-7 h-7" />
-            </button>
-          </Tippy>
-        </div>
+      <div className="xl:w-[25%] lg:w-[30%] bg-gray-200/80 dark:bg-gray-800 p-4 overflow-y-auto">
+        <MessageRoomsTopBar handleOpenCreateMessageModal={handleOpenCreateMessageModal} />
         {messagesIds.map((messageId) => {
           const { placeholder, text, userInfo } = getMessageInfo(messageId)
           if (isUserBlocked(userInfo.username)) return

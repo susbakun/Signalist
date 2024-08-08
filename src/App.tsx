@@ -1,6 +1,6 @@
 import { AppContent, AppSideBar, RootLayout } from "@/components"
+import { toggleThemeMode } from "@/utils"
 import { useEffect } from "react"
-import { toggleThemeMode } from "./utils"
 
 function App() {
   useEffect(() => {

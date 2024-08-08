@@ -1,4 +1,4 @@
-import { MessageRoomInput, MessageRoomMessages } from "@/components"
+import { MessageRoomInput, MessageRoomMessages, MessageRoomTopBar } from "@/components"
 import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType, SimplifiedAccountType } from "@/shared/types"
@@ -76,7 +76,7 @@ export const MessageRoom = () => {
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-4">{userInfo.name}</h2>
+      <MessageRoomTopBar userName={userInfo.username} />
       <MessageRoomMessages messages={messages} handleBlurEmojiPicker={handleBlurEmojiPicker} />
       <MessageRoomInput
         messageText={messageText}

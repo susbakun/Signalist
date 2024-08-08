@@ -48,7 +48,6 @@ export const CryptoPreview = ({
           </div>
         </div>
       </TableCell>
-
       <TableCell className="font-bold text-md text-gray-700/90 dark:text-white/70">
         {(+price).toLocaleString("en-Us")}$
       </TableCell>

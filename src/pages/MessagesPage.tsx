@@ -1,12 +1,12 @@
-import { MessageRooms } from '@/components'
-import { useAppSelector } from '@/features/Message/messagesSlice'
-import { useEffect, useState } from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import { MessageRooms } from "@/components"
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useEffect, useState } from "react"
+import { Outlet, useParams } from "react-router-dom"
 
 export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | string>(null)
 
-  const myMessages = useAppSelector((state) => state.messages['Amir_Aryan'])
+  const myMessages = useAppSelector((state) => state.messages["Amir_Aryan"])
 
   const { id } = useParams()
 
@@ -22,7 +22,7 @@ export const MessagesPage = () => {
     dark:text-gray-100"
     >
       <MessageRooms myMessages={myMessages} />
-      <div className="w-2/3 bg-gray-100 dark:bg-gray-900 p-4 flex flex-col">
+      <div className="xl:w-[75%] lg:w-[70%] bg-gray-100 dark:bg-gray-900 flex flex-col">
         {selectedChat ? (
           <Outlet
             context={{

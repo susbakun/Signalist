@@ -101,7 +101,7 @@ export const MessageRoomMessages = ({
 
   return (
     <>
-      <div onClick={handleBlurEmojiPicker} className="flex-grow overflow-y-auto space-y-4">
+      <div onClick={handleBlurEmojiPicker} className="flex-grow overflow-y-auto space-y-4 p-4">
         {messages.reduce((acc: JSX.Element[], message, index) => {
           const messageDate = formatMessageDate(message.date)
           const prevMessageDate = index > 0 ? formatMessageDate(messages[index - 1].date) : null

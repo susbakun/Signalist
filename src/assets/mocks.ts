@@ -498,7 +498,6 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "Amirsaeed Aryanmehr",
       username: "Amir_Aryan",
-      score: 20,
       imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
     }
   },
@@ -537,8 +536,7 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "Amir Pouya",
       username: "AmirP",
-      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg",
-      score: 25
+      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
     }
   },
   {
@@ -581,8 +579,7 @@ export const signalsMock: SignalModel[] = [
     publisher: {
       name: "steve",
       username: "stuDent",
-      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg",
-      score: 18
+      imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
     }
   }
 ]
@@ -603,7 +600,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
           },
           text: "Hey there!",
-          date: new Date().getTime() - 38 * 24 * 60 * 60 * 1000
+          date: new Date().getTime() - 38 * 22 * 58 * 60 * 1000
         },
         {
           sender: {
@@ -612,7 +609,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
           },
           text: "Hello!",
-          date: new Date().getTime() - 24 * 60 * 60 * 1000
+          date: new Date().getTime() - 18 * 60 * 60 * 1000
         }
       ]
     },
@@ -630,7 +627,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
           },
           text: "How are you?",
-          date: new Date().getTime() - 4 * 60 * 60 * 1000
+          date: new Date().getTime() - 1 * 37 * 60 * 1000
         },
         {
           sender: {
@@ -639,7 +636,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
           },
           text: "I am good, thanks!",
-          date: new Date().getTime() - 60 * 60 * 1000
+          date: new Date().getTime() - 9 * 60 * 1000
         }
       ]
     },
@@ -657,7 +654,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://i.pravatar.cc/150?img=8"
           },
           text: "See you soon.",
-          date: new Date().getTime() - 2 * 24 * 60 * 60 * 1000
+          date: new Date().getTime() - 2 * 24 * 18 * 60 * 1000
         },
         {
           sender: {
@@ -666,7 +663,7 @@ export const messagesMock: MessageModel = {
             imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
           },
           text: "Yes, see you!",
-          date: new Date().getTime() - 1.5 * 24 * 60 * 60 * 1000
+          date: new Date().getTime() - 1.5 * 3 * 10 * 60 * 1000
         }
       ]
     }

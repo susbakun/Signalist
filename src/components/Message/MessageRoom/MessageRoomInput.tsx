@@ -74,7 +74,7 @@ export const MessageRoomInput = ({
   }, [selectedImage])
 
   return (
-    <>
+    <div className="p-4">
       {isEmojiPickerOpen && (
         <div className="relative">
           <EmojiPicker
@@ -162,6 +162,6 @@ export const MessageRoomInput = ({
         handleSelectEmoji={handleSelectEmoji}
         closeModal={handleCloseImagePreviewModal}
       />
-    </>
+    </div>
   )
 }
