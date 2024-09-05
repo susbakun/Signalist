@@ -1,7 +1,8 @@
 import { MessageRoomInput, MessageRoomMessages, MessageRoomTopBar } from "@/components"
 import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
-import { ChatType, SimplifiedAccountType } from "@/shared/types"
+import { MessageModel } from "@/shared/models"
+import { ChatType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -9,7 +10,7 @@ import { useOutletContext, useParams } from "react-router-dom"
 
 type MessageRoomOutletType = {
   messages: ChatType[]
-  userInfo: SimplifiedAccountType
+  userInfo: MessageModel["username"]["roomId"]["userInfo"]
 }
 
 export const MessageRoom = () => {
@@ -21,7 +22,6 @@ export const MessageRoom = () => {
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
   )
-
   const { messages, userInfo } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch()
   const { id } = useParams()
@@ -76,7 +76,7 @@ export const MessageRoom = () => {
 
   return (
     <>
-      <MessageRoomTopBar userName={userInfo.username} />
+      <MessageRoomTopBar userInfo={userInfo} />
       <MessageRoomMessages messages={messages} handleBlurEmojiPicker={handleBlurEmojiPicker} />
       <MessageRoomInput
         messageText={messageText}

@@ -5,6 +5,7 @@ import EmojiPicker, { Theme } from "emoji-picker-react"
 import { Spinner } from "flowbite-react"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { BsEmojiGrin } from "react-icons/bs"
+import { MdOutlineKeyboardVoice } from "react-icons/md"
 import { roundArrow } from "tippy.js"
 
 type MessageRoomInputProps = {
@@ -104,12 +105,15 @@ export const MessageRoomInput = ({
         <button
           onClick={handleToggleEmojiPicker}
           className={cn(
-            "mr-1",
+            "mr-1 action-button",
             { "dark:text-dark-link-button": isEmojiPickerOpen },
             { "text-primary-link-button": isEmojiPickerOpen }
           )}
         >
           <BsEmojiGrin className="w-5 h-5" />
+        </button>
+        <button className="action-button px-2 py-2">
+          <MdOutlineKeyboardVoice className="w-6 h-6" />
         </button>
         <textarea
           ref={textareaRef}

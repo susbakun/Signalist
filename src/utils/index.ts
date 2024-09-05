@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 export const dateFormatter = new Intl.DateTimeFormat(navigator.language, {
   dateStyle: "short",
   timeStyle: "short",
-  timeZone: "Asia/Tehran"
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
 })
 
 export const formatDateFromMS = (ms: number) => dateFormatter.format(ms)

@@ -1,6 +1,6 @@
 import { UserPreview } from "@/components"
 import { useAppSelector } from "@/features/Post/postsSlice"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { EmptyPage } from "@/pages"
 import { cn, isEmpty } from "@/utils"
 import { ChangeEvent, useCallback, useMemo, useState } from "react"
@@ -13,7 +13,7 @@ export const ExploreTopBar = () => {
 
   const users = useAppSelector((state) => state.users)
   const myAccount = users.find((user) => user.username === "Amir_Aryan")
-  const { isUserBlocked } = userIsUserBlocked(myAccount)
+  const { isUserBlocked } = useIsUserBlocked(myAccount)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearched(e.target.value)

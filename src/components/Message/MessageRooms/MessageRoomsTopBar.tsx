@@ -5,11 +5,15 @@ import { roundArrow } from "tippy.js"
 
 type MessageRoomsTopBarProps = {
   handleOpenCreateMessageModal: () => void
+  handleOpenCreateGroupModal: () => void
 }
 
-export const MessageRoomsTopBar = ({ handleOpenCreateMessageModal }: MessageRoomsTopBarProps) => {
+export const MessageRoomsTopBar = ({
+  handleOpenCreateMessageModal,
+  handleOpenCreateGroupModal
+}: MessageRoomsTopBarProps) => {
   return (
-    <div className="flex justify-between mb-4 items-center">
+    <div className="flex justify-between mb-6 items-center">
       <h2 className="text-2xl font-bold">Chats</h2>
       <div className="flex gap-6 items-center">
         <Tippy
@@ -24,7 +28,7 @@ export const MessageRoomsTopBar = ({ handleOpenCreateMessageModal }: MessageRoom
           duration={10}
           hideOnClick={true}
         >
-          <button onClick={handleOpenCreateMessageModal} className="action-button">
+          <button onClick={handleOpenCreateGroupModal} className="action-button">
             <AiOutlineUsergroupAdd className="w-7 h-7" />
           </button>
         </Tippy>
@@ -41,8 +45,6 @@ export const MessageRoomsTopBar = ({ handleOpenCreateMessageModal }: MessageRoom
           hideOnClick={true}
         >
           <button onClick={handleOpenCreateMessageModal} className="action-button">
-            {" "}
-            {/*TODO: handle opening the group modal */}
             <TbMessagePlus className="w-7 h-7" />
           </button>
         </Tippy>

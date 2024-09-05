@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/features/Message/messagesSlice"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { AccountModel } from "@/shared/models"
 import { cn, getAvatarPlaceholder, isDarkMode } from "@/utils"
 import { Avatar } from "flowbite-react"
@@ -18,7 +18,7 @@ export const StreamingUser = ({ name, username, imageUrl, className }: Streaming
   const users = useAppSelector((state) => state.users)
   const myAccount = users.find((user) => user.username === "Amir_Aryan")
 
-  const { isUserBlocked: determineIsUserBlocked } = userIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
 
   useEffect(() => {
     if (myAccount) {

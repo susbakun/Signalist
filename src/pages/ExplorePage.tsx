@@ -1,6 +1,6 @@
 import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from "@/components"
 import { useAppSelector } from "@/features/User/usersSlice"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { editPostRouteRegExp } from "@/shared/constants"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
@@ -55,7 +55,7 @@ const ExplorePosts = () => {
 export const RightSideBar = () => {
   const users = useAppSelector((state) => state.users)
   const myAccount = users.find((user) => user.username === "Amir_Aryan")
-  const { isUserBlocked } = userIsUserBlocked(myAccount)
+  const { isUserBlocked } = useIsUserBlocked(myAccount)
   let selectedUsers = [
     ...users.filter(
       (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)

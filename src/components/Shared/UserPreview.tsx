@@ -15,6 +15,9 @@ type UserPreviewProps = Pick<AccountModel, "name" | "username" | "imageUrl"> &
     follower?: AccountModel
     isForMessageRoom?: boolean
     handleCreateMessage?: () => void
+    handleCheckboxChange?: () => void
+    isForMessageGroup?: boolean
+    selected?: boolean
   }
 
 export const UserPreview = ({
@@ -24,7 +27,10 @@ export const UserPreview = ({
   follower,
   className,
   isForMessageRoom,
-  handleCreateMessage
+  isForMessageGroup,
+  selected,
+  handleCreateMessage,
+  handleCheckboxChange
 }: UserPreviewProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
 
@@ -109,6 +115,19 @@ export const UserPreview = ({
           >
             <TbMessage className="w-6 h-6" />
           </button>
+        )}
+        {isForMessageGroup && (
+          <div className="flex items-center bg-transparent">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={handleCheckboxChange}
+              className="dark:bg-gray-700 bg-gray-100 outline-none
+              rounded-full text-primary-link-button focus:outline-none
+              dark:text-dark-link-button dark:focus:ring-0 h-6 w-6
+              dark:focus:border-0 focus:ring-transparent"
+            />
+          </div>
         )}
       </div>
       <UserUnfollowModal

@@ -1,6 +1,5 @@
 import { ChangeEvent, useRef } from "react"
 import { HiOutlinePhoto } from "react-icons/hi2"
-import { MdOutlineKeyboardVoice } from "react-icons/md"
 
 type MediaOptionsButtonContentProps = {
   handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
@@ -22,10 +21,6 @@ export const MediaOptionsButtonContent = ({
       <button onClick={() => inputRef.current?.click()} className="option-button px-2 py-2">
         <HiOutlinePhoto className="w-5 h-5" />
         Photo or Video
-      </button>
-      <button className="option-button px-2 py-2">
-        <MdOutlineKeyboardVoice className="w-5 h-5" />
-        Record a Voice
       </button>
     </div>
   )

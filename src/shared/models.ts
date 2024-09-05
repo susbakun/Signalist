@@ -148,3 +148,14 @@ export type MessageModel = {
     }
   }
 }
+
+export type GroupModel = {
+  [username: AccountModel["username"]]: {
+    [k: string]: {
+      usersInfo: SimplifiedAccountType[]
+      messages: ChatType[]
+      groupName: string
+      groupImageUrl?: string
+    }
+  }
+}

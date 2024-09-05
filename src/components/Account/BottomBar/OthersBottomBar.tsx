@@ -32,13 +32,13 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
-  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(messages)
+  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom()
   const { amISubscribed } = useIsUserSubscribed(userAccount)
 
   const handleCreateMessage = () => {
     handleCloseModal()
-    if (checkIfExistsRoom(userAccount)) {
-      const roomId = findExistingRoomId(userAccount)
+    if (checkIfExistsRoom(userAccount, messages)) {
+      const roomId = findExistingRoomId(userAccount, messages)
       navigate(`/messages/${roomId}`)
     } else {
       const userInfo: SimplifiedAccountType = {

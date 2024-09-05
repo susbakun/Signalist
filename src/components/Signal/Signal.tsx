@@ -2,8 +2,8 @@ import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { updateSignalsState } from "@/features/Signal/signalsSlice"
 import { updateUserScore } from "@/features/User/usersSlice"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { SignalModel } from "@/shared/models"
 import { ComponentProps, useEffect, useState } from "react"
@@ -29,7 +29,7 @@ export const Signal = ({ signal, className }: SignalProps) => {
   const { publisher } = signal
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
-  const { isUserBlocked: determineIsUserBlocked } = userIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
 
   const updateSignalStatus = () => {
     setCurrentTime(new Date().getTime())

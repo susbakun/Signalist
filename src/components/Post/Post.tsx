@@ -1,7 +1,7 @@
 import { EditPostModal, PostBody, PostFooter, PostTopBar } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
 import { PostModel } from "@/shared/models"
 import { ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
@@ -20,7 +20,7 @@ export const Post = ({ post, className }: PostProps) => {
   )
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
-  const { isUserBlocked: determineIsUserBlocked } = userIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
 
   const handleOpenEditPostModal = () => {
     setIsEditPostModalOpen(true)

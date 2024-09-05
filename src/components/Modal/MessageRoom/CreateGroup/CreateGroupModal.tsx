@@ -1,29 +1,22 @@
 import { UserPreview } from "@/components/Shared/UserPreview"
-import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
-import { userIsUserBlocked } from "@/hooks/userIsUserBlocked"
-import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
+import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { EmptyPage } from "@/pages"
 import { AccountModel, MessageModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import { cn } from "@/utils"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, useCallback, useMemo, useState } from "react"
-import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
-import { v4 } from "uuid"
 
-type CreateMessageModalProps = {
+type CreateGroupModalProps = {
   openModal: boolean
   myMessages: MessageModel[""]
-  handleCloseModal: () => void
+  closeModal: () => void
 }
 
-export const CreateMessageModal = ({
-  openModal,
-  handleCloseModal,
-  myMessages
-}: CreateMessageModalProps) => {
+export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProps) => {
   const [searched, setSearched] = useState("")
+  const [selectedUsers, setSelectedUsers] = useState<AccountModel["username"][]>([])
 
   const users = useAppSelector((state) => state.users)
 
@@ -31,11 +24,7 @@ export const CreateMessageModal = ({
 
   const exceptMeUsers = users.filter((user) => user.username !== "Amir_Aryan")
 
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const { isUserBlocked } = userIsUserBlocked(myAccount)
-
-  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom(myMessages)
+  const { isUserBlocked } = useIsUserBlocked(myAccount)
 
   const handleSearchUsers = useCallback(() => {
     return exceptMeUsers.filter(
@@ -52,21 +41,21 @@ export const CreateMessageModal = ({
     setSearched(e.target.value)
   }
 
-  const handleCreateMessage = (user: AccountModel) => {
-    handleCloseModal()
-    if (checkIfExistsRoom(user)) {
-      const roomId = findExistingRoomId(user)
-      navigate(roomId!)
+  const handleCheckboxChange = (selectedUsername: SimplifiedAccountType["username"]) => {
+    if (isUserSelected(selectedUsername)) {
+      setSelectedUsers((prevUsers) => prevUsers.filter((username) => username != selectedUsername))
     } else {
-      const userInfo: SimplifiedAccountType = {
-        name: user.name,
-        username: user.username,
-        imageUrl: user.imageUrl
-      }
-      const roomId = v4()
-      dispatch(createRoom({ myUsername: "Amir_Aryan", userInfo, roomId }))
-      navigate(roomId)
+      setSelectedUsers((prevUsers) => [...prevUsers, selectedUsername])
     }
+  }
+
+  const isUserSelected = (username: SimplifiedAccountType["username"]) => {
+    return selectedUsers?.some((selectedUsername) => selectedUsername === username)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedUsers([])
+    closeModal()
   }
 
   return (
@@ -95,8 +84,9 @@ export const CreateMessageModal = ({
                   "border-none pb-0": index === searchedUsers.length - 1
                 })}
                 {...user}
-                isForMessageRoom
-                handleCreateMessage={() => handleCreateMessage(user)}
+                selected={isUserSelected(user.username)}
+                isForMessageGroup
+                handleCheckboxChange={() => handleCheckboxChange(user.username)}
                 key={user.username}
               />
             ))
@@ -107,6 +97,17 @@ export const CreateMessageModal = ({
           )}
         </div>
       </Modal.Body>
+      <Modal.Footer className="py-3 px-2">
+        <div className="flex items-center justify-end w-full">
+          <button
+            onClick={handleCloseModal}
+            className="action-button dark:bg-dark-link-button
+          bg-primary-link-button rounded-md px-2 py-1"
+          >
+            Create Group
+          </button>
+        </div>
+      </Modal.Footer>
     </Modal>
   )
 }
