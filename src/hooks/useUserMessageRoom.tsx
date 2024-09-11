@@ -1,6 +1,5 @@
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
-import { isGroupType } from "@/utils"
 import { Avatar } from "flowbite-react"
 
 export const useUserMessageRoom = () => {
@@ -20,9 +19,11 @@ export const useUserMessageRoom = () => {
   ) => {
     return Object.keys(messages).find((messageId) => {
       if (
-        (isGroupType(messages[messageId]) &&
+        (messages[messageId].isGroup &&
+          messages[messageId].groupInfo &&
           messages[messageId].groupInfo.groupName === groupName) ||
-        (!isGroupType(messages[messageId]) &&
+        (!messages[messageId].isGroup &&
+          messages[messageId].userInfo &&
           messages[messageId].userInfo.username === user?.username)
       ) {
         return messageId

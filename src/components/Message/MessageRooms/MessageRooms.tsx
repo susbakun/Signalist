@@ -3,7 +3,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { MessageModel } from "@/shared/models"
-import { getAvatarPlaceholder, isGroupType } from "@/utils"
+import { getAvatarPlaceholder } from "@/utils"
 import { useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import { NavLink } from "react-router-dom"
@@ -47,9 +47,9 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
     let placeholder
 
-    if (isGroupType(myMessages[messageId])) {
+    if (myMessages[messageId].isGroup && myMessages[messageId].groupInfo) {
       placeholder = getAvatarPlaceholder(myMessages[messageId].groupInfo.groupName)
-    } else {
+    } else if (!myMessages[messageId].isGroup && myMessages[messageId].userInfo) {
       placeholder = getAvatarPlaceholder(myMessages[messageId].userInfo.name)
     }
 
@@ -75,9 +75,9 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
           const { placeholder, text } = getMessageInfo(messageId)
 
           if (
-            (isGroupType(myMessages[messageId]) &&
+            (myMessages[messageId].isGroup &&
               myMessages[messageId].userInfos.some((user) => isUserBlocked(user.username))) ||
-            (!isGroupType(myMessages[messageId]) &&
+            (!myMessages[messageId].isGroup &&
               isUserBlocked(myMessages[messageId].userInfo.username))
           )
             return
@@ -90,12 +90,12 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
               to={messageId}
             >
               <div className="flex items-center">
-                {isGroupType(myMessages[messageId])
-                  ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo)
-                  : getProperAvatar(placeholder, myMessages[messageId].userInfo, undefined)}
+                {myMessages[messageId].isGroup
+                  ? getProperAvatar(placeholder!, undefined, myMessages[messageId].groupInfo)
+                  : getProperAvatar(placeholder!, myMessages[messageId].userInfo, undefined)}
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {isGroupType(myMessages[messageId])
+                    {myMessages[messageId].isGroup
                       ? myMessages[messageId].groupInfo.groupName
                       : myMessages[messageId].userInfo.username}
                   </h3>
