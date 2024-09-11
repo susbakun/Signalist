@@ -47,10 +47,10 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
     let placeholder
 
-    if (myMessages[messageId].isGroup && myMessages[messageId].groupInfo) {
-      placeholder = getAvatarPlaceholder(myMessages[messageId].groupInfo.groupName)
-    } else if (!myMessages[messageId].isGroup && myMessages[messageId].userInfo) {
-      placeholder = getAvatarPlaceholder(myMessages[messageId].userInfo.name)
+    if (myMessages[messageId].isGroup) {
+      placeholder = getAvatarPlaceholder(myMessages[messageId]?.groupInfo.groupName)
+    } else {
+      placeholder = getAvatarPlaceholder(myMessages[messageId]?.userInfo.name)
     }
 
     let text
@@ -91,13 +91,13 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
             >
               <div className="flex items-center">
                 {myMessages[messageId].isGroup
-                  ? getProperAvatar(placeholder!, undefined, myMessages[messageId].groupInfo)
-                  : getProperAvatar(placeholder!, myMessages[messageId].userInfo, undefined)}
+                  ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo)
+                  : getProperAvatar(placeholder, myMessages[messageId].userInfo, undefined)}
                 <div>
                   <h3 className="text-lg font-semibold">
                     {myMessages[messageId].isGroup
-                      ? myMessages[messageId].groupInfo.groupName
-                      : myMessages[messageId].userInfo.username}
+                      ? myMessages[messageId]?.groupInfo.groupName
+                      : myMessages[messageId]?.userInfo.username}
                   </h3>
                   {text && (
                     <p className="text-gray-400 text-ellipsis max-w-[215px] overflow-hidden whitespace-nowrap">

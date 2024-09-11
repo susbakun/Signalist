@@ -19,12 +19,8 @@ export const useUserMessageRoom = () => {
   ) => {
     return Object.keys(messages).find((messageId) => {
       if (
-        (messages[messageId].isGroup &&
-          messages[messageId].groupInfo &&
-          messages[messageId].groupInfo.groupName === groupName) ||
-        (!messages[messageId].isGroup &&
-          messages[messageId].userInfo &&
-          messages[messageId].userInfo.username === user?.username)
+        (messages[messageId].isGroup && messages[messageId]?.groupInfo.groupName === groupName) ||
+        (!messages[messageId].isGroup && messages[messageId]?.userInfo.username === user?.username)
       ) {
         return messageId
       }
