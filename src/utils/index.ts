@@ -117,5 +117,5 @@ export const isGroupType = (
   groupInfo: GroupInfoType
   isGroup: true
 } => {
-  return data.isGroup === true
+  return data.isGroup && !!data.groupInfo
 }
