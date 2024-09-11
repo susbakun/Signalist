@@ -13,14 +13,17 @@ const messagesSlice = createSlice({
       state[action.payload.myUsername][action.payload.roomId] = {
         userInfo: action.payload.userInfo,
         messages: [],
+        groupInfo: null,
+        usersInfo: null,
         isGroup: false
       }
     },
     createGroup: (state, action) => {
       state[action.payload.myUsername][action.payload.roomId] = {
-        userInfos: action.payload.userInfos,
+        usersInfo: action.payload.userInfos,
         messages: [],
         groupInfo: action.payload.groupInfo,
+        userInfo: null,
         isGroup: true
       }
     },

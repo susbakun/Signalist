@@ -615,7 +615,9 @@ export const messagesMock: MessageModel = {
           date: new Date().getTime() - 18 * 60 * 60 * 1000
         }
       ],
-      isGroup: false
+      isGroup: false,
+      groupInfo: null,
+      usersInfo: null
     },
     "2": {
       userInfo: {
@@ -643,7 +645,9 @@ export const messagesMock: MessageModel = {
           date: new Date().getTime() - 9 * 60 * 1000
         }
       ],
-      isGroup: false
+      isGroup: false,
+      groupInfo: null,
+      usersInfo: null
     },
     "3": {
       userInfo: {
@@ -671,7 +675,9 @@ export const messagesMock: MessageModel = {
           date: new Date().getTime() - 1.5 * 3 * 10 * 60 * 1000
         }
       ],
-      isGroup: false
+      isGroup: false,
+      groupInfo: null,
+      usersInfo: null
     }
   }
 }
