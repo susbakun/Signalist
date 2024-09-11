@@ -1,6 +1,7 @@
 import {
   BookmarkType,
   ChatType,
+  GroupInfoType,
   SignalAccountType,
   SimplifiedAccountType,
   StatusType,
@@ -142,10 +143,18 @@ export type SignalModel = {
 
 export type MessageModel = {
   [username: AccountModel["username"]]: {
-    [k: string]: {
-      userInfo: SimplifiedAccountType
-      messages: ChatType[]
-    }
+    [k: string]:
+      | {
+          userInfo: SimplifiedAccountType
+          messages: ChatType[]
+          isGroup: false
+        }
+      | {
+          userInfos: SimplifiedAccountType[]
+          messages: ChatType[]
+          groupInfo: GroupInfoType
+          isGroup: true
+        }
   }
 }
 

@@ -54,8 +54,8 @@ export const CreateMessageModal = ({
 
   const handleCreateMessage = (user: AccountModel) => {
     handleCloseModal()
-    if (checkIfExistsRoom(user, myMessages)) {
-      const roomId = findExistingRoomId(user, myMessages)
+    if (checkIfExistsRoom(myMessages, user)) {
+      const roomId = findExistingRoomId(myMessages, user)
       navigate(roomId!)
     } else {
       const userInfo: SimplifiedAccountType = {
@@ -64,7 +64,7 @@ export const CreateMessageModal = ({
         imageUrl: user.imageUrl
       }
       const roomId = v4()
-      dispatch(createRoom({ myUsername: "Amir_Aryan", userInfo, roomId }))
+      dispatch(createRoom({ myUsername: myAccount?.username, userInfo, roomId }))
       navigate(roomId)
     }
   }

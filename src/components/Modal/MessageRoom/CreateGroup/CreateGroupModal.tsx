@@ -1,12 +1,15 @@
 import { UserPreview } from "@/components/Shared/UserPreview"
-import { useAppSelector } from "@/features/Message/messagesSlice"
+import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { EmptyPage } from "@/pages"
 import { AccountModel, MessageModel } from "@/shared/models"
-import { SimplifiedAccountType } from "@/shared/types"
+import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { cn } from "@/utils"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, useCallback, useMemo, useState } from "react"
+import { useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { v4 } from "uuid"
 
 type CreateGroupModalProps = {
   openModal: boolean
@@ -19,6 +22,8 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
   const [selectedUsers, setSelectedUsers] = useState<AccountModel["username"][]>([])
 
   const users = useAppSelector((state) => state.users)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const myAccount = users.find((user) => user.username === "Amir_Aryan")
 
@@ -56,6 +61,19 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
   const handleCloseModal = () => {
     setSelectedUsers([])
     closeModal()
+  }
+
+  const handleCreateGroup = () => {
+    const roomId = v4()
+    const groupInfo: GroupInfoType = {
+      groupName: "test",
+      groupImageUrl: ""
+    }
+    dispatch(
+      createGroup({ myUsername: myAccount?.username, roomId, userInfos: selectedUsers, groupInfo })
+    )
+    handleCloseModal()
+    navigate(roomId)
   }
 
   return (
@@ -100,7 +118,7 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
       <Modal.Footer className="py-3 px-2">
         <div className="flex items-center justify-end w-full">
           <button
-            onClick={handleCloseModal}
+            onClick={handleCreateGroup}
             className="action-button dark:bg-dark-link-button
           bg-primary-link-button rounded-md px-2 py-1"
           >

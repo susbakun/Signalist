@@ -26,8 +26,7 @@ export const MessagesPage = () => {
         {selectedChat ? (
           <Outlet
             context={{
-              messages: myMessages[selectedChat].messages,
-              userInfo: myMessages[selectedChat].userInfo
+              myMessages: myMessages[selectedChat]
             }}
           />
         ) : (

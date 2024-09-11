@@ -37,8 +37,8 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
 
   const handleCreateMessage = () => {
     handleCloseModal()
-    if (checkIfExistsRoom(userAccount, messages)) {
-      const roomId = findExistingRoomId(userAccount, messages)
+    if (checkIfExistsRoom(messages, userAccount)) {
+      const roomId = findExistingRoomId(messages, userAccount)
       navigate(`/messages/${roomId}`)
     } else {
       const userInfo: SimplifiedAccountType = {

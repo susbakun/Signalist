@@ -2,15 +2,13 @@ import { MessageRoomInput, MessageRoomMessages, MessageRoomTopBar } from "@/comp
 import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
-import { ChatType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useOutletContext, useParams } from "react-router-dom"
 
 type MessageRoomOutletType = {
-  messages: ChatType[]
-  userInfo: MessageModel["username"]["roomId"]["userInfo"]
+  myMessages: MessageModel["username"]["roomId"]
 }
 
 export const MessageRoom = () => {
@@ -22,7 +20,7 @@ export const MessageRoom = () => {
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === "Amir_Aryan"
   )
-  const { messages, userInfo } = useOutletContext<MessageRoomOutletType>()
+  const { myMessages } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch()
   const { id } = useParams()
 
@@ -76,8 +74,12 @@ export const MessageRoom = () => {
 
   return (
     <>
-      <MessageRoomTopBar userInfo={userInfo} />
-      <MessageRoomMessages messages={messages} handleBlurEmojiPicker={handleBlurEmojiPicker} />
+      <MessageRoomTopBar myMessages={myMessages} />
+      <MessageRoomMessages
+        isGroup={myMessages.isGroup}
+        messages={myMessages.messages}
+        handleBlurEmojiPicker={handleBlurEmojiPicker}
+      />
       <MessageRoomInput
         messageText={messageText}
         isEmojiPickerOpen={isEmojiPickerOpen}

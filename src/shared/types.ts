@@ -5,6 +5,10 @@ export type RootState = ReturnType<typeof RootStore.getState>
 export type CoinType = CryptoResponseType["data"]["coins"][0]
 export type StatusType = "closed" | "open" | "not_opened"
 export type SimplifiedAccountType = Pick<AccountModel, "name" | "username" | "imageUrl">
+export type GroupInfoType = {
+  groupName: string
+  groupImageUrl?: string
+}
 export type SignalAccountType = SimplifiedAccountType & { score: AccountModel["score"] }
 type DurationType = "30 days" | "3 months" | "6 months" | "12 months"
 export type SubscriptionPlanType = { duration: DurationType; price: number }[]

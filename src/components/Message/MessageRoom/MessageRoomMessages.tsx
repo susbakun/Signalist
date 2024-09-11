@@ -1,4 +1,5 @@
 import { Loader } from "@/components" // Adjust the import path as needed
+import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
 import { cn, formatMessageDate } from "@/utils"
@@ -9,6 +10,7 @@ import { Link } from "react-router-dom"
 
 type MessageRoomMessagesProps = {
   messages: ChatType[]
+  isGroup: boolean
   handleBlurEmojiPicker: () => void
 }
 
@@ -21,21 +23,25 @@ type MessagesIsImageLoadedType = {
 }
 
 export const MessageRoomMessages = ({
-  handleBlurEmojiPicker,
-  messages
+  messages,
+  isGroup,
+  handleBlurEmojiPicker
 }: MessageRoomMessagesProps) => {
   const [messageImageHrefs, setMessageImageHrefs] = useState<MessagesHrefsType>({})
   const [enlargedImageHref, setEnlargedImageHref] = useState<string>("")
   const [enlarged, setEnlarged] = useState(false)
   const [areImagesLoading, setAreImagesLoading] = useState<MessagesIsImageLoadedType>({})
+  const { getProperAvatar } = useUserMessageRoom()
 
   const client = new Client()
   const storage = new Storage(client)
   client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
-  const handleImageEnlarge = (messageImageHref: string) => {
-    setEnlarged(true)
-    setEnlargedImageHref(messageImageHref)
+  const handleImageEnlarge = (messageImageHref?: string) => {
+    if (messageImageHref) {
+      setEnlarged(true)
+      setEnlargedImageHref(messageImageHref)
+    }
   }
 
   const handleCloseEnlargedImageView = () => {
@@ -119,17 +125,42 @@ export const MessageRoomMessages = ({
             )
           }
 
+          const isCurrentUser = message.sender.username === "Amir_Aryan"
+
+          if (isGroup) {
+            acc.push(
+              <div
+                className={`flex justify-start w-full px-6 text-xs font-semibold translate-y-2 ${isCurrentUser ? "justify-end" : "justify-start"}`}
+              >
+                <span>{message.sender.username}</span>
+              </div>
+            )
+          }
+
           acc.push(
             <div
               key={index}
-              className={`flex ${message.sender.username === "Amir_Aryan" ? "justify-end" : "justify-start"} items-center`}
+              className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} items-center`}
             >
+              {isGroup && (
+                <div
+                  className={`flex items-center space-x-2 ${isCurrentUser ? "order-2" : "order-1"}`}
+                >
+                  <span
+                    className="inline-block px-4 cursor-pointer"
+                    onClick={() => handleImageEnlarge(message.sender.imageUrl)}
+                  >
+                    {getProperAvatar(message.sender.name, message.sender, undefined)}
+                  </span>
+                </div>
+              )}
+
               <div
-                className={`p-3 rounded-lg max-w-xs ${
-                  message.sender.username === "Amir_Aryan"
+                className={`p-3 rounded-lg max-w-xs relative ${
+                  isCurrentUser
                     ? "bg-primary-link-button dark:bg-dark-link-button text-white"
                     : "dark:bg-gray-700 bg-gray-200 text-gray-600 dark:text-gray-100"
-                }`}
+                } ${isCurrentUser ? "order-1" : "order-2"}`}
               >
                 {areImagesLoading[messageImageId] && (
                   <Loader className="flex items-center justify-center h-[250px] w-[250px]" />
@@ -154,16 +185,22 @@ export const MessageRoomMessages = ({
                     />
                   </div>
                 )}
-                <p>{parseMessageText(message.text)}</p>
+                <p className="text-end">{parseMessageText(message.text)}</p>
+                <div
+                  className={cn(
+                    `text-xs text-gray-500 dark:text-gray-400 py-1 flex w-full justify-end`,
+                    { "justify-start": isCurrentUser }
+                  )}
+                >
+                  {moment(message.date).format("h:mm A")}
+                </div>
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                {moment(message.date).format("h:mm A")}
-              </span>
             </div>
           )
           return acc
         }, [])}
       </div>
+
       {enlarged && enlargedImageHref && (
         <div
           className="fixed inset-0 z-50 h-screen flex items-center

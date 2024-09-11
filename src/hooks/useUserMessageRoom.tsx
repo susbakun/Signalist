@@ -1,33 +1,52 @@
-import { AccountModel, MessageModel } from "@/shared/models"
+import { MessageModel } from "@/shared/models"
+import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { Avatar } from "flowbite-react"
 
 export const useUserMessageRoom = () => {
-  const checkIfExistsRoom = (user: AccountModel, messages: MessageModel["username"]) => {
-    return Object.keys(messages).some((messageId) => {
-      if (messages[messageId].userInfo.username === user.username) {
-        return true
-      }
-      return false
-    })
+  const checkIfExistsRoom = (
+    messages: MessageModel["username"],
+    user?: SimplifiedAccountType,
+    groupName?: string
+  ) => {
+    if (findExistingRoomId(messages, user, groupName)) return true
+    return false
   }
-  const findExistingRoomId = (user: AccountModel, messages: MessageModel["username"]) => {
+
+  const findExistingRoomId = (
+    messages: MessageModel["username"],
+    user?: SimplifiedAccountType,
+    groupName?: string
+  ) => {
     return Object.keys(messages).find((messageId) => {
-      if (messages[messageId].userInfo.username === user.username) {
+      const { isGroup } = messages[messageId]
+      if (
+        (isGroup && messages[messageId].groupInfo.groupName === groupName) ||
+        (!isGroup && messages[messageId].userInfo.username === user?.username)
+      ) {
         return messageId
       }
     })
   }
 
-  const getDesiredUserAvatar = (
-    userInfo: MessageModel["username"]["roomId"]["userInfo"],
-    placeholder?: string
+  const getProperAvatar = (
+    placeholder: string,
+    userInfo?: SimplifiedAccountType,
+    groupInfo?: GroupInfoType
   ) => {
-    const imageSrc = userInfo.imageUrl
-    const imageAlt = userInfo.name
+    let imageUrl
+    let imageAlt
 
-    if (imageSrc) {
+    if (userInfo) {
+      imageUrl = userInfo.imageUrl
+      imageAlt = userInfo.name
+    } else if (groupInfo) {
+      imageUrl = groupInfo.groupImageUrl
+      imageAlt = groupInfo.groupName
+    }
+
+    if (imageUrl) {
       return (
-        <img src={imageSrc} alt={`${imageAlt}'s avatar`} className="mr-3 w-14 h-14 rounded-full" />
+        <img src={imageUrl} alt={`${imageAlt}'s avatar`} className="mr-3 w-14 h-14 rounded-full" />
       )
     }
     return (
@@ -36,7 +55,7 @@ export const useUserMessageRoom = () => {
       bg-gray-100 dark:bg-gray-600 flex justify-center"
       >
         <Avatar
-          img={imageSrc}
+          img={imageUrl}
           alt={`${imageAlt}'s avatar`}
           placeholderInitials={placeholder}
           size="md"
@@ -46,5 +65,5 @@ export const useUserMessageRoom = () => {
     )
   }
 
-  return { checkIfExistsRoom, findExistingRoomId, getDesiredUserAvatar }
+  return { checkIfExistsRoom, findExistingRoomId, getProperAvatar }
 }

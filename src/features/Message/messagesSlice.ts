@@ -6,13 +6,22 @@ import { TypedUseSelectorHook, useSelector } from "react-redux"
 const initialState = messagesMock
 
 const messagesSlice = createSlice({
-  name: "posts",
+  name: "messages",
   initialState,
   reducers: {
     createRoom: (state, action) => {
       state[action.payload.myUsername][action.payload.roomId] = {
         userInfo: action.payload.userInfo,
-        messages: []
+        messages: [],
+        isGroup: false
+      }
+    },
+    createGroup: (state, action) => {
+      state[action.payload.myUsername][action.payload.roomId] = {
+        userInfos: action.payload.userInfos,
+        messages: [],
+        groupInfo: action.payload.groupInfo,
+        isGroup: true
       }
     },
     sendMessage: (state, action) => {
@@ -32,6 +41,6 @@ const messagesSlice = createSlice({
   }
 })
 
-export const { sendMessage, createRoom } = messagesSlice.actions
+export const { sendMessage, createRoom, createGroup } = messagesSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default messagesSlice.reducer
