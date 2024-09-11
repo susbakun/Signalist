@@ -1,4 +1,5 @@
 import { SignalModel } from "@/shared/models"
+import { ChatType, GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import clsx, { ClassValue } from "clsx"
 import moment from "jalali-moment"
 import { twMerge } from "tailwind-merge"
@@ -99,4 +100,22 @@ export const applyOsDefaultTheme = () => {
 
 export const isDevmode = () => {
   return import.meta.env.MODE === "development"
+}
+
+export const isGroupType = (
+  data:
+    | { userInfo: SimplifiedAccountType; messages: ChatType[]; isGroup: false }
+    | {
+        userInfos: SimplifiedAccountType[]
+        messages: ChatType[]
+        groupInfo: GroupInfoType
+        isGroup: true
+      }
+): data is {
+  userInfos: SimplifiedAccountType[]
+  messages: ChatType[]
+  groupInfo: GroupInfoType
+  isGroup: true
+} => {
+  return data.isGroup === true
 }

@@ -3,7 +3,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { MessageModel } from "@/shared/models"
-import { getAvatarPlaceholder } from "@/utils"
+import { getAvatarPlaceholder, isGroupType } from "@/utils"
 import { useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import { NavLink } from "react-router-dom"
@@ -47,7 +47,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
     let placeholder
 
-    if (myMessages[messageId].isGroup) {
+    if (isGroupType(myMessages[messageId])) {
       placeholder = getAvatarPlaceholder(myMessages[messageId].groupInfo.groupName)
     } else {
       placeholder = getAvatarPlaceholder(myMessages[messageId].userInfo.name)
@@ -75,9 +75,9 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
           const { placeholder, text } = getMessageInfo(messageId)
 
           if (
-            (myMessages[messageId].isGroup &&
+            (isGroupType(myMessages[messageId]) &&
               myMessages[messageId].userInfos.some((user) => isUserBlocked(user.username))) ||
-            (!myMessages[messageId].isGroup &&
+            (!isGroupType(myMessages[messageId]) &&
               isUserBlocked(myMessages[messageId].userInfo.username))
           )
             return
@@ -90,12 +90,12 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
               to={messageId}
             >
               <div className="flex items-center">
-                {myMessages[messageId].isGroup
+                {isGroupType(myMessages[messageId])
                   ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo)
                   : getProperAvatar(placeholder, myMessages[messageId].userInfo, undefined)}
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {myMessages[messageId].isGroup
+                    {isGroupType(myMessages[messageId])
                       ? myMessages[messageId].groupInfo.groupName
                       : myMessages[messageId].userInfo.username}
                   </h3>
