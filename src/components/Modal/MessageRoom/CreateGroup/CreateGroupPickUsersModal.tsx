@@ -12,7 +12,7 @@ type CreateGroupPickUsersModalProps = {
   handleCloseModal: () => void
   handleSearchUsers: () => AccountModel[]
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void
-  handleCheckboxChange: (selectedUsername: SimplifiedAccountType["username"]) => void
+  handleCheckboxChange: (selectedUser: SimplifiedAccountType) => void
   handlePickUsersList: () => void
   isUserSelected: (username: SimplifiedAccountType["username"]) => boolean
 }
@@ -57,7 +57,7 @@ export const CreateGroupPickUsersModal = ({
                 {...user}
                 selected={isUserSelected(user.username)}
                 isForMessageGroup
-                handleCheckboxChange={() => handleCheckboxChange(user.username)}
+                handleCheckboxChange={() => handleCheckboxChange(user)}
                 key={user.username}
               />
             ))

@@ -1,3 +1,4 @@
+import { GroupInfoModal } from "@/components/Modal/MessageRoom/GroupInfo/GroupInfoModal"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
@@ -18,6 +19,7 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
   const { getProperAvatar } = useUserMessageRoom()
   const [enlarged, setEnlarged] = useState(false)
   const [groupImageHref, setGroupImageHref] = useState("")
+  const [openGroupInfoModal, setOpenGroupInfoModal] = useState(false)
 
   const client = new Client()
   client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
@@ -26,6 +28,14 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
   const { isGroup } = myMessages
 
   let placeholder
+
+  const handleOpenGroupInfoModal = () => {
+    setOpenGroupInfoModal(true)
+  }
+
+  const handleCloseGroupInfoModal = () => {
+    setOpenGroupInfoModal(false)
+  }
 
   const handleImageEnlarge = () => {
     if (
@@ -96,7 +106,7 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
               duration={10}
               hideOnClick={true}
             >
-              <button className="action-button">
+              <button onClick={handleOpenGroupInfoModal} className="action-button">
                 <GoInfo className="w-7 h-7" />
               </button>
             </Tippy>
@@ -148,6 +158,12 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
           />
         </div>
       )}
+      <GroupInfoModal
+        openModal={openGroupInfoModal}
+        groupInfo={myMessages.groupInfo!}
+        members={myMessages.usersInfo!}
+        handleCloseModal={handleCloseGroupInfoModal}
+      />
     </>
   )
 }

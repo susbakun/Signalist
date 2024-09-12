@@ -2,7 +2,7 @@ import { CreateGroupChooseGroupInfoModal, CreateGroupPickUsersModal } from "@/co
 import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
-import { AccountModel, MessageModel } from "@/shared/models"
+import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useCallback, useState } from "react"
@@ -23,7 +23,7 @@ export const CreateGroupModal = ({
   const [chooseGroupInfoModalOpen, setChooseGroupInfoModalOpen] = useState(false)
   const [groupName, setGroupName] = useState("")
   const [searched, setSearched] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState<AccountModel["username"][]>([])
+  const [selectedUsers, setSelectedUsers] = useState<SimplifiedAccountType[]>([])
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [isGroupImageSending, setIsGroupImageSending] = useState(false)
   const [createGroupButtonDisabled, setCreateGroupButtonDisabled] = useState(false)
@@ -48,7 +48,7 @@ export const CreateGroupModal = ({
   }
 
   const handlePickUsersList = () => {
-    handleClosePickUsersModal()
+    closePickUsersModal()
     handleOpenChooseGroupInfo()
   }
 
@@ -81,11 +81,13 @@ export const CreateGroupModal = ({
     setGroupName(e.target.value)
   }
 
-  const handleCheckboxChange = (selectedUsername: SimplifiedAccountType["username"]) => {
-    if (isUserSelected(selectedUsername)) {
-      setSelectedUsers((prevUsers) => prevUsers.filter((username) => username != selectedUsername))
+  const handleCheckboxChange = (selectedUser: SimplifiedAccountType) => {
+    if (isUserSelected(selectedUser.username)) {
+      setSelectedUsers((prevUsers) =>
+        prevUsers.filter((user) => user.username != selectedUser.username)
+      )
     } else {
-      setSelectedUsers((prevUsers) => [...prevUsers, selectedUsername])
+      setSelectedUsers((prevUsers) => [...prevUsers, selectedUser])
     }
   }
   const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +114,7 @@ export const CreateGroupModal = ({
   }
 
   const isUserSelected = (username: SimplifiedAccountType["username"]) => {
-    return selectedUsers?.some((selectedUsername) => selectedUsername === username)
+    return selectedUsers?.some((user) => user.username === username)
   }
 
   const handleResetForm = () => {
