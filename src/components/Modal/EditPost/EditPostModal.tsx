@@ -1,4 +1,4 @@
-import { PostModalFooter, PostModalImagePreview, PostTextArea } from "@/components"
+import { ImagePreview, PostModalFooter, PostTextArea } from "@/components"
 import { editPost } from "@/features/Post/postsSlice"
 import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { PostModel } from "@/shared/models"
@@ -148,11 +148,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
           handlePostTextChange={handlePostTextChange}
           handleKeyDown={handleKeyDown}
         />
-        <PostModalImagePreview
-          selectedImage={selectedImage}
-          imagePreview={imagePreview}
-          handleResetInput={handleResetFileInput}
-        />
+        <ImagePreview imagePreview={imagePreview} handleResetInput={handleResetFileInput} />
         <PostModalFooter
           isPremium={isPremium}
           isPostSending={isPostSending}

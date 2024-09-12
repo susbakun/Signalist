@@ -48,9 +48,9 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
     let placeholder
 
     if (isGroupRoom(myMessages[messageId])) {
-      placeholder = getAvatarPlaceholder(myMessages[messageId].groupInfo!.groupName)
+      placeholder = getAvatarPlaceholder(myMessages[messageId].groupInfo.groupName)
     } else {
-      placeholder = getAvatarPlaceholder(myMessages[messageId].userInfo!.name)
+      placeholder = getAvatarPlaceholder(myMessages[messageId].userInfo.name)
     }
 
     let text
@@ -76,9 +76,9 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
 
           if (
             (isGroupRoom(myMessages[messageId]) &&
-              myMessages[messageId].usersInfo!.some((user) => isUserBlocked(user.username))) ||
+              myMessages[messageId].usersInfo.some((user) => isUserBlocked(user.username))) ||
             (!isGroupRoom(myMessages[messageId]) &&
-              isUserBlocked(myMessages[messageId].userInfo!.username))
+              isUserBlocked(myMessages[messageId].userInfo.username))
           )
             return
 
@@ -91,13 +91,13 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
             >
               <div className="flex items-center">
                 {isGroupRoom(myMessages[messageId])
-                  ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
-                  : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
+                  ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo)
+                  : getProperAvatar(placeholder, myMessages[messageId].userInfo, undefined)}
                 <div>
                   <h3 className="text-lg font-semibold">
                     {isGroupRoom(myMessages[messageId])
-                      ? myMessages[messageId].groupInfo!.groupName
-                      : myMessages[messageId].userInfo!.username}
+                      ? myMessages[messageId].groupInfo.groupName
+                      : myMessages[messageId].userInfo.username}
                   </h3>
                   {text && (
                     <p className="text-gray-400 text-ellipsis max-w-[215px] overflow-hidden whitespace-nowrap">

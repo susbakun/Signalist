@@ -1,25 +1,27 @@
 import Tippy from "@tippyjs/react"
+import { Avatar } from "flowbite-react"
 import { roundArrow } from "tippy.js"
 
-type PostImagePreviewProps = {
-  selectedImage: File | undefined
+type ImagePreview = {
   imagePreview: string | null
+  rounded?: boolean
   handleResetInput: () => void
 }
 
-export const PostModalImagePreview = ({
-  imagePreview,
-  handleResetInput
-}: PostImagePreviewProps) => {
+export const ImagePreview = ({ imagePreview, rounded, handleResetInput }: ImagePreview) => {
   if (imagePreview) {
     return (
       <div className="flex items-center gap-2 my-2">
         <div className="w-full h-full flex items-center relative">
-          <img
-            src={imagePreview}
-            alt="Image Preview"
-            className="w-full h-full object-cover rounded-lg"
-          />
+          {rounded ? (
+            <Avatar img={imagePreview} alt="image preview" size="lg" color="gray" rounded />
+          ) : (
+            <img
+              src={imagePreview}
+              alt="Image Preview"
+              className="w-full h-full object-cover rounded-lg"
+            />
+          )}
           <Tippy
             content="delete post image"
             className="dark:bg-gray-700 bg-gray-900

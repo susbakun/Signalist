@@ -1,8 +1,10 @@
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
+import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { getAvatarPlaceholder } from "@/utils"
 import Tippy from "@tippyjs/react"
-import { useState } from "react"
+import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
+import { useEffect, useState } from "react"
 import { BsCameraVideo } from "react-icons/bs"
 import { GoInfo } from "react-icons/go"
 import { IoCallOutline } from "react-icons/io5"
@@ -15,6 +17,11 @@ type MessageRoomTopBarProps = {
 export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
   const { getProperAvatar } = useUserMessageRoom()
   const [enlarged, setEnlarged] = useState(false)
+  const [groupImageHref, setGroupImageHref] = useState("")
+
+  const client = new Client()
+  const storage = new Storage(client)
+  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const { isGroup } = myMessages
 
@@ -22,7 +29,7 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
 
   const handleImageEnlarge = () => {
     if (
-      (myMessages.isGroup && myMessages.groupInfo.groupImageUrl) ||
+      (myMessages.isGroup && groupImageHref) ||
       (!myMessages.isGroup && myMessages.userInfo.imageUrl)
     )
       setEnlarged(true)
@@ -37,6 +44,27 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
   } else {
     placeholder = getAvatarPlaceholder(myMessages.userInfo.name)
   }
+
+  useEffect(() => {
+    if (isGroup && myMessages.groupInfo.groupImageId) {
+      const result = storage.getFilePreview(
+        appwriteMessagesBucketId,
+        myMessages.groupInfo.groupImageId,
+        0,
+        0,
+        ImageGravity.Center,
+        100,
+        0,
+        "fff",
+        0,
+        1,
+        0,
+        "fff",
+        ImageFormat.Png
+      )
+      setGroupImageHref(result.href)
+    }
+  }, [])
 
   return (
     <>
@@ -107,21 +135,19 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
           </Tippy>
         </div>
       </div>
-      {enlarged &&
-        ((!isGroup && myMessages.userInfo.imageUrl) ||
-          (isGroup && myMessages.groupInfo.groupImageUrl)) && (
-          <div
-            className="fixed inset-0 z-50 h-screen flex items-center
+      {enlarged && ((!isGroup && myMessages.userInfo.imageUrl) || (isGroup && groupImageHref)) && (
+        <div
+          className="fixed inset-0 z-50 h-screen flex items-center
             justify-center bg-black bg-opacity-75"
-            onClick={handleCloseEnlargedImageView}
-          >
-            <img
-              className="w-[70%] h-[70%] object-contain"
-              src={isGroup ? myMessages.groupInfo.groupImageUrl : myMessages.userInfo.imageUrl}
-              alt="Enlarged Message"
-            />
-          </div>
-        )}
+          onClick={handleCloseEnlargedImageView}
+        >
+          <img
+            className="w-[70%] h-[70%] object-contain"
+            src={isGroup ? groupImageHref : myMessages.userInfo.imageUrl}
+            alt="Enlarged Message"
+          />
+        </div>
+      )}
     </>
   )
 }

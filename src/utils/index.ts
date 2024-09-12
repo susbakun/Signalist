@@ -1,4 +1,5 @@
 import { MessageModel, SignalModel } from "@/shared/models"
+import { GroupRoom } from "@/shared/types"
 import clsx, { ClassValue } from "clsx"
 import moment from "jalali-moment"
 import { twMerge } from "tailwind-merge"
@@ -101,6 +102,8 @@ export const isDevmode = () => {
   return import.meta.env.MODE === "development"
 }
 
-export const isGroupRoom = (messages: MessageModel["username"]["roomId"]) => {
-  return messages.groupInfo && messages.usersInfo && messages.isGroup
+export const isGroupRoom = (
+  messages: MessageModel["username"]["roomId"]
+): messages is GroupRoom => {
+  return !!messages.groupInfo && !!messages.usersInfo && messages.isGroup
 }

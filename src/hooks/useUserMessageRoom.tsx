@@ -1,6 +1,8 @@
+import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { isGroupRoom } from "@/utils"
+import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Avatar } from "flowbite-react"
 
 export const useUserMessageRoom = () => {
@@ -21,9 +23,9 @@ export const useUserMessageRoom = () => {
     return Object.keys(messages).find((messageId) => {
       if (
         (isGroupRoom(messages[messageId]) &&
-          messages[messageId].groupInfo!.groupName === groupName) ||
+          messages[messageId].groupInfo.groupName === groupName) ||
         (!isGroupRoom(messages[messageId]) &&
-          messages[messageId].userInfo!.username === user?.username)
+          messages[messageId].userInfo.username === user?.username)
       ) {
         return messageId
       }
@@ -38,11 +40,32 @@ export const useUserMessageRoom = () => {
     let imageUrl
     let imageAlt
 
+    const client = new Client()
+    const storage = new Storage(client)
+    client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
+
     if (userInfo) {
       imageUrl = userInfo.imageUrl
       imageAlt = userInfo.name
     } else if (groupInfo) {
-      imageUrl = groupInfo.groupImageUrl
+      if (groupInfo.groupImageId) {
+        const result = storage.getFilePreview(
+          appwriteMessagesBucketId,
+          groupInfo.groupImageId,
+          0,
+          0,
+          ImageGravity.Center,
+          100,
+          0,
+          "fff",
+          0,
+          1,
+          0,
+          "fff",
+          ImageFormat.Png
+        )
+        imageUrl = result.href
+      }
       imageAlt = groupInfo.groupName
     }
 

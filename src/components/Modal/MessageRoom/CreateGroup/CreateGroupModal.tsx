@@ -1,12 +1,11 @@
-import { UserPreview } from "@/components/Shared/UserPreview"
+import { CreateGroupChooseGroupInfoModal, CreateGroupPickUsersModal } from "@/components"
 import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
-import { EmptyPage } from "@/pages"
+import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { AccountModel, MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
-import { cn } from "@/utils"
-import { Modal } from "flowbite-react"
-import { ChangeEvent, useCallback, useMemo, useState } from "react"
+import { Client, ID, Storage } from "appwrite"
+import { ChangeEvent, useCallback, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { v4 } from "uuid"
@@ -17,9 +16,17 @@ type CreateGroupModalProps = {
   closeModal: () => void
 }
 
-export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProps) => {
+export const CreateGroupModal = ({
+  openModal: openPickUsersModal,
+  closeModal: closePickUsersModal
+}: CreateGroupModalProps) => {
+  const [chooseGroupInfoModalOpen, setChooseGroupInfoModalOpen] = useState(false)
+  const [groupName, setGroupName] = useState("")
   const [searched, setSearched] = useState("")
   const [selectedUsers, setSelectedUsers] = useState<AccountModel["username"][]>([])
+  const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
+  const [isGroupImageSending, setIsGroupImageSending] = useState(false)
+  const [createGroupButtonDisabled, setCreateGroupButtonDisabled] = useState(false)
 
   const users = useAppSelector((state) => state.users)
   const dispatch = useDispatch()
@@ -29,7 +36,33 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
 
   const exceptMeUsers = users.filter((user) => user.username !== "Amir_Aryan")
 
+  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
+
+  const storage = new Storage(client)
+
   const { isUserBlocked } = useIsUserBlocked(myAccount)
+
+  const handleClosePickUsersModal = () => {
+    setSelectedUsers([])
+    closePickUsersModal()
+  }
+
+  const handlePickUsersList = () => {
+    handleClosePickUsersModal()
+    handleOpenChooseGroupInfo()
+  }
+
+  const handleOpenChooseGroupInfo = () => {
+    setChooseGroupInfoModalOpen(true)
+  }
+
+  const handleCloseChooseGroupInfo = () => {
+    setChooseGroupInfoModalOpen(false)
+  }
+
+  const handleChooseGroupInfo = () => {
+    handleCreateGroup()
+  }
 
   const handleSearchUsers = useCallback(() => {
     return exceptMeUsers.filter(
@@ -40,10 +73,12 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
     )
   }, [exceptMeUsers, searched])
 
-  const searchedUsers = useMemo(() => handleSearchUsers(), [handleSearchUsers])
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSearchUsersChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearched(e.target.value)
+  }
+
+  const handleGroupNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setGroupName(e.target.value)
   }
 
   const handleCheckboxChange = (selectedUsername: SimplifiedAccountType["username"]) => {
@@ -53,79 +88,84 @@ export const CreateGroupModal = ({ openModal, closeModal }: CreateGroupModalProp
       setSelectedUsers((prevUsers) => [...prevUsers, selectedUsername])
     }
   }
+  const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedImage(e.target.files[0])
+    }
+  }
+
+  const handleCancelSelectImage = () => {
+    setSelectedImage(undefined)
+  }
+
+  const handleSendImage = async (selectedFile: File | undefined) => {
+    if (selectedFile) {
+      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
+      try {
+        const response = await storage.createFile(appwriteMessagesBucketId, ID.unique(), file)
+        console.log("Image uploaded successfully:", response)
+        return response.$id
+      } catch (error) {
+        console.error("Failed to upload image:", error)
+      }
+    }
+  }
 
   const isUserSelected = (username: SimplifiedAccountType["username"]) => {
     return selectedUsers?.some((selectedUsername) => selectedUsername === username)
   }
 
-  const handleCloseModal = () => {
-    setSelectedUsers([])
-    closeModal()
+  const handleResetForm = () => {
+    setGroupName("")
+    setSearched("")
+    setIsGroupImageSending(false)
+    setCreateGroupButtonDisabled(false)
   }
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
+    if (groupName.trim() === "") return
+
+    setIsGroupImageSending(true)
+    setCreateGroupButtonDisabled(true)
+    const groupImageId = await handleSendImage(selectedImage)
     const roomId = v4()
     const groupInfo: GroupInfoType = {
-      groupName: "test",
-      groupImageUrl: ""
+      groupName,
+      groupImageId
     }
     dispatch(
       createGroup({ myUsername: myAccount?.username, roomId, userInfos: selectedUsers, groupInfo })
     )
-    handleCloseModal()
+    closePickUsersModal()
     navigate(roomId)
+    handleResetForm()
+    handleCloseChooseGroupInfo()
   }
 
   return (
-    <Modal size="md" show={openModal} onClose={handleCloseModal}>
-      <Modal.Header className="border-none pr-1 py-2" />
-      <Modal.Body
-        className="flex overflow-y-auto
-        flex-col gap-2 py-2 mb-4 px-4 custom-modal min-h-[400px]"
-      >
-        <div
-          className="flex items-center relative
-          justify-center"
-        >
-          <input
-            value={searched}
-            onChange={handleInputChange}
-            className="custom-input w-full pl-4 inline-block"
-            placeholder="Search"
-          />
-        </div>
-        <div className="flex flex-col mt-4">
-          {searchedUsers.length > 0 ? (
-            searchedUsers.map((user, index) => (
-              <UserPreview
-                className={cn("border-b pt-2 border-b-gray-600/20 pb-4 dark:border-b-white/20", {
-                  "border-none pb-0": index === searchedUsers.length - 1
-                })}
-                {...user}
-                selected={isUserSelected(user.username)}
-                isForMessageGroup
-                handleCheckboxChange={() => handleCheckboxChange(user.username)}
-                key={user.username}
-              />
-            ))
-          ) : (
-            <EmptyPage className="h-[80%] w-full flex items-center justify-center">
-              <p className="font-normal">No results found</p>
-            </EmptyPage>
-          )}
-        </div>
-      </Modal.Body>
-      <Modal.Footer className="py-3 px-2">
-        <div className="flex items-center justify-end w-full">
-          <button
-            onClick={handleCreateGroup}
-            className="action-button dark:bg-dark-link-button
-          bg-primary-link-button rounded-md px-2 py-1"
-          >
-            Create Group
-          </button>
-        </div>
-      </Modal.Footer>
-    </Modal>
+    <>
+      <CreateGroupPickUsersModal
+        handleCheckboxChange={handleCheckboxChange}
+        handleCloseModal={handleClosePickUsersModal}
+        handlePickUsersList={handlePickUsersList}
+        handleInputChange={handleSearchUsersChange}
+        handleSearchUsers={handleSearchUsers}
+        isUserSelected={isUserSelected}
+        openModal={openPickUsersModal}
+        searched={searched}
+      />
+      <CreateGroupChooseGroupInfoModal
+        openModal={chooseGroupInfoModalOpen}
+        groupName={groupName}
+        selectedImage={selectedImage}
+        isGroupImageSending={isGroupImageSending}
+        createGroupButtonDisabled={createGroupButtonDisabled}
+        handleCloseModal={handleCloseChooseGroupInfo}
+        handleCancelSelectImage={handleCancelSelectImage}
+        handleChooseGroupInfo={handleChooseGroupInfo}
+        handleChangeGroupName={handleGroupNameChange}
+        handleChangeImage={handleChangeImage}
+      />
+    </>
   )
 }

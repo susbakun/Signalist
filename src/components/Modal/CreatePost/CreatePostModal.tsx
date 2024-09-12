@@ -1,4 +1,4 @@
-import { PostTextArea } from "@/components"
+import { ImagePreview, PostTextArea } from "@/components"
 import { createPost } from "@/features/Post/postsSlice"
 import { useAppSelector } from "@/features/User/usersSlice"
 import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
@@ -8,7 +8,6 @@ import { Modal } from "flowbite-react"
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { PostModalFooter } from "./PostModalFooter"
-import { PostModalImagePreview } from "./PostModalImagePreview"
 import "./togglebutton.css"
 
 export type CreatePostModalProps = {
@@ -117,11 +116,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
           handlePostTextChange={handlePostTextChange}
           handleKeyDown={handleKeyDown}
         />
-        <PostModalImagePreview
-          handleResetInput={handleResetFileInput}
-          imagePreview={imagePreview}
-          selectedImage={selectedImage}
-        />
+        <ImagePreview handleResetInput={handleResetFileInput} imagePreview={imagePreview} />
         <PostModalFooter
           isPremium={isPremium}
           isPostSending={isPostSending}
