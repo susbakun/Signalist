@@ -20,8 +20,8 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
   const [groupImageHref, setGroupImageHref] = useState("")
 
   const client = new Client()
-  const storage = new Storage(client)
   client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
+  const storage = new Storage(client)
 
   const { isGroup } = myMessages
 
@@ -87,7 +87,7 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
             <Tippy
               content="group info"
               className="dark:bg-gray-900 bg-gray-900 text-white font-sans
-            rounded-md px-1 py-[2px] text-sm"
+              rounded-md px-1 py-[2px] text-sm"
               delay={[1000, 0]}
               placement="bottom-end"
               animation="fade"

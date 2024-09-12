@@ -41,8 +41,8 @@ export const useUserMessageRoom = () => {
     let imageAlt
 
     const client = new Client()
-    const storage = new Storage(client)
     client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
+    const storage = new Storage(client)
 
     if (userInfo) {
       imageUrl = userInfo.imageUrl

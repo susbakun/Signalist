@@ -8,4 +8,3 @@ export const appwriteProjectId = import.meta.env.VITE_APPWRITE_PROJECT_ID
 export const appwritePostsBucketId = import.meta.env.VITE_APPWRITE_POSTS_BUCKET_ID
 export const appwriteSignalsBucketId = import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID
 export const appwriteMessagesBucketId = import.meta.env.VITE_APPWRITE_MESSAGES_BUCKET_ID
-export const mongoDBURI = import.meta.env.VITE_MONGO_URI
