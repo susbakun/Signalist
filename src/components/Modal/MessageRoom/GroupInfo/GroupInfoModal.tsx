@@ -6,8 +6,8 @@ import { Modal } from "flowbite-react"
 
 type GroupInfoModalProps = {
   openModal: boolean
-  groupInfo: GroupInfoType
-  members: SimplifiedAccountType[]
+  groupInfo: GroupInfoType | null
+  members: SimplifiedAccountType[] | null
   handleCloseModal: () => void
 }
 
@@ -18,6 +18,8 @@ export const GroupInfoModal = ({
   handleCloseModal
 }: GroupInfoModalProps) => {
   const { getProperAvatar } = useUserMessageRoom()
+
+  if (!groupInfo || !members) return
 
   const placeholder = getAvatarPlaceholder(groupInfo.groupName)
   return (

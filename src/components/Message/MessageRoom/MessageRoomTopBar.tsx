@@ -160,8 +160,8 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
       )}
       <GroupInfoModal
         openModal={openGroupInfoModal}
-        groupInfo={myMessages.groupInfo!}
-        members={myMessages.usersInfo!}
+        groupInfo={myMessages.groupInfo}
+        members={myMessages.usersInfo}
         handleCloseModal={handleCloseGroupInfoModal}
       />
     </>
