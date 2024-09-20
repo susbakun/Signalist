@@ -76,7 +76,7 @@ export const useUserMessageRoom = () => {
     }
     return (
       <div
-        className="p-2 rounded-full w-fit mr-3
+        className="p-2 rounded-full w-fit h-fit mr-3
       bg-gray-100 dark:bg-gray-600 flex justify-center"
       >
         <Avatar

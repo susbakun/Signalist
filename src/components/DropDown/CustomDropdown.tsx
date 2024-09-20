@@ -2,7 +2,6 @@ import { CryptoResponseType, SignalModel } from "@/shared/models"
 import { CoinType } from "@/shared/types"
 import { ChangeEvent, useState } from "react"
 import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md"
-import { Loader } from "../Shared/Loader"
 
 type CustomDropdownProps = {
   markets: CryptoResponseType["data"]["coins"]
@@ -75,7 +74,7 @@ export const CustomDropdown = ({
               No markets found
             </div>
           )}
-          {isLoading && <Loader className="h-[80%]" />}
+
           {filteredMarkets.map((market) => (
             <div
               key={market.uuid}

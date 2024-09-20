@@ -2,7 +2,7 @@ import { Loader } from "@/components" // Adjust the import path as needed
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
-import { cn, formatMessageDate } from "@/utils"
+import { cn, formatMessageDate, getAvatarPlaceholder } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
@@ -107,7 +107,7 @@ export const MessageRoomMessages = ({
 
   return (
     <>
-      <div onClick={handleBlurEmojiPicker} className="flex-grow overflow-y-auto space-y-4 p-4">
+      <div onClick={handleBlurEmojiPicker} className="flex-grow overflow-y-auto space-y-6 p-4">
         {messages.reduce((acc: JSX.Element[], message, index) => {
           const messageDate = formatMessageDate(message.date)
           const prevMessageDate = index > 0 ? formatMessageDate(messages[index - 1].date) : null
@@ -127,16 +127,6 @@ export const MessageRoomMessages = ({
 
           const isCurrentUser = message.sender.username === "Amir_Aryan"
 
-          if (isGroup) {
-            acc.push(
-              <div
-                className={`flex justify-start w-full px-6 text-xs font-semibold translate-y-2 ${isCurrentUser ? "justify-end" : "justify-start"}`}
-              >
-                <span>{message.sender.username}</span>
-              </div>
-            )
-          }
-
           acc.push(
             <div
               key={index}
@@ -144,13 +134,21 @@ export const MessageRoomMessages = ({
             >
               {isGroup && (
                 <div
-                  className={`flex items-center space-x-2 ${isCurrentUser ? "order-2" : "order-1"}`}
+                  className={`flex flex-col gap-2 justify-center items-center
+                  ${isCurrentUser ? "order-2" : "order-1"}`}
                 >
+                  <span className="text-center text-xs font-semibold -translate-x-[6px]">
+                    {message.sender.username}
+                  </span>
                   <span
                     className="inline-block px-4 cursor-pointer"
                     onClick={() => handleImageEnlarge(message.sender.imageUrl)}
                   >
-                    {getProperAvatar(message.sender.name, message.sender, undefined)}
+                    {getProperAvatar(
+                      getAvatarPlaceholder(message.sender.username),
+                      message.sender,
+                      undefined
+                    )}
                   </span>
                 </div>
               )}
@@ -160,7 +158,7 @@ export const MessageRoomMessages = ({
                   isCurrentUser
                     ? "bg-primary-link-button dark:bg-dark-link-button text-white"
                     : "dark:bg-gray-700 bg-gray-200 text-gray-600 dark:text-gray-100"
-                } ${isCurrentUser ? "order-1" : "order-2"}`}
+                } ${isCurrentUser ? "order-1" : "order-2"} translate-y-4`}
               >
                 {areImagesLoading[messageImageId] && (
                   <Loader className="flex items-center justify-center h-[250px] w-[250px]" />

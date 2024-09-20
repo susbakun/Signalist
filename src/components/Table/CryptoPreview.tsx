@@ -49,7 +49,7 @@ export const CryptoPreview = ({
         </div>
       </TableCell>
       <TableCell className="font-bold text-md text-gray-700/90 dark:text-white/70">
-        {(+price).toLocaleString("en-Us")}$
+        ${(+price).toLocaleString("en-Us")}
       </TableCell>
       <TableCell className="text-gray-600 dark:text-white/60">{millify(+volume)}</TableCell>
       <TableCell className="flex justify-center">

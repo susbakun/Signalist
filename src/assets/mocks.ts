@@ -678,6 +678,59 @@ export const messagesMock: MessageModel = {
       isGroup: false,
       groupInfo: null,
       usersInfo: null
+    },
+    "4": {
+      userInfo: null,
+      messages: [
+        {
+          sender: {
+            name: "susba",
+            username: "susbakun",
+            imageUrl: ""
+          },
+          text: "What's up?",
+          date: new Date().getTime() - 1 * 60 * 60 * 1000
+        },
+        {
+          sender: {
+            name: "Amir Pouya",
+            username: "AmirP",
+            imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+          },
+          text: "nothing just work",
+          date: new Date().getTime() - 30 * 60 * 1000
+        },
+        {
+          sender: {
+            name: "Amirsaeed Aryanmehr",
+            username: "Amir_Aryan",
+            imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+          },
+          text: "nothing goes on, what about you?",
+          date: new Date().getTime() - 9 * 60 * 1000
+        }
+      ],
+      isGroup: true,
+      usersInfo: [
+        {
+          name: "Amirsaeed Aryanmehr",
+          username: "Amir_Aryan",
+          imageUrl: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+        },
+        {
+          name: "Amir Pouya",
+          username: "AmirP",
+          imageUrl: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+        },
+        {
+          name: "susba",
+          username: "susbakun",
+          imageUrl: ""
+        }
+      ],
+      groupInfo: {
+        groupName: "colleagues"
+      }
     }
   }
 }

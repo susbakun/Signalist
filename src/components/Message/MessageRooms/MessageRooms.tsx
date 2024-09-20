@@ -93,12 +93,19 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                 {isGroupRoom(myMessages[messageId])
                   ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
                   : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    {isGroupRoom(myMessages[messageId])
-                      ? myMessages[messageId].groupInfo!.groupName
-                      : myMessages[messageId].userInfo!.username}
-                  </h3>
+                <div className="w-full">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      {isGroupRoom(myMessages[messageId])
+                        ? myMessages[messageId].groupInfo!.groupName
+                        : myMessages[messageId].userInfo!.username}
+                    </h3>
+                    {myMessages[messageId].isGroup && (
+                      <div className="translate-y-[2px]">
+                        <RiGroupLine className="w-5 h-5 flex-1" />
+                      </div>
+                    )}
+                  </div>
                   {text && (
                     <p className="text-gray-400 text-ellipsis max-w-[215px] overflow-hidden whitespace-nowrap">
                       {text}
@@ -106,11 +113,6 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                   )}
                 </div>
               </div>
-              {myMessages[messageId].isGroup && (
-                <div>
-                  <RiGroupLine className="w-5 h-5" />
-                </div>
-              )}
             </NavLink>
           )
         })}
