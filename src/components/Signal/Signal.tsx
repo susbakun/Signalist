@@ -53,7 +53,6 @@ export const Signal = ({ signal, className }: SignalProps) => {
   }, [myAccount])
 
   useEffect(() => {
-    console.log("first")
     dispatch(updateUserScore({ signal }))
   }, [signal])
 

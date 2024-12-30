@@ -1,3 +1,4 @@
+export * from './DetailedNews'
 export * from './EmptyPage'
 export * from './ExplorePage'
 export * from './FollowingsPosts'

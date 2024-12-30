@@ -3,7 +3,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { MessageModel } from "@/shared/models"
-import { getAvatarPlaceholder, isGroupRoom } from "@/utils"
+import { getAvatarPlaceholder } from "@/utils"
 import { useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import { NavLink } from "react-router-dom"
@@ -39,7 +39,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
   )
 
   const { isUserBlocked } = useIsUserBlocked(myAccount)
-  const { getProperAvatar } = useUserMessageRoom()
+  const { getProperAvatar, isGroupRoom } = useUserMessageRoom()
 
   const getMessageInfo = (messageId: string) => {
     const lastMessage =

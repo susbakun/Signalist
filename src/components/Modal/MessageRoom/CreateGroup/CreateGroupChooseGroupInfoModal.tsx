@@ -61,11 +61,11 @@ export const CreateGroupChooseGroupInfoModal = ({
       <Modal.Header className="border-none pr-1 py-2" />
       <Modal.Body
         className="flex overflow-y-auto
-        flex-col gap-2 py-0 mb-0 px-2 custom-modal"
+        flex-col gap-2 py-0 mb-0 px-4 custom-modal"
       >
         <div className="flex flex-col items-center py-8 gap-4">
           <div className="flex flex-col gap-2 w-full">
-            <label>Group Name:</label>
+            <label className="pl-1">Group Name:</label>
             <input
               value={groupName}
               onKeyDown={handleKeyDown}

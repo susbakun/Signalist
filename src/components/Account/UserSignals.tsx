@@ -50,7 +50,7 @@ export const UserSignals = () => {
           <Tippy
             content="create signal"
             className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-          rounded-md px-1 py-[1px] text-sm"
+            rounded-md px-1 py-[1px] text-sm"
             delay={[1000, 0]}
             placement="top"
             animation="fade"

@@ -1,7 +1,6 @@
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
-import { isGroupRoom } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Avatar } from "flowbite-react"
 
@@ -90,5 +89,9 @@ export const useUserMessageRoom = () => {
     )
   }
 
-  return { checkIfExistsRoom, findExistingRoomId, getProperAvatar }
+  const isGroupRoom = (messages: MessageModel["username"]["roomId"]) => {
+    return messages.groupInfo && messages.usersInfo && messages.isGroup
+  }
+
+  return { checkIfExistsRoom, findExistingRoomId, getProperAvatar, isGroupRoom }
 }

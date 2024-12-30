@@ -60,7 +60,6 @@ const usersSlice = createSlice({
             currentTime - signal.closeTime >= 0 && currentTime - signal.closeTime <= 70000
 
           if (isSignalRecentlyClosed) {
-            console.log("first")
             signal.targets.forEach((target) => {
               console.log(target)
               if (target.touched) {

@@ -58,6 +58,7 @@ export const CreateGroupModal = ({
 
   const handleCloseChooseGroupInfo = () => {
     setChooseGroupInfoModalOpen(false)
+    handleResetForm()
   }
 
   const handleChooseGroupInfo = () => {
@@ -120,6 +121,7 @@ export const CreateGroupModal = ({
   const handleResetForm = () => {
     setGroupName("")
     setSearched("")
+    setSelectedUsers([])
     setIsGroupImageSending(false)
     setCreateGroupButtonDisabled(false)
   }

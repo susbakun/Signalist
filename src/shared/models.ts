@@ -75,15 +75,22 @@ export type CoinHistoryResponseType = {
   }
 }
 
+export type NewsItem = {
+  id: string;
+  title: string;
+  url: string;
+  imageurl: string;
+  published_on: number;
+  body: string;
+  source: string;
+  categories: string;
+};
+
 export type CryptoNewsType = {
-  articles: {
-    title: string
-    url: string
-    urlToImage: string
-    publishedAt: string
-    description: string
-  }[]
-}
+  Data: NewsItem[];
+  Type: number;
+};
+
 
 export type AccountModel = {
   name: string

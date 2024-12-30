@@ -12,6 +12,7 @@ import {
   UserSignals
 } from "@/components"
 import {
+  DetailedNewsPage,
   ExplorePage,
   FollowingsPosts,
   HomePage,
@@ -62,6 +63,7 @@ export const AppContent = () => {
     >
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/news" element={<DetailedNewsPage />} />
         <Route path="/explore" element={<ExplorePage />}>
           <Route path="followings" element={<FollowingsPosts />} />
           <Route path="suggests" element={<SuggestionsPosts />} />

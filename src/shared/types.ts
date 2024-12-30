@@ -39,3 +39,6 @@ export type GroupRoom = {
 }
 export type BookmarkType = { signals: SignalModel[]; posts: PostModel[] }
 export type ThemeModeType = "Os Default" | "Dark" | "Light"
+export type OptionType = {
+  value: string, label: string
+}
