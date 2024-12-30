@@ -20,7 +20,7 @@ export const cryptoNewsApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl }),
   endpoints: (builder) => ({
     getCryptoNews: builder.query<CryptoNewsType, NewsQueryInput>({
-      query: ({ newsCategory, feeds = "cointelegraph", page = 1, }) => {
+      query: ({ newsCategory, feeds = "coindesk", page = 1, }) => {
         const params = new URLSearchParams();
         if (newsCategory) params.append("categories", newsCategory);
         params.append("page", page.toString());
