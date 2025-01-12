@@ -89,12 +89,12 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
             dark:bg-gray-700 rounded-xl cursor-pointer messageRooms justify-between"
               to={messageId}
             >
-              <div className="flex items-center">
+              <div className="flex items-center w-full">
                 {isGroupRoom(myMessages[messageId])
                   ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
                   : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
                 <div className="w-full">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <h3 className="text-lg font-semibold">
                       {isGroupRoom(myMessages[messageId])
                         ? myMessages[messageId].groupInfo!.groupName
@@ -107,7 +107,8 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                     )}
                   </div>
                   {text && (
-                    <p className="text-gray-400 text-ellipsis max-w-[215px] overflow-hidden whitespace-nowrap">
+                    <p className="text-gray-400 text-ellipsis md:max-w-[215px]
+                       overflow-hidden whitespace-nowrap lg:max-w-[500px]">
                       {text}
                     </p>
                   )}
