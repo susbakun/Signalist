@@ -86,29 +86,28 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
             <NavLink
               key={messageId}
               className="flex items-center p-3 mb-3 bg-white overflow-hidden
-            dark:bg-gray-700 rounded-xl cursor-pointer messageRooms justify-between"
+            dark:bg-gray-700 rounded-xl cursor-pointer messageRooms max-w-full"
               to={messageId}
             >
-              <div className="flex items-center w-full">
+              <div className="flex items-center flex-1 min-w-0">
                 {isGroupRoom(myMessages[messageId])
                   ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
                   : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
-                <div className="w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <h3 className="text-lg font-semibold">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-lg font-semibold truncate">
                       {isGroupRoom(myMessages[messageId])
                         ? myMessages[messageId].groupInfo!.groupName
                         : myMessages[messageId].userInfo!.username}
                     </h3>
                     {myMessages[messageId].isGroup && (
-                      <div className="translate-y-[2px]">
-                        <RiGroupLine className="w-5 h-5 flex-1" />
-                      </div>
+                        <div className="flex-shrink-0">
+                          <RiGroupLine className="w-5 h-5" />
+                        </div>
                     )}
                   </div>
                   {text && (
-                    <p className="text-gray-400 text-ellipsis md:max-w-[215px]
-                       overflow-hidden whitespace-nowrap lg:max-w-[500px]">
+                    <p className="text-gray-400 truncate">
                       {text}
                     </p>
                   )}
