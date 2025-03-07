@@ -29,8 +29,10 @@ export const NewsList = () => {
   };
 
   useEffect(() => {
-    if (cryptoNews) {
-      setNewsList((prev) => uniqBy([...prev, ...cryptoNews.Data], "title"));
+    console.log('cryptoNews:', cryptoNews); // Debug log
+    const newsData = Array.isArray(cryptoNews?.Data) ? cryptoNews.Data : [];
+    if (newsData.length > 0) {
+      setNewsList((prev) => uniqBy([...prev, ...newsData], "title"));
     }
   }, [cryptoNews]);
 
