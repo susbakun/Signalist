@@ -1,9 +1,6 @@
+import { newsApiKey } from "@/shared/constants"
 import { NewsApiResponse } from "@/shared/models"
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-
-const newsApiHeaders = {
-  "X-Api-Key": import.meta.env.VITE_NEWS_API_KEY
-}
 
 type NewsQueryInput = {
   category?: string
@@ -14,7 +11,9 @@ type NewsQueryInput = {
 
 const baseUrl = "https://newsapi.org/v2"
 
-const createRequest = (url: string) => ({ url, headers: newsApiHeaders })
+const createRequest = (url: string) => ({
+  url: `${url}&apiKey=${newsApiKey}`
+})
 
 export const newsApi = createApi({
   reducerPath: "newsApi",
@@ -38,7 +37,7 @@ export const newsApi = createApi({
         params.append("q", category || "cryptocurrency")
         params.append("sortBy", "publishedAt")
 
-        return createRequest(`/everything?${params.toString()}`)
+        return createRequest(`${baseUrl}/everything?${params.toString()}`)
       }
     })
   })

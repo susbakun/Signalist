@@ -5,7 +5,7 @@ import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { FaLock, FaUser } from "react-icons/fa"
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 
 export const LoginPage = () => {
   const [identifier, setIdentifier] = useState("") // This will hold either email or username
@@ -13,13 +13,11 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const navigate = useNavigate()
-  const location = useLocation()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
-  const from = location.state?.from?.pathname || "/"
 
   if (isAuthenticated) {
-    return <Navigate to={from} replace />
+    return <Navigate to="/" replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +56,7 @@ export const LoginPage = () => {
         initializeSession()
         setupActivityListeners()
 
-        navigate(from, { replace: true })
+        navigate("/", { replace: true })
       } else {
         setError("Invalid username/email or password")
       }
@@ -112,7 +110,9 @@ export const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   required
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none
+                  focus:border-primary-link-button dark:focus:border-dark-link-button
+                  dark:bg-gray-700 dark:border-gray-600"
                 />
               </div>
             </div>
