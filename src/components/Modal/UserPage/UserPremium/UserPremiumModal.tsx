@@ -4,17 +4,17 @@ import { getCurrentUsername } from "@/utils"
 import { Modal } from "flowbite-react"
 import moment from "jalali-moment"
 import { useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { SubscriptionBundles } from "./SubscriptionBundles"
 import { UserPremiumModalUserInfo } from "./UserPremiumModalUserInfo"
 
 export const UserPremiumModal = () => {
   const [openModal, setIsOpenModal] = useState(true)
   const navigate = useNavigate()
-  const { username: myUsername } = useParams()
+  const currentUsername = getCurrentUsername()
 
   const userAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === myUsername
+    (user) => user.username === currentUsername
   )
 
   const { amISubscribed } = useIsUserSubscribed(userAccount!)
@@ -24,7 +24,7 @@ export const UserPremiumModal = () => {
 
   const handleCloseModal = () => {
     setIsOpenModal(false)
-    navigate(`/${myUsername}`)
+    navigate(`/${currentUsername}`)
   }
 
   if (userAccount)
