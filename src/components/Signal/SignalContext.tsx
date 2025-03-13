@@ -2,7 +2,7 @@ import { BlackPulse, BluredSignalComponent, GreenPulse, Loader, RedPulse } from 
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
-import { cn, getMarketScale } from "@/utils"
+import { cn, getCurrentUsername, getMarketScale } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
@@ -29,6 +29,9 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
 
   const { publisher } = signal
   const { amISubscribed } = useIsUserSubscribed(publisher)
+  const currentUsername = getCurrentUsername()
+
+  console.log(publisher.username, currentUsername)
 
   const client = new Client()
   const storage = new Storage(client)
@@ -84,7 +87,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      {signal.isPremium && !amISubscribed ? (
+      {signal.isPremium && !amISubscribed && publisher.username !== currentUsername ? (
         <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
           <BluredSignalComponent />
           <Link
@@ -114,7 +117,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
               </div>
             ) : (
               <div className="text-md flex items-center">
-                will be colsed {moment(signal.closeTime).startOf("seconds").fromNow()}
+                will be closed {moment(signal.closeTime).startOf("seconds").fromNow()}
                 <GreenPulse />
               </div>
             )}
