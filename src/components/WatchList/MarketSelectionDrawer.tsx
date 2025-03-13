@@ -1,15 +1,15 @@
-import { SelectionTable } from '@/components'
-import { EmptyPage } from '@/pages'
-import { useGetCryptosQuery } from '@/services/cryptoApi'
-import { CryptoResponseType } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { Drawer } from 'flowbite-react'
-import { ChangeEvent, useEffect, useState } from 'react'
-import { FaChartLine } from 'react-icons/fa'
+import { SelectionTable } from "@/components"
+import { EmptyPage } from "@/pages"
+import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { CryptoResponseType } from "@/shared/models"
+import { CoinType } from "@/shared/types"
+import { Drawer } from "flowbite-react"
+import { ChangeEvent, useEffect, useState } from "react"
+import { FaChartLine } from "react-icons/fa"
 
 type MarketSelectionDrawerProps = {
   isOpen: boolean
-  selectedCryptos: CryptoResponseType['data']['coins']
+  selectedCryptos: CryptoResponseType["data"]["coins"]
   closeDrawer: () => void
   selectMarket: (coin: CoinType) => void
 }
@@ -20,8 +20,8 @@ export const MarketSelectionDrawer = ({
   closeDrawer,
   selectMarket
 }: MarketSelectionDrawerProps) => {
-  const [drawerCoins, setDrawerCoins] = useState<CryptoResponseType['data']['coins']>([])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [drawerCoins, setDrawerCoins] = useState<CryptoResponseType["data"]["coins"]>([])
+  const [searchTerm, setSearchTerm] = useState("")
 
   const { data: cryptosList } = useGetCryptosQuery(50)
 

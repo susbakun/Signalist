@@ -2,6 +2,7 @@ import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from "@
 import { useAppSelector } from "@/features/User/usersSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { editPostRouteRegExp } from "@/shared/constants"
+import { getCurrentUsername } from "@/utils"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 
@@ -54,7 +55,8 @@ const ExplorePosts = () => {
 
 export const RightSideBar = () => {
   const users = useAppSelector((state) => state.users)
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
   const { isUserBlocked } = useIsUserBlocked(myAccount)
   let selectedUsers = [
     ...users.filter(
@@ -72,7 +74,7 @@ export const RightSideBar = () => {
         <h2 className="text-xl font-bold">Who to follow</h2>
         <div className="flex flex-col gap-4">
           {selectedUsers.map((user) => (
-            <UserPreview follower={myAccount!} key={user.username} {...user} />
+            <UserPreview follower={myAccount || undefined} key={user.username} {...user} />
           ))}
         </div>
       </div>

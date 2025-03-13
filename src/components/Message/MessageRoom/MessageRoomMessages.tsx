@@ -2,7 +2,7 @@ import { Loader } from "@/components" // Adjust the import path as needed
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
-import { cn, formatMessageDate, getAvatarPlaceholder } from "@/utils"
+import { cn, formatMessageDate, getAvatarPlaceholder, getCurrentUsername } from "@/utils"
 import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
@@ -125,7 +125,8 @@ export const MessageRoomMessages = ({
             )
           }
 
-          const isCurrentUser = message.sender.username === "Amir_Aryan"
+          const currentUsername = getCurrentUsername()
+          const isCurrentUser = message.sender.username === currentUsername
 
           acc.push(
             <div

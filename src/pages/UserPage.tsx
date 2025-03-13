@@ -1,27 +1,31 @@
-import { AccountBottomBar, AccountTopBar, UserActivities, UserInfo } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { useEffect, useState } from 'react'
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { AccountBottomBar, AccountTopBar, UserActivities, UserInfo } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { getCurrentUsername } from "@/utils"
+import { useEffect, useState } from "react"
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 
 export const UserPage = () => {
-  const [activeLink, setActiveLink] = useState('posts')
+  const [activeLink, setActiveLink] = useState("posts")
 
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { username: myUsername } = useParams()
+  const { username: profileUsername } = useParams()
+  const currentUsername = getCurrentUsername()
 
   const userAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === myUsername
+    (user) => user.username === profileUsername
   )
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === 'Amir_Aryan'
+    (user) => user.username === currentUsername
   )
-  const isItmyAccount = userAccount?.username === 'Amir_Aryan'
+  const isItmyAccount = profileUsername === currentUsername
 
   const handleShareEmail = () => {
-    const shareUrl = `mailto:${userAccount?.email}`
-    window.open(shareUrl)
+    if (userAccount?.email) {
+      const shareUrl = `mailto:${userAccount.email}`
+      window.open(shareUrl)
+    }
   }
 
   const handleChangeActiveLink = (pathName: string) => {
@@ -32,27 +36,57 @@ export const UserPage = () => {
     if (location.pathname === `/${userAccount?.username}`) {
       navigate(activeLink, { replace: false })
     }
-  }, [location, navigate])
+  }, [location, navigate, userAccount?.username, activeLink])
 
-  if (userAccount && myAccount) {
+  // If the profile doesn't exist, show a message
+  if (!userAccount) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h2 className="text-2xl font-bold mb-4">User not found</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          The user you're looking for doesn't exist or has been removed.
+        </p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-6 px-4 py-2 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg"
+        >
+          Return to Home
+        </button>
+      </div>
+    )
+  }
+
+  // If we're not logged in or our account is not found, we can't show components that require myAccount
+  if (!myAccount) {
     return (
       <>
         <div className="flex flex-col px-[200px] pt-12 gap-8">
-          <AccountTopBar
-            myAccount={myAccount}
-            isItmMyAccount={isItmyAccount}
-            userAccount={userAccount}
-          />
           <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
-          <AccountBottomBar
-            isItMyAccount={isItmyAccount}
-            myAccount={myAccount}
-            userAccount={userAccount}
-          />
           <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
         </div>
         <Outlet />
       </>
     )
   }
+
+  // If both userAccount and myAccount exist, show the full profile
+  return (
+    <>
+      <div className="flex flex-col px-[200px] pt-12 gap-8">
+        <AccountTopBar
+          myAccount={myAccount}
+          isItmMyAccount={isItmyAccount}
+          userAccount={userAccount}
+        />
+        <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
+        <AccountBottomBar
+          isItMyAccount={isItmyAccount}
+          myAccount={myAccount}
+          userAccount={userAccount}
+        />
+        <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
+      </div>
+      <Outlet />
+    </>
+  )
 }

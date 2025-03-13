@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import clsx, { ClassValue } from "clsx"
 import moment from "jalali-moment"
@@ -99,4 +100,15 @@ export const applyOsDefaultTheme = () => {
 
 export const isDevmode = () => {
   return import.meta.env.MODE === "development"
+}
+
+export const getCurrentUser = () => {
+  const userStr = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
+  if (!userStr) return null
+  return JSON.parse(userStr)
+}
+
+export const getCurrentUsername = () => {
+  const user = getCurrentUser()
+  return user?.username || null
 }

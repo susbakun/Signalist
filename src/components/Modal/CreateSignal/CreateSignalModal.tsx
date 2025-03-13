@@ -15,6 +15,7 @@ import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { CryptoResponseType, SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
 import { Label, Modal } from "flowbite-react"
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
@@ -47,7 +48,8 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
   const dispatch = useDispatch()
   const users = useAppSelector((state) => state.users)
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")!
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)!
   const signalPublisher: SignalAccountType = {
     name: myAccount.name,
     username: myAccount.username,

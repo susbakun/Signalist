@@ -62,8 +62,8 @@ export const UserPreview = ({
     handleShowToast(`You unfollowed user @${userUsername}`, "unfollow")
     dispatch(
       unfollowUser({
-        followeruserUsername: follower?.username,
-        followinguserUsername: userUsername
+        followerUsername: follower?.username,
+        followingUsername: userUsername
       })
     )
     setOpenUnfollowModal(false)

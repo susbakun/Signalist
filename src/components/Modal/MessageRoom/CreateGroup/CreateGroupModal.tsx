@@ -4,6 +4,7 @@ import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useCallback, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -32,9 +33,10 @@ export const CreateGroupModal = ({
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
 
-  const exceptMeUsers = users.filter((user) => user.username !== "Amir_Aryan")
+  const exceptMeUsers = users.filter((user) => user.username !== currentUsername)
 
   const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
@@ -128,6 +130,7 @@ export const CreateGroupModal = ({
 
   const handleCreateGroup = async () => {
     if (groupName.trim() === "") return
+    if (!myAccount) return
 
     setIsGroupImageSending(true)
     setCreateGroupButtonDisabled(true)

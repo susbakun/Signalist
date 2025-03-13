@@ -1,11 +1,12 @@
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { Modal } from 'flowbite-react'
-import moment from 'jalali-moment'
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { SubscriptionBundles } from './SubscriptionBundles'
-import { UserPremiumModalUserInfo } from './UserPremiumModalUserInfo'
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { getCurrentUsername } from "@/utils"
+import { Modal } from "flowbite-react"
+import moment from "jalali-moment"
+import { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { SubscriptionBundles } from "./SubscriptionBundles"
+import { UserPremiumModalUserInfo } from "./UserPremiumModalUserInfo"
 
 export const UserPremiumModal = () => {
   const [openModal, setIsOpenModal] = useState(true)
@@ -18,7 +19,7 @@ export const UserPremiumModal = () => {
 
   const { amISubscribed } = useIsUserSubscribed(userAccount!)
   const subscriber = userAccount?.subscribers?.find(
-    (subscriber) => subscriber.username === 'Amir_Aryan'
+    (subscriber) => subscriber.username === currentUsername
   )
 
   const handleCloseModal = () => {
@@ -42,9 +43,9 @@ export const UserPremiumModal = () => {
             <SubscriptionBundles subscriptionPlan={userAccount.susbscriptionPlan} />
             {amISubscribed && subscriber && (
               <div className="detail-text flex justify-center gap-1">
-                your subscription will expire{' '}
+                your subscription will expire{" "}
                 <span className="font-bold dark:text-white text-gray-600">
-                  {moment(subscriber.expireDate).startOf('D').fromNow()}
+                  {moment(subscriber.expireDate).startOf("D").fromNow()}
                 </span>
               </div>
             )}

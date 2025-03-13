@@ -5,7 +5,7 @@ import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { EmptyPage } from "@/pages"
 import { AccountModel, MessageModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
-import { cn } from "@/utils"
+import { cn, getCurrentUsername } from "@/utils"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, useCallback, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -26,10 +26,9 @@ export const CreateMessageModal = ({
   const [searched, setSearched] = useState("")
 
   const users = useAppSelector((state) => state.users)
-
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")
-
-  const exceptMeUsers = users.filter((user) => user.username !== "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
+  const exceptMeUsers = users.filter((user) => user.username !== currentUsername)
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -53,9 +52,34 @@ export const CreateMessageModal = ({
   }
 
   const handleCreateMessage = (user: AccountModel) => {
+    if (!myAccount) return
+
     handleCloseModal()
+
+    // Check if myMessages exists and is an object
+    if (!myMessages || typeof myMessages !== "object") {
+      // Initialize new messages object for this user
+      const userInfo: SimplifiedAccountType = {
+        name: user.name,
+        username: user.username,
+        imageUrl: user.imageUrl
+      }
+
+      const roomId = v4()
+      dispatch(
+        createRoom({
+          myUsername: myAccount.username,
+          userInfo,
+          roomId
+        })
+      )
+      navigate(roomId)
+      return
+    }
+
     if (checkIfExistsRoom(myMessages, user)) {
       const roomId = findExistingRoomId(myMessages, user)
+      console.log("second", roomId)
       navigate(roomId!)
     } else {
       const userInfo: SimplifiedAccountType = {
@@ -63,8 +87,15 @@ export const CreateMessageModal = ({
         username: user.username,
         imageUrl: user.imageUrl
       }
+
       const roomId = v4()
-      dispatch(createRoom({ myUsername: myAccount?.username, userInfo, roomId }))
+      dispatch(
+        createRoom({
+          myUsername: myAccount.username,
+          userInfo,
+          roomId
+        })
+      )
       navigate(roomId)
     }
   }

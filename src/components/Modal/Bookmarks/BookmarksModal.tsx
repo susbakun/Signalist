@@ -1,3 +1,4 @@
+import { getCurrentUsername } from "@/utils"
 import { Modal } from "flowbite-react"
 import { useEffect, useState } from "react"
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom"
@@ -5,21 +6,23 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom"
 export const BookmarksModal = () => {
   const [openModal, setOpenModal] = useState(true)
 
-  const { username: myUsername } = useParams()
+  const { username: profileUsername } = useParams()
+  const currentUsername = getCurrentUsername()
   const navigate = useNavigate()
 
   const handleCloseModal = () => {
     setOpenModal(false)
-    navigate(`/${myUsername}`)
+    navigate(`/${profileUsername}`)
   }
 
   useEffect(() => {
-    if (myUsername !== "Amir_Aryan") {
+    // Only allow users to access their own bookmarks
+    if (profileUsername !== currentUsername) {
       navigate("/", { replace: true })
-    } else if (myUsername === "Amir_Aryan") {
+    } else {
       navigate("posts")
     }
-  }, [])
+  }, [profileUsername, currentUsername, navigate])
 
   return (
     <Modal size="4xl" show={openModal} onClose={handleCloseModal}>

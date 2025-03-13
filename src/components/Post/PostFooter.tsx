@@ -5,7 +5,7 @@ import { bookmarkPost, unBookmarkPost } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { PostModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
-import { cn } from "@/utils"
+import { cn, getCurrentUsername } from "@/utils"
 import millify from "millify"
 import { useEffect, useState } from "react"
 import { FaBookmark, FaCommentSlash, FaRegBookmark, FaRegComment } from "react-icons/fa"
@@ -29,8 +29,9 @@ export const PostFooter = ({
   handleOpenEditPostModal
 }: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const currentUsername = getCurrentUsername()
   const [isLiked, setIsLiked] = useState(() => {
-    return post.likes.some((user) => user.username === "Amir_Aryan")
+    return post.likes.some((user) => user.username === currentUsername)
   })
 
   const [openShareModal, setOpenShareModal] = useState(false)
@@ -42,7 +43,7 @@ export const PostFooter = ({
   const { publisher } = post
 
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )
 
   const handleLikePost = () => {

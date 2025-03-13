@@ -1,8 +1,9 @@
 import { ImagePreview, PostTextArea } from "@/components"
+import { useAppSelector } from "@/features/Message/messagesSlice"
 import { createPost } from "@/features/Post/postsSlice"
-import { useAppSelector } from "@/features/User/usersSlice"
 import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { SimplifiedAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from "react"
@@ -23,15 +24,17 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
   const [isPostSending, setIsPostSending] = useState(false)
 
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
-  )!
+  const users = useAppSelector((state) => state.users)
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
 
-  const postPublisher: SimplifiedAccountType = {
-    name: myAccount.name,
-    username: myAccount.username,
-    imageUrl: myAccount.imageUrl
-  }
+  const postPublisher: SimplifiedAccountType | undefined = myAccount
+    ? {
+        name: myAccount.name,
+        username: myAccount.username,
+        imageUrl: myAccount.imageUrl
+      }
+    : undefined
 
   const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 

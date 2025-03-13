@@ -1,13 +1,14 @@
-import { CommentInput, PostBody, PostComment, PostFooter, PostTopBar } from '@/components'
-import { useAppSelector } from '@/features/Post/postsSlice'
-import { PostModel } from '@/shared/models'
-import { Modal } from 'flowbite-react'
+import { CommentInput, PostBody, PostComment, PostFooter, PostTopBar } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
+import { PostModel } from "@/shared/models"
+import { getCurrentUsername } from "@/utils"
+import { Modal } from "flowbite-react"
 
 type PostCommentMoalProps = {
   openModal: boolean
   handleCloseCommentsModal: () => void
-  comments: PostModel['comments']
-  post: Omit<PostModel, 'comments'>
+  comments: PostModel["comments"]
+  post: Omit<PostModel, "comments">
   handleOpenEditPostModal?: () => void
 }
 
@@ -18,7 +19,10 @@ export const PostCommentModal = ({
   post,
   handleOpenEditPostModal
 }: PostCommentMoalProps) => {
-  const me = useAppSelector((state) => state.users).find((user) => user.username === 'Amir_Aryan')
+  const currentUsername = getCurrentUsername()
+  const me = useAppSelector((state) => state.users).find(
+    (user) => user.username === currentUsername
+  )
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
   return (
     <Modal size="3xl" show={openModal} onClose={handleCloseCommentsModal}>
@@ -54,7 +58,8 @@ export const PostCommentModal = ({
                 isLastComment={index === sortedComments.length - 1}
               />
             ))}
-          <CommentInput postId={post.id} commentPublisher={me!} />
+          {me && <CommentInput postId={post.id} commentPublisher={me} />}
+          {!me && <div className="p-4 text-center text-gray-500">Please log in to comment</div>}
         </div>
       </Modal.Body>
     </Modal>

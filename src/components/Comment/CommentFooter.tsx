@@ -2,6 +2,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { dislikeComment, likeComment } from "@/features/Post/postsSlice"
 import { CommentModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import millify from "millify"
 import { useState } from "react"
 import { HiOutlineLightningBolt } from "react-icons/hi"
@@ -15,13 +16,14 @@ type CommentFooterProps = {
 }
 
 export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) => {
+  const currentUsername = getCurrentUsername()
   const [isLiked, setIsLiked] = useState(() => {
-    return likes.some((user) => user.username === "Amir_Aryan")
+    return likes.some((user) => user.username === currentUsername)
   })
   const dispatch = useDispatch()
 
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )
 
   const handleLikeComment = () => {
@@ -49,7 +51,7 @@ export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) 
           <HiOutlineLightningBolt className="w-6 h-6" />
         )}
       </button>
-      <span className="detail-text">{millify(likes.length)}</span>
+      <span className="text-sm">{millify(likes.length)}</span>
     </div>
   )
 }

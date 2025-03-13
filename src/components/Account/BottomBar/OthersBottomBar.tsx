@@ -7,6 +7,7 @@ import { useToastContainer } from "@/hooks/useToastContainer"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import { useMemo, useState } from "react"
 import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
@@ -23,7 +24,8 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
 
-  const messages = useAppSelector((state) => state.messages)["Amir_Aryan"]
+  const currentUsername = getCurrentUsername()
+  const messages = useAppSelector((state) => state.messages)[currentUsername || ""]
 
   const isFollowed = useMemo(
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
@@ -36,8 +38,10 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const { amISubscribed } = useIsUserSubscribed(userAccount)
 
   const handleCreateMessage = () => {
+    if (!myAccount || !currentUsername) return
+
     handleCloseModal()
-    if (checkIfExistsRoom(messages, userAccount)) {
+    if (messages && checkIfExistsRoom(messages, userAccount)) {
       const roomId = findExistingRoomId(messages, userAccount)
       navigate(`/messages/${roomId}`)
     } else {
@@ -47,7 +51,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
         imageUrl: userAccount.imageUrl
       }
       const roomId = v4()
-      dispatch(createRoom({ myUsername: "Amir_Aryan", userInfo, roomId }))
+      dispatch(createRoom({ myUsername: currentUsername, userInfo, roomId }))
       navigate(`/messages/${roomId}`)
     }
   }

@@ -2,11 +2,13 @@ import { Post } from "@/components"
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { EmptyPage } from "@/pages"
 import { PostModel } from "@/shared/models"
+import { getCurrentUsername } from "@/utils"
 
 export const FollowingsPosts = () => {
   const allPosts = useAppSelector((state) => state.posts)
   const users = useAppSelector((state) => state.users)
-  const me = users.find((user) => user.username === "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const me = users.find((user) => user.username === currentUsername)
 
   const isMyFollowingPost = (post: PostModel) => {
     return me?.followings.some((following) => following.username.includes(post.publisher.username))

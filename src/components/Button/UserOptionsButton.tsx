@@ -1,7 +1,9 @@
+import { logout } from "@/utils/session"
 import { Popover } from "flowbite-react"
+import { FiLogOut } from "react-icons/fi"
 import { IoBookmarkOutline, IoSettingsOutline } from "react-icons/io5"
 import { TfiMore } from "react-icons/tfi"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 type ProfileOptionsButtonProps = {
   open: boolean
@@ -10,6 +12,16 @@ type ProfileOptionsButtonProps = {
 }
 
 export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOptionsButtonProps) => {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    setIsOpen(false)
+    setTimeout(() => {
+      logout()
+      navigate("/login")
+    }, 1000)
+  }
+
   return (
     <Popover
       trigger="click"
@@ -24,6 +36,13 @@ export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOption
             <IoBookmarkOutline />
             bookmarks
           </Link>
+          <button
+            onClick={handleLogout}
+            className="option-button border-none px-2 py-2 text-red-600 hover:text-red-700"
+          >
+            <FiLogOut />
+            Logout
+          </button>
         </div>
       }
       open={open}

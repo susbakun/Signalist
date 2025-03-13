@@ -1,5 +1,6 @@
+import { STORAGE_KEYS } from "@/shared/constants"
 import { ThemeModeType } from "@/shared/types"
-import { toggleThemeMode } from "@/utils"
+import { getCurrentUsername, toggleThemeMode } from "@/utils"
 import { Modal } from "flowbite-react"
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
@@ -8,15 +9,16 @@ import { SelectThemeModeDropDown } from "./SelectThemeModeDropDown"
 export const UserSettings = () => {
   const [openModal, setOpenModal] = useState(true)
   const [themeMode, setThemeMode] = useState<ThemeModeType>(() => {
-    return (localStorage.getItem("themeMode") || "Os Default") as ThemeModeType
+    return (localStorage.getItem(STORAGE_KEYS.THEME_MODE) || "Os Default") as ThemeModeType
   })
 
-  const { username: myUsername } = useParams()
+  const { username: profileUsername } = useParams()
+  const currentUsername = getCurrentUsername()
   const navigate = useNavigate()
 
   const handleCloseModal = () => {
     setOpenModal(false)
-    navigate(`/${myUsername}`)
+    navigate(`/${profileUsername}`)
   }
 
   const handleSelectTheme = (selectedThemeMode: ThemeModeType) => {
@@ -24,13 +26,14 @@ export const UserSettings = () => {
   }
 
   useEffect(() => {
-    if (myUsername !== "Amir_Aryan") {
+    // Only allow users to access their own settings
+    if (profileUsername !== currentUsername) {
       navigate("/", { replace: true })
     }
-  }, [])
+  }, [profileUsername, currentUsername, navigate])
 
   useEffect(() => {
-    localStorage.setItem("themeMode", themeMode)
+    localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeMode)
     toggleThemeMode(themeMode)
   }, [themeMode])
 

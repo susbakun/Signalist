@@ -6,6 +6,7 @@ import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { SignalModel } from "@/shared/models"
+import { getCurrentUsername } from "@/utils"
 import { ComponentProps, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { twMerge } from "tailwind-merge"
@@ -19,9 +20,9 @@ export const Signal = ({ signal, className }: SignalProps) => {
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
-  )
+  const users = useAppSelector((state) => state.users)
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
 
   const { data: cryptosList } = useGetCryptosQuery(5)
   const dispatch = useDispatch()

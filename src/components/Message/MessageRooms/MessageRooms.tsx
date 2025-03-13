@@ -3,7 +3,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { MessageModel } from "@/shared/models"
-import { getAvatarPlaceholder } from "@/utils"
+import { getAvatarPlaceholder, getCurrentUsername } from "@/utils"
 import { useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import { NavLink } from "react-router-dom"
@@ -16,7 +16,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
   const [showCreateMessageModal, setShowCreateMessageModal] = useState(false)
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
 
-  const messagesIds = Object.keys(myMessages)
+  const messagesIds = myMessages ? Object.keys(myMessages) : []
 
   const handleOpenCreateMessageModal = () => {
     setShowCreateMessageModal(true)
@@ -34,14 +34,19 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
     setShowCreateGroupModal(false)
   }
 
+  const currentUsername = getCurrentUsername()
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )
 
   const { isUserBlocked } = useIsUserBlocked(myAccount)
   const { getProperAvatar, isGroupRoom } = useUserMessageRoom()
 
   const getMessageInfo = (messageId: string) => {
+    if (!myMessages || !myMessages[messageId]) {
+      return { placeholder: "", text: "" }
+    }
+
     const lastMessage =
       myMessages[messageId]["messages"][myMessages[messageId]["messages"].length - 1]
 
@@ -71,51 +76,48 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
           handleOpenCreateGroupModal={handleOpenCreateGroupModal}
           handleOpenCreateMessageModal={handleOpenCreateMessageModal}
         />
-        {messagesIds.map((messageId) => {
-          const { placeholder, text } = getMessageInfo(messageId)
+        {myMessages &&
+          messagesIds.map((messageId) => {
+            const { placeholder, text } = getMessageInfo(messageId)
 
-          if (
-            (isGroupRoom(myMessages[messageId]) &&
-              myMessages[messageId].usersInfo!.some((user) => isUserBlocked(user.username))) ||
-            (!isGroupRoom(myMessages[messageId]) &&
-              isUserBlocked(myMessages[messageId].userInfo!.username))
-          )
-            return
+            if (
+              (isGroupRoom(myMessages[messageId]) &&
+                myMessages[messageId].usersInfo!.some((user) => isUserBlocked(user.username))) ||
+              (!isGroupRoom(myMessages[messageId]) &&
+                isUserBlocked(myMessages[messageId].userInfo!.username))
+            )
+              return null
 
-          return (
-            <NavLink
-              key={messageId}
-              className="flex items-center p-3 mb-3 bg-white overflow-hidden
+            return (
+              <NavLink
+                key={messageId}
+                className="flex items-center p-3 mb-3 bg-white overflow-hidden
             dark:bg-gray-700 rounded-xl cursor-pointer messageRooms max-w-full"
-              to={messageId}
-            >
-              <div className="flex items-center flex-1 min-w-0">
-                {isGroupRoom(myMessages[messageId])
-                  ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
-                  : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-lg font-semibold truncate">
-                      {isGroupRoom(myMessages[messageId])
-                        ? myMessages[messageId].groupInfo!.groupName
-                        : myMessages[messageId].userInfo!.username}
-                    </h3>
-                    {myMessages[messageId].isGroup && (
+                to={messageId}
+              >
+                <div className="flex items-center flex-1 min-w-0">
+                  {isGroupRoom(myMessages[messageId])
+                    ? getProperAvatar(placeholder, undefined, myMessages[messageId].groupInfo!)
+                    : getProperAvatar(placeholder, myMessages[messageId].userInfo!, undefined)}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-lg font-semibold truncate">
+                        {isGroupRoom(myMessages[messageId])
+                          ? myMessages[messageId].groupInfo!.groupName
+                          : myMessages[messageId].userInfo!.username}
+                      </h3>
+                      {myMessages[messageId].isGroup && (
                         <div className="flex-shrink-0">
                           <RiGroupLine className="w-5 h-5" />
                         </div>
-                    )}
+                      )}
+                    </div>
+                    {text && <p className="text-gray-400 truncate">{text}</p>}
                   </div>
-                  {text && (
-                    <p className="text-gray-400 truncate">
-                      {text}
-                    </p>
-                  )}
                 </div>
-              </div>
-            </NavLink>
-          )
-        })}
+              </NavLink>
+            )
+          })}
       </div>
       <CreateMessageModal
         openModal={showCreateMessageModal}

@@ -5,6 +5,7 @@ import { bookmarkSignal, unBookmarkSignal } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel, SignalModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
+import { getCurrentUsername } from "@/utils"
 import millify from "millify"
 import { useEffect, useState } from "react"
 import { FaBookmark, FaRegBookmark } from "react-icons/fa"
@@ -18,15 +19,16 @@ type SignalFooterProps = {
 }
 
 export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
+  const currentUsername = getCurrentUsername()
   const [isLiked, setIsLiked] = useState(() => {
-    return signal.likes.some((user) => user.username === "Amir_Aryan")
+    return signal.likes.some((user) => user.username === currentUsername)
   })
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
 
   const dispatch = useDispatch()
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 

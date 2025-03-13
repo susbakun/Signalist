@@ -1,11 +1,12 @@
 import { Signal } from "@/components/Signal/Signal"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { EmptyPage } from "@/pages"
-import { cn, isEmpty } from "@/utils"
+import { cn, getCurrentUsername, isEmpty } from "@/utils"
 
 export const BookmarkedSignals = () => {
+  const currentUsername = getCurrentUsername()
   const myUsername = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )!
 
   const bookmarkedSignals = myUsername?.bookmarks.signals

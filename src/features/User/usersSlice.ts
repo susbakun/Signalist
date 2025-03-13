@@ -10,6 +10,9 @@ const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
+    addUser: (state, action) => {
+      state.push(action.payload)
+    },
     followUser: (state, action) => {
       const follower = state.find((user) => user.username === action.payload.followerUsername)
       const following = state.find((user) => user.username === action.payload.followingUsername)
@@ -155,6 +158,7 @@ const usersSlice = createSlice({
 
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export const {
+  addUser,
   followUser,
   unfollowUser,
   updateUserScore,

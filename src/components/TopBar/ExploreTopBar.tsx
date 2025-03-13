@@ -2,7 +2,7 @@ import { UserPreview } from "@/components"
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { EmptyPage } from "@/pages"
-import { cn, isEmpty } from "@/utils"
+import { cn, getCurrentUsername, isEmpty } from "@/utils"
 import { ChangeEvent, useCallback, useMemo, useState } from "react"
 import { IoSearchOutline } from "react-icons/io5"
 import { NavLink } from "react-router-dom"
@@ -12,7 +12,8 @@ export const ExploreTopBar = () => {
   const [searched, setSearched] = useState("")
 
   const users = useAppSelector((state) => state.users)
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
   const { isUserBlocked } = useIsUserBlocked(myAccount)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

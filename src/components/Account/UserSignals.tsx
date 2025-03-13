@@ -1,6 +1,7 @@
 import { CreateSignalModal, Signal } from "@/components"
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { EmptyPage } from "@/pages"
+import { getCurrentUsername } from "@/utils"
 import Tippy from "@tippyjs/react"
 import { useState } from "react"
 import { HiMiniSignal } from "react-icons/hi2"
@@ -17,7 +18,8 @@ export const UserSignals = () => {
   const mySignals = useAppSelector((state) => state.signals)
     .filter((signal) => signal.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
-  const isItmyAccount = userAccount?.username === "Amir_Aryan"
+  const currentUsername = getCurrentUsername()
+  const isItmyAccount = userAccount?.username === currentUsername
 
   const handleCloseCreateSignalModal = () => {
     setOpenCreateSignalModal(false)

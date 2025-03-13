@@ -3,6 +3,7 @@ import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { PostModel } from "@/shared/models"
+import { getCurrentUsername } from "@/utils"
 import { ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
@@ -14,9 +15,10 @@ export const Post = ({ post, className }: PostProps) => {
   const { publisher } = post
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
+  const currentUsername = getCurrentUsername()
 
   const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
@@ -26,7 +28,7 @@ export const Post = ({ post, className }: PostProps) => {
     setIsEditPostModalOpen(true)
   }
 
-  const hanldeCloseEditPostModal = () => {
+  const handleCloseEditPostModal = () => {
     setIsEditPostModalOpen(false)
   }
 
@@ -37,7 +39,7 @@ export const Post = ({ post, className }: PostProps) => {
     }
   }, [myAccount])
 
-  if (isUserBlocked) return
+  if (isUserBlocked) return null
 
   return (
     <>
@@ -49,26 +51,28 @@ export const Post = ({ post, className }: PostProps) => {
           {...publisher}
           date={post.date}
         />
-
         <PostBody
-          isPremium={post.isPremium}
-          publisherUsername={publisher.username}
-          amISubscribed={amISubscribed}
           content={post.content}
+          publisherUsername={post.publisher.username}
+          isPremium={post.isPremium}
           postImageId={post.postImageId}
+          amISubscribed={amISubscribed}
         />
         <PostFooter
-          handleOpenEditPostModal={handleOpenEditPostModal}
-          amISubscribed={amISubscribed}
           post={post}
           comments={post.comments}
+          simplified={false}
+          amISubscribed={amISubscribed}
+          handleOpenEditPostModal={handleOpenEditPostModal}
         />
       </div>
-      <EditPostModal
-        post={post}
-        openModal={isEditPostModalOpen}
-        handleCloseModal={hanldeCloseEditPostModal}
-      />
+      {isEditPostModalOpen && (
+        <EditPostModal
+          post={post}
+          openModal={isEditPostModalOpen}
+          handleCloseModal={handleCloseEditPostModal}
+        />
+      )}
     </>
   )
 }

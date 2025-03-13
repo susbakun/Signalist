@@ -6,6 +6,7 @@ import {
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel, CommentModel, PostModel, SignalModel } from "@/shared/models"
+import { getCurrentUsername } from "@/utils"
 import { Popover } from "flowbite-react"
 import { useState } from "react"
 import { MdOutlineModeEditOutline } from "react-icons/md"
@@ -33,7 +34,8 @@ export const MoreOptionsButton = ({
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const users = useAppSelector((state) => state.users)
-  const myAccount = users.find((user) => user.username === "Amir_Aryan")
+  const currentUsername = getCurrentUsername()
+  const myAccount = users.find((user) => user.username === currentUsername)
 
   const handleCloseCreatePostModal = () => {
     setIsOpen(false)

@@ -1,6 +1,7 @@
 import { CreatePostModal, Post } from "@/components"
 import { useAppSelector } from "@/features/Post/postsSlice"
 import { EmptyPage } from "@/pages"
+import { getCurrentUsername } from "@/utils"
 import Tippy from "@tippyjs/react"
 import { useState } from "react"
 import { GoPlusCircle } from "react-icons/go"
@@ -10,14 +11,15 @@ import { roundArrow } from "tippy.js"
 export const UserPosts = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
 
-  const { username: userUsername } = useParams()
-  const userAccount = useAppSelector((store) => store.users).find(
-    (user) => user.username === userUsername
-  )
-  const myPosts = useAppSelector((state) => state.posts)
+  const { username } = useParams()
+  const posts = useAppSelector((state) => state.posts)
+  const users = useAppSelector((state) => state.users)
+  const userAccount = users.find((user) => user.username === username)
+  const currentUsername = getCurrentUsername()
+  const isItmyAccount = userAccount?.username === currentUsername
+  const myPosts = posts
     .filter((post) => post.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
-  const isItmyAccount = userAccount?.username === "Amir_Aryan"
 
   const handleCloseCreatePostModal = () => {
     setOpenCreatePostModal(false)

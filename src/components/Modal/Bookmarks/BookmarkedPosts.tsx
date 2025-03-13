@@ -1,12 +1,12 @@
 import { Post } from "@/components/Post/Post"
 import { useAppSelector } from "@/features/Message/messagesSlice"
 import { EmptyPage } from "@/pages"
-import { cn } from "@/utils"
-import { isEmpty } from "lodash"
+import { cn, getCurrentUsername, isEmpty } from "@/utils"
 
 export const BookmarkedPosts = () => {
+  const currentUsername = getCurrentUsername()
   const myUsername = useAppSelector((state) => state.users).find(
-    (user) => user.username === "Amir_Aryan"
+    (user) => user.username === currentUsername
   )!
 
   const bookmarkedPosts = myUsername?.bookmarks.posts

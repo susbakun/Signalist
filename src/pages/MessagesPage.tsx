@@ -1,12 +1,14 @@
 import { MessageRooms } from "@/components"
 import { useAppSelector } from "@/features/Message/messagesSlice"
+import { getCurrentUsername } from "@/utils"
 import { useEffect, useState } from "react"
 import { Outlet, useParams } from "react-router-dom"
 
 export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | string>(null)
 
-  const myMessages = useAppSelector((state) => state.messages["Amir_Aryan"])
+  const currentUsername = getCurrentUsername()
+  const myMessages = useAppSelector((state) => state.messages)[currentUsername]
 
   const { id } = useParams()
 
