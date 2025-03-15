@@ -3,18 +3,18 @@ import { MdOutlineFileUpload } from "react-icons/md"
 import { RiErrorWarningLine } from "react-icons/ri"
 
 type SignalModalFileInputProps = {
+  selectedImage?: File
   handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
   handleCancelSelectImage: () => void
 }
 
 export const SignalModalFileInput = ({
+  selectedImage,
   handleChangeImage,
   handleCancelSelectImage
 }: SignalModalFileInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-
-  const file = inputRef.current?.files?.[0]
 
   const handleResetInput = () => {
     setImagePreview(null)
@@ -22,14 +22,16 @@ export const SignalModalFileInput = ({
   }
 
   useEffect(() => {
-    if (inputRef.current && inputRef.current.files) {
+    if (selectedImage) {
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
       }
-      if (file) reader.readAsDataURL(file)
+      reader.readAsDataURL(selectedImage)
+    } else {
+      setImagePreview(null)
     }
-  }, [file])
+  }, [selectedImage])
 
   return (
     <div className="flex flex-col gap-4 mb-3">
@@ -49,32 +51,24 @@ export const SignalModalFileInput = ({
           className="hidden"
           onChange={handleChangeImage}
         />
-        <div>
-          <button
-            className="px-2 py-2 text-sm action-button text-white rounded-lg
+        <button
+          onClick={() => inputRef.current?.click()}
+          className="px-2 py-2 text-sm action-button text-white rounded-lg
           dark:bg-dark-link-button flex items-center text-nowrap
-          bg-primary-link-button"
-            onClick={() => inputRef.current?.click()}
-          >
-            <MdOutlineFileUpload className="w-4 h-4 mr-2" />
-            <span>Upload Image</span>
-          </button>
-        </div>
-        {inputRef.current && imagePreview && (
-          <div className="flex items-center gap-2 -translate-y-2">
-            <div
-              className="text-xs text-black-20 gap-1
-            dark:text-white/50 justify-center flex max-w-min flex-col"
+          bg-primary-link-button font-bold"
+        >
+          <MdOutlineFileUpload className="h-5 w-5" />
+          Upload Image
+        </button>
+        {imagePreview && (
+          <div className="relative">
+            <img src={imagePreview} alt="Preview" className="h-12 w-12 rounded-md object-cover" />
+            <button
+              onClick={handleResetInput}
+              className="absolute -top-2 -right-2 bg-red-500 text-white h-5 w-5
+            rounded-full text-xs flex items-center justify-center"
             >
-              <p className="w-fit">{inputRef.current.files![0].name}</p>
-              <img
-                src={imagePreview}
-                alt="Image Preview"
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-            <button onClick={handleResetInput} className="action-button pt-[20%]">
-              &#x2715;
+              x
             </button>
           </div>
         )}

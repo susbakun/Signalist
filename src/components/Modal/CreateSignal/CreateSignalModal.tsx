@@ -18,7 +18,7 @@ import { CoinType, SignalAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
 import { Label, Modal } from "flowbite-react"
-import { ChangeEvent, useEffect, useMemo, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
 import { v4 } from "uuid"
 
@@ -44,6 +44,20 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [isPremium, setIsPremium] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<{
+    entry: string;
+    stoploss: string;
+    openTime: string;
+    closeTime: string;
+    targets: string;
+  }>({
+    entry: '',
+    stoploss: '',
+    openTime: '',
+    closeTime: '',
+    targets: ''
+  })
+  const [formTouched, setFormTouched] = useState(false)
 
   const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
   const dispatch = useDispatch()
@@ -71,6 +85,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const handleAddTarget = () => {
+    setFormTouched(true)
     setTargetList((prev) => [...prev, { id: v4(), value: 0, touched: undefined }])
   }
 
@@ -95,6 +110,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const handleTargetValueChange = (e: ChangeEvent<HTMLInputElement>, targetId: string) => {
+    setFormTouched(true)
     setTargetList((prev) => {
       return prev.map((target) => {
         if (target.id === targetId) {
@@ -116,9 +132,26 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setShowChart(false)
     setPostButtonDisabled(false)
     setSelectedMarket({ name: "BTC", uuid: "Qwsogvtv82FCd" })
+    setValidationErrors({
+      entry: '',
+      stoploss: '',
+      openTime: '',
+      closeTime: '',
+      targets: ''
+    })
+    setFormTouched(false)
   }
 
   const handleCreateSignal = async () => {
+    setFormTouched(true)
+    
+    // Validate before proceeding
+    const isValid = validateSignalData()
+    if (!isValid) {
+      console.error('Validation failed:', validationErrors)
+      return
+    }
+    
     setPostButtonDisabled(true)
     const chartImageId = await handleSendImage(selectedImage)
     dispatch(
@@ -140,18 +173,22 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }
 
   const handleOpenTimeChange = (date: Date) => {
+    setFormTouched(true)
     setOpenTime(date)
   }
 
   const handleCloseTimeChange = (date: Date) => {
+    setFormTouched(true)
     setCloseTime(date)
   }
 
   const handleEntryValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFormTouched(true)
     setEntryValue(parseFloat(e.target.value))
   }
 
   const handleStoplossValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFormTouched(true)
     setStoplossValue(parseFloat(e.target.value))
   }
 
@@ -201,6 +238,66 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     }
   }, [cryptosList])
 
+  // Validate all signal parameters
+  const validateSignalData = useCallback(() => {
+    const newErrors = {
+      entry: '',
+      stoploss: '',
+      openTime: '',
+      closeTime: '',
+      targets: ''
+    }
+    
+    // Entry validation
+    if (entryValue <= 0) {
+      newErrors.entry = 'Entry value must be greater than 0'
+    }
+    
+    // Stoploss validation
+    if (stoplossValue <= 0) {
+      newErrors.stoploss = 'Stoploss value must be greater than 0'
+    } else if (stoplossValue >= entryValue) {
+      newErrors.stoploss = 'Stoploss must be less than entry'
+    }
+    
+    // Time validation
+    const now = new Date().getTime()
+    if (openTime.getTime() < now) {
+      newErrors.openTime = 'Open time cannot be in the past'
+    }
+    
+    if (closeTime.getTime() <= openTime.getTime()) {
+      newErrors.closeTime = 'Close time must be after open time'
+    }
+    
+    // Targets validation
+    if (targetList.length === 0) {
+      newErrors.targets = 'At least one target is required'
+    } else {
+      const invalidTargets = targetList.filter(target => target.value <= 0 || target.value <= entryValue)
+      if (invalidTargets.length > 0) {
+        newErrors.targets = 'All targets must be greater than 0 and the entry value'
+      }
+    }
+    
+    setValidationErrors(newErrors)
+    
+    // Check if there are any errors
+    return Object.values(newErrors).every(error => error === '')
+  }, [entryValue, stoplossValue, openTime, closeTime, targetList])
+
+  // Run validation whenever relevant values change
+  useEffect(() => {
+    if (formTouched) {
+      validateSignalData()
+    }
+  }, [validateSignalData, formTouched])
+
+  const isFormValid = useMemo(() => {
+    if (!formTouched) return false
+    return validateSignalData()
+  }, [formTouched, validateSignalData])
+
   return (
     <Modal className="pl-9 custom-modal" size="5xl" show={openModal} onClose={resetForm}>
       <Modal.Header className="border-none pr-1 py-2" />
@@ -243,6 +340,8 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                       key={target.id}
                       target={target}
                       index={index}
+                      entryValue={entryValue}
+                      previousTargetValue={index > 0 ? targetList[index - 1].value : undefined}
                       handleRemoveTarget={handleRemoveTarget}
                       handleTargetValueChange={handleTargetValueChange}
                     />
@@ -259,14 +358,16 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                     handleDescriptionChange={handleDescriptionChange}
                   />
                   <SignalModalFileInput
+                    selectedImage={selectedImage}
                     handleChangeImage={handleChangeImage}
                     handleCancelSelectImage={handleCancelSelectImage}
                   />
                   <SignalModalFooter
-                    postButtonDisabled={postButtonDisabled}
                     isPremium={isPremium}
                     handlePremiumToggle={handlePremiumToggle}
                     handleCreateSignal={handleCreateSignal}
+                    postButtonDisabled={postButtonDisabled || !isFormValid}
+                    isPosting={postButtonDisabled}
                   />
                 </div>
               </div>

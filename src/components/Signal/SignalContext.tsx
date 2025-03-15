@@ -31,7 +31,6 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const currentUsername = getCurrentUsername()
 
-  console.log(publisher.username, currentUsername)
 
   const client = new Client()
   const storage = new Storage(client)
