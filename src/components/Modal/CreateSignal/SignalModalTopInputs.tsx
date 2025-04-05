@@ -60,7 +60,9 @@ export const SignalModalTopInputs = ({
       <div className="flex flex-col w-full max-w-md gap-4">
         <div className="flex flex-col w-full">
           <div className="flex items-center">
-            <span className="font-semibold mr-2 text-sm md:text-base min-w-[80px]">Entry:</span>
+            <span className="font-semibold md:mr-2 text-sm md:text-base w-[70px] sm:w-[80px]">
+              Entry:
+            </span>
             <input
               value={entryValue}
               name="entry"
@@ -71,7 +73,7 @@ export const SignalModalTopInputs = ({
               className={`signal-market-selector flex-1 ${touched.entry && errors.entry ? "border-red-500" : ""}`}
               type="number"
             />
-            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base min-w-[40px]">
+            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base w-[40px]">
               USD
             </span>
           </div>
@@ -81,7 +83,9 @@ export const SignalModalTopInputs = ({
         </div>
         <div className="flex flex-col w-full">
           <div className="flex items-center">
-            <span className="font-semibold mr-2 text-sm md:text-base min-w-[80px]">Stoploss:</span>
+            <span className="font-semibold mr-0 md:mr-2 text-sm md:text-base w-[70px] sm:w-[80px]">
+              Stoploss:
+            </span>
             <input
               value={stoplossValue}
               name="stoploss"
@@ -92,7 +96,7 @@ export const SignalModalTopInputs = ({
               className={`signal-market-selector flex-1 ${touched.stoploss && errors.stoploss ? "border-red-500" : ""}`}
               type="number"
             />
-            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base min-w-[40px]">
+            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base w-[40px]">
               USD
             </span>
           </div>
