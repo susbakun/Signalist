@@ -120,12 +120,12 @@ export const WatchList = () => {
           <div className="md:hidden grid grid-cols-2 gap-4">
             {cryptos.map((crypto) => (
               <div key={crypto.uuid} className="bg-white dark:bg-gray-800 p-4 rounded-md">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center px-1">
                   <div className="flex items-center gap-2">
                     <img className="w-6 h-6" src={crypto.iconUrl} alt={crypto.name} />
-                    <span>{crypto.symbol}/USD</span>
+                    <span className="text-sm truncate max-w-[80px]">{crypto.symbol}/USD</span>
                   </div>
-                  <button onClick={() => handleRemoveFromWatchList(crypto.uuid)}>
+                  <button onClick={() => handleRemoveFromWatchList(crypto.uuid)} className="ml-2">
                     <IoTrashOutline className="w-5 h-5 text-red-500" />
                   </button>
                 </div>

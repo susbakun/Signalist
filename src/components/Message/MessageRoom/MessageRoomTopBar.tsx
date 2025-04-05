@@ -80,17 +80,17 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
   return (
     <>
       <div
-        className="bg-gray-200/80 dark:bg-gray-800 py-2 px-6 sticky top-0 w-full
+        className="bg-gray-200/80 dark:bg-gray-800 py-1.5 sm:py-2 px-3 sm:px-6 sticky top-0 w-full
         flex justify-between items-center"
       >
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
           <button
             onClick={onBack}
             className="md:hidden text-gray-600 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -108,11 +108,11 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
               ? getProperAvatar(placeholder, undefined, myMessages.groupInfo)
               : getProperAvatar(placeholder, myMessages.userInfo, undefined)}
           </div>
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate max-w-[150px] sm:max-w-[200px] md:max-w-none">
             {isGroup ? myMessages.groupInfo.groupName : myMessages.userInfo.name}
           </h2>
         </div>
-        <div className="flex items-center gap-6 md:gap-10">
+        <div className="flex items-center gap-4 md:gap-10">
           {isGroup && (
             <Tippy
               content="group info"
@@ -127,7 +127,7 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
               hideOnClick={true}
             >
               <button onClick={handleOpenGroupInfoModal} className="action-button">
-                <GoInfo className="w-7 h-7" />
+                <GoInfo className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
               </button>
             </Tippy>
           )}
@@ -144,7 +144,7 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
             hideOnClick={true}
           >
             <button className="action-button">
-              <IoCallOutline className="w-7 h-7" />
+              <IoCallOutline className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
             </button>
           </Tippy>
           <Tippy
@@ -160,7 +160,7 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
             hideOnClick={true}
           >
             <button className="action-button">
-              <BsCameraVideo className="w-7 h-7" />
+              <BsCameraVideo className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
             </button>
           </Tippy>
         </div>
