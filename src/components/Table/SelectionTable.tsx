@@ -1,9 +1,9 @@
-import { CryptoResponseType } from '@/shared/models'
-import { CoinType } from '@/shared/types'
-import { Table } from 'flowbite-react'
+import { CryptoResponseType } from "@/shared/models"
+import { CoinType } from "@/shared/types"
+import { Table } from "flowbite-react"
 
 type SelctionTableProps = {
-  notSelectedMarkets: CryptoResponseType['data']['coins']
+  notSelectedMarkets: CryptoResponseType["data"]["coins"]
   selectMarket: (coin: CoinType) => void
 }
 
@@ -22,21 +22,25 @@ export const SelectionTable = ({ notSelectedMarkets, selectMarket }: SelctionTab
       <Table.Body className="divide-y">
         {notSelectedMarkets.map((crypto, index) => (
           <Table.Row key={crypto.uuid} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-            <Table.Cell>{index + 1}</Table.Cell>
-            <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white">
-              <div className="flex items-center gap-[6px]">
-                <img className="w-6 h-6 inline-block" src={crypto.iconUrl} alt={crypto.name} />{' '}
-                <div className="flex gap-[2px]">
+            <Table.Cell className="py-2 sm:py-4 text-sm sm:text-base">{index + 1}</Table.Cell>
+            <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white py-2 sm:py-4">
+              <div className="flex items-center gap-[4px] sm:gap-[6px]">
+                <img
+                  className="w-5 h-5 sm:w-6 sm:h-6 inline-block"
+                  src={crypto.iconUrl}
+                  alt={crypto.name}
+                />
+                <div className="flex gap-[2px] text-sm sm:text-base">
                   <span>{crypto.symbol}</span>
                   <span className="detail-text">/USD</span>
                 </div>
               </div>
             </Table.Cell>
-            <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white">
+            <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white py-2 sm:py-4">
               <button
                 className="text-white transition-all duration-150 ease-out hover:opacity-60 rounded-lg 
-                px-2 py-1 bg-dark-link-button
-              dark:bg-dark-link-button"
+                px-2 py-1 text-sm sm:text-base bg-dark-link-button
+                dark:bg-dark-link-button"
                 onClick={() => selectMarket(crypto)}
               >
                 Add Market

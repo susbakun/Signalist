@@ -46,28 +46,30 @@ export const MarketSelectionDrawer = ({
 
   return (
     <Drawer
-      className="w-[400px] custom-drawer"
+      className="w-full sm:w-[400px] custom-drawer"
       open={isOpen}
       onClose={closeDrawer}
       position="right"
     >
       <Drawer.Header titleIcon={FaChartLine} title="Markets" />
       <Drawer.Items>
-        <div className="px-4 mb-4">
+        <div className="px-2 sm:px-4 mb-4">
           <input
             value={searchTerm}
             autoFocus
             onChange={handleSearch}
-            className="custom-input w-full pl-4 inline-block"
+            className="custom-input w-full pl-2 sm:pl-4 inline-block text-sm sm:text-base py-2"
             placeholder="Search"
           />
         </div>
         {!notSelectedMarkets.length ? (
-          <EmptyPage className="flex justify-center items-center h-[80vh]">
-            <h3 className="font-normal">No markets found!</h3>
+          <EmptyPage className="flex justify-center items-center h-[60vh] sm:h-[80vh]">
+            <h3 className="font-normal text-sm sm:text-base">No markets found!</h3>
           </EmptyPage>
         ) : (
-          <SelectionTable selectMarket={selectMarket} notSelectedMarkets={notSelectedMarkets} />
+          <div className="px-2 sm:px-0">
+            <SelectionTable selectMarket={selectMarket} notSelectedMarkets={notSelectedMarkets} />
+          </div>
         )}
       </Drawer.Items>
     </Drawer>
