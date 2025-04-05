@@ -1,7 +1,7 @@
-import { AccountModel } from '@/shared/models'
-import { FaUserAlt } from 'react-icons/fa'
-import { HiIdentification } from 'react-icons/hi'
-import { IoMail } from 'react-icons/io5'
+import { AccountModel } from "@/shared/models"
+import { FaUserAlt } from "react-icons/fa"
+import { HiIdentification } from "react-icons/hi"
+import { IoMail } from "react-icons/io5"
 
 type UserInfoProps = {
   userAccount: AccountModel
@@ -10,32 +10,34 @@ type UserInfoProps = {
 
 export const UserInfo = ({ userAccount, handleShareEmail }: UserInfoProps) => {
   return (
-    <div className="flex flex-col gap-2 font-sans">
-      <div className="flex items-center gap-2">
-        <span className="flex items-center gap-1">
+    <div className="flex flex-col gap-3 md:gap-2 font-sans p-2 md:p-0">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="flex items-center gap-1 min-w-[24px]">
           <HiIdentification className="w-5 h-5" />:
         </span>
-        {userAccount.name}
+        <span className="break-all">{userAccount.name}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="flex items-center gap-1 min-w-[24px]">
           <FaUserAlt className="w-4 h-4" />:
         </span>
-        @{userAccount.username}
+        <span className="break-all">@{userAccount.username}</span>
       </div>
-      <div className="flex items-center gap-1">
-        <IoMail className="w-4 h-4" />:
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="flex items-center gap-1 min-w-[24px]">
+          <IoMail className="w-4 h-4" />:
+        </span>
         <button
-          className="text-primary-link-button action-button
-              dark:text-dark-link-button ml-1"
+          className="text-primary-link-button action-button break-all
+              dark:text-dark-link-button"
           onClick={handleShareEmail}
         >
           {userAccount.email}
         </button>
       </div>
       {userAccount.bio && (
-        <div>
-          <p>{userAccount.bio}</p>
+        <div className="mt-2">
+          <p className="whitespace-pre-wrap break-words text-sm md:text-base">{userAccount.bio}</p>
         </div>
       )}
     </div>

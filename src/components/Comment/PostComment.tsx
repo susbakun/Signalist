@@ -17,9 +17,12 @@ export const PostComment = ({
 }: PostCommentProps) => {
   return (
     <div
-      className={cn("border-b dark:border-b-white/20 pb-3 pl-4 pr-6 flex flex-col gap-2", {
-        "border-none": isLastComment
-      })}
+      className={cn(
+        "border-b dark:border-b-white/20 pb-3 px-3 md:pl-4 md:pr-6 flex flex-col gap-2",
+        {
+          "border-none": isLastComment
+        }
+      )}
     >
       <CommentTopBar postId={postId} commentId={commentId} user={publisher} date={date} />
       <CommentBody body={body} />

@@ -1,6 +1,6 @@
-import Tippy from '@tippyjs/react'
-import { GoPlusCircle } from 'react-icons/go'
-import { roundArrow } from 'tippy.js'
+import Tippy from "@tippyjs/react"
+import { GoPlusCircle } from "react-icons/go"
+import { roundArrow } from "tippy.js"
 
 type CreatePostButtonProps = {
   handleOpenModal: () => void
@@ -22,7 +22,7 @@ export const CreatePostButton = ({ handleOpenModal }: CreatePostButtonProps) => 
       <button
         onClick={handleOpenModal}
         className="main-button transition-all duration-100 ease-out fixed
-        right-4 bottom-4 px-4 py-4 rounded-full"
+        right-4 bottom-20 md:bottom-4 px-4 py-4 rounded-full"
       >
         <GoPlusCircle className="w-6 h-6" />
       </button>

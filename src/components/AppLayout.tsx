@@ -39,19 +39,21 @@ export const AppSideBar = () => {
   const isInMessages = messagesRouteRegExp.test(location.pathname)
 
   return (
-    <aside
-      className={cn("main-sidebar sticky top-0 w-[25%]", {
-        "w-fit": isInMessages
-      })}
-    >
-      {!isInMessages && (
-        <>
-          <Header />
-          <AccountPreview />
-        </>
-      )}
-      <Navbar />
-    </aside>
+    <div className={cn("hidden md:block w-[25%]", { "w-fit": isInMessages })}>
+      <aside
+        className={cn("main-sidebar sticky top-0 w-full", {
+          "w-fit": isInMessages
+        })}
+      >
+        {!isInMessages && (
+          <>
+            <Header />
+            <AccountPreview />
+          </>
+        )}
+        <Navbar />
+      </aside>
+    </div>
   )
 }
 
@@ -59,7 +61,7 @@ export const AppContent = () => {
   return (
     <div
       className="flex-1 border-l border-l-gray-600/20
-    dark:border-l-white/20"
+    dark:border-l-white/20 pb-10 md:pb-0"
     >
       <Routes>
         <Route path="/" element={<HomePage />} />

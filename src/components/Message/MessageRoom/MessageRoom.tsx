@@ -10,6 +10,7 @@ import { useOutletContext, useParams } from "react-router-dom"
 
 type MessageRoomOutletType = {
   myMessages: MessageModel["username"]["roomId"]
+  onBack: () => void
 }
 
 export const MessageRoom = () => {
@@ -22,7 +23,7 @@ export const MessageRoom = () => {
   const myAccount = useAppSelector((state) => state.users).find(
     (user) => user.username === currentUsername
   )
-  const { myMessages } = useOutletContext<MessageRoomOutletType>()
+  const { myMessages, onBack } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch()
   const { id } = useParams()
 
@@ -75,24 +76,30 @@ export const MessageRoom = () => {
   }
 
   return (
-    <>
-      <MessageRoomTopBar myMessages={myMessages} />
-      <MessageRoomMessages
-        isGroup={myMessages.isGroup}
-        messages={myMessages.messages}
-        handleBlurEmojiPicker={handleBlurEmojiPicker}
-      />
-      <MessageRoomInput
-        messageText={messageText}
-        isEmojiPickerOpen={isEmojiPickerOpen}
-        selectedImage={selectedImage}
-        handleChangeMessageText={handleChangeMessageText}
-        handleSelectEmoji={handleSelectEmoji}
-        handleSendMessage={handleSendMessage}
-        handleToggleEmojiPicker={handleToggleEmojiPicker}
-        handleChangeImage={handleChangeImage}
-        isMessageSending={isMessageSending}
-      />
-    </>
+    <div className="flex flex-col h-screen fixed md:sticky right-0 top-0 inset-0 bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 z-10 bg-gray-100 dark:bg-gray-900">
+        <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
+      </div>
+      <div className="flex-1 overflow-y-auto mt-16 mb-24 pb-4">
+        <MessageRoomMessages
+          isGroup={myMessages.isGroup}
+          messages={myMessages.messages}
+          handleBlurEmojiPicker={handleBlurEmojiPicker}
+        />
+      </div>
+      <div className="absolute bottom-16 md:bottom-4 left-0 right-0 z-10 bg-gray-100 dark:bg-gray-900">
+        <MessageRoomInput
+          messageText={messageText}
+          isEmojiPickerOpen={isEmojiPickerOpen}
+          selectedImage={selectedImage}
+          handleChangeMessageText={handleChangeMessageText}
+          handleSelectEmoji={handleSelectEmoji}
+          handleSendMessage={handleSendMessage}
+          handleToggleEmojiPicker={handleToggleEmojiPicker}
+          handleChangeImage={handleChangeImage}
+          isMessageSending={isMessageSending}
+        />
+      </div>
+    </div>
   )
 }

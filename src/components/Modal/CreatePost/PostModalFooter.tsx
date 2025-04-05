@@ -22,11 +22,11 @@ export const PostModalFooter = ({
   hanldeCreatePost
 }: PostModalFooterProps) => {
   return (
-    <div className="flex justify-between px-2 py-2">
-      <div className="flex items-center gap-2">
+    <div className="flex justify-between px-2 py-2 mobile:px-1 mobile:py-1">
+      <div className="flex items-center gap-2 mobile:gap-1">
         <MediaOptionsButton handleChangeImage={handleChangeImage} />
         <label className={cn("flex items-center gap-1", { dark: isDarkMode() })}>
-          <span>Premium</span>
+          <span className="mobile:text-sm">Premium</span>
           <Toggle onChange={handleTogglePremium} defaultChecked={isPremium} icons={false} />
         </label>
       </div>
@@ -35,8 +35,8 @@ export const PostModalFooter = ({
         onClick={hanldeCreatePost}
         className="action-button text-white
         font-bold disabled:opacity-30
-        px-[10px] py-1 rounded-lg flex items-center gap-2
-        dark:bg-dark-link-button bg-primary-link-button"
+        px-[10px] py-1 mobile:px-2 rounded-lg flex items-center gap-2
+        dark:bg-dark-link-button bg-primary-link-button mobile:text-sm"
       >
         {isPostSending && <Spinner color="success" size="md" />}
         Post

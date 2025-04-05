@@ -19,7 +19,7 @@ export const ImagePreview = ({ imagePreview, rounded, handleResetInput }: ImageP
             <img
               src={imagePreview}
               alt="Image Preview"
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-lg mobile:max-h-[150px]"
             />
           )}
           <Tippy

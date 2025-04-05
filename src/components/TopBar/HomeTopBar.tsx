@@ -3,7 +3,7 @@ import { FaRegBell } from "react-icons/fa"
 
 export const HomeTopBar = () => {
   return (
-    <div className="flex items-center mb-2 px-2">
+    <div className="flex items-center mb-2 px-2 md:hidden">
       <Popover
         aria-labelledby="notifications"
         content={

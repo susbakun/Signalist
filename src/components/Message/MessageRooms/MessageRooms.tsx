@@ -69,8 +69,8 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
   return (
     <>
       <div
-        className="xl:w-[25%] lg:w-[30%] bg-gray-200/80
-        dark:bg-gray-800 p-4 overflow-y-auto"
+        className="h-full bg-gray-200/80
+        dark:bg-gray-800 p-6 overflow-y-auto"
       >
         <MessageRoomsTopBar
           handleOpenCreateGroupModal={handleOpenCreateGroupModal}

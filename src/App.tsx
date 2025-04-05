@@ -1,5 +1,13 @@
-import { AppContent, AppSideBar, AuthLayout, ProtectedRoute, RootLayout } from "@/components"
+import {
+  AppContent,
+  AppSideBar,
+  AuthLayout,
+  MobileNavbar,
+  ProtectedRoute,
+  RootLayout
+} from "@/components"
 import { LoginPage, SignUpPage } from "@/pages"
+import { UserPage } from "@/pages/UserPage"
 import { STORAGE_KEYS } from "@/shared/constants"
 import { toggleThemeMode } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
@@ -20,25 +28,23 @@ function App() {
 
   return (
     <Routes>
-      {/* Auth routes */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignUpPage />} />
-        {/* Add more auth routes like forgot-password here */}
       </Route>
-
-      {/* Protected app routes */}
       <Route
         element={
           <ProtectedRoute>
             <RootLayout className="flex">
               <AppSideBar />
               <AppContent />
+              <MobileNavbar />
             </RootLayout>
           </ProtectedRoute>
         }
         path="/*"
       />
+      <Route path="/profile" element={<UserPage />} />
     </Routes>
   )
 }

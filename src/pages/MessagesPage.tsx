@@ -19,20 +19,24 @@ export const MessagesPage = () => {
   }, [id])
 
   return (
-    <div
-      className="flex h-screen bg-primary-main dark:bg-[#101827] text-gray-600
-    dark:text-gray-100"
-    >
-      <MessageRooms myMessages={myMessages} />
-      <div className="xl:w-[75%] lg:w-[70%] bg-gray-100 dark:bg-gray-900 flex flex-col">
+    <div className="flex h-screen bg-primary-main dark:bg-[#101827] text-gray-600 dark:text-gray-100">
+      <div
+        className={`${selectedChat ? "hidden md:block" : "block"} md:w-[35%] lg:w-[30%] xl:w-[25%] w-full h-full overflow-y-auto border-r border-gray-200 dark:border-gray-700`}
+      >
+        <MessageRooms myMessages={myMessages} />
+      </div>
+      <div
+        className={`bg-gray-100 dark:bg-gray-900 flex flex-col ${selectedChat ? "block" : "hidden"} md:block md:w-[65%] lg:w-[70%] xl:w-[75%] w-full max-h-full overflow-y-hidden`}
+      >
         {selectedChat ? (
           <Outlet
             context={{
-              myMessages: myMessages[selectedChat]
+              myMessages: myMessages[selectedChat],
+              onBack: () => setSelectedChat(null)
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
+          <div className="hidden md:flex items-center justify-center h-full">
             <p className="text-gray-400">Select a chat to start messaging</p>
           </div>
         )}

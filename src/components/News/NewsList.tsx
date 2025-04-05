@@ -77,7 +77,7 @@ export const NewsList = () => {
           <HiArrowNarrowRight className="w-7 h-7" />
         </Link>
       </div>
-      <ul className="flex flex-col gap-8">
+      <ul className="flex flex-col gap-8 md:gap-4">
         {newsList.map((article) => (
           <NewsPreview
             key={article.url}
@@ -113,7 +113,7 @@ export const NewsList = () => {
           {
             "translate-x-20": !isVisible
           },
-          "right-4 bottom-4 px-4 py-4 rounded-full"
+          "right-4 bottom-20 md:right-4 md:bottom-4 px-4 py-4 rounded-full"
         )}
       >
         <FaArrowUp />

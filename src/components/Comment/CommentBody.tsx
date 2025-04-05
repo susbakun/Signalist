@@ -1,9 +1,9 @@
-import { CommentModel } from '@/shared/models'
+import { CommentModel } from "@/shared/models"
 
-export const CommentBody = ({ body }: { body: CommentModel['body'] }) => {
+export const CommentBody = ({ body }: { body: CommentModel["body"] }) => {
   return (
-    <div className="translate-x-1">
-      <p>{body}</p>
+    <div className="md:translate-x-1">
+      <p className="text-sm md:text-base">{body}</p>
     </div>
   )
 }

@@ -13,9 +13,10 @@ import { roundArrow } from "tippy.js"
 
 type MessageRoomTopBarProps = {
   myMessages: MessageModel["username"]["roomId"]
+  onBack: () => void
 }
 
-export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
+export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps) => {
   const { getProperAvatar } = useUserMessageRoom()
   const [enlarged, setEnlarged] = useState(false)
   const [groupImageHref, setGroupImageHref] = useState("")
@@ -82,7 +83,26 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
         className="bg-gray-200/80 dark:bg-gray-800 py-2 px-6 sticky top-0 w-full
         flex justify-between items-center"
       >
-        <div className="flex items-center">
+        <div className="flex items-center gap-2 md:gap-4">
+          <button
+            onClick={onBack}
+            className="md:hidden text-gray-600 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-300"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
           <div className="cursor-pointer" onClick={handleImageEnlarge}>
             {isGroup
               ? getProperAvatar(placeholder, undefined, myMessages.groupInfo)
@@ -92,7 +112,7 @@ export const MessageRoomTopBar = ({ myMessages }: MessageRoomTopBarProps) => {
             {isGroup ? myMessages.groupInfo.groupName : myMessages.userInfo.name}
           </h2>
         </div>
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-6 md:gap-10">
           {isGroup && (
             <Tippy
               content="group info"

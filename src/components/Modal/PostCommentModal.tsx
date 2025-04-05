@@ -28,13 +28,13 @@ export const PostCommentModal = ({
     <Modal size="3xl" show={openModal} onClose={handleCloseCommentsModal}>
       <Modal.Header className="border-none pb-0" />
       <Modal.Body
-        className="flex py-0 px-0 mb-0 max-h-[60vh]
+        className="flex flex-col md:flex-row py-0 px-0 mb-0 max-h-[60vh]
         overflow-y-auto custom-modal"
       >
         <div
-          className="pl-6 pr-4 pb-6 flex w-[50%] border-r
+          className="pl-4 md:pl-6 pr-4 pb-6 flex w-full md:w-[50%] md:border-r
         border-r-gray-600/20 dark:border-r-white/20
-          flex-col gap-4 sticky top-0"
+          flex-col gap-4 md:sticky top-0"
         >
           <PostTopBar
             handleOpenEditPostModal={handleOpenEditPostModal}
@@ -49,7 +49,7 @@ export const PostCommentModal = ({
           />
           <PostFooter simplified={true} post={post} />
         </div>
-        <div className="w-[50%] flex flex-col gap-4 relative">
+        <div className="w-full md:w-[50%] flex flex-col gap-4 relative border-t md:border-t-0 border-t-gray-600/20 dark:border-t-white/20 pt-4 md:pt-0">
           {sortedComments &&
             sortedComments.map((comment, index) => (
               <PostComment

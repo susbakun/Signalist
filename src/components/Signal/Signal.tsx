@@ -62,7 +62,7 @@ export const Signal = ({ signal, className }: SignalProps) => {
   return (
     <div
       className={twMerge(
-        "flex flex-col gap-8 px-4 py-6 border-b",
+        "flex flex-col gap-4 md:gap-8 px-3 md:px-4 py-4 md:py-6 border-b",
         "border-b-gray-600/20 dark:border-b-white/20",
         className
       )}

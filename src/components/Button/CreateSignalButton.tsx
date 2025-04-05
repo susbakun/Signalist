@@ -1,6 +1,6 @@
-import Tippy from '@tippyjs/react'
-import { HiMiniSignal } from 'react-icons/hi2'
-import { roundArrow } from 'tippy.js'
+import Tippy from "@tippyjs/react"
+import { HiMiniSignal } from "react-icons/hi2"
+import { roundArrow } from "tippy.js"
 
 type CreateSignalButtonProps = {
   handleOpenModal: () => void
@@ -22,7 +22,7 @@ export const CreateSignalButton = ({ handleOpenModal }: CreateSignalButtonProps)
       <button
         onClick={handleOpenModal}
         className="main-button transition-all duration-100 ease-out fixed
-        right-4 bottom-4 px-4 py-4 rounded-full"
+        bottom-20 right-4 md:bottom-4 px-4 py-4 rounded-full"
       >
         <HiMiniSignal className="w-6 h-6" />
       </button>

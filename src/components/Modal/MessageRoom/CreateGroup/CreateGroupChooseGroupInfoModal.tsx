@@ -78,8 +78,10 @@ export const CreateGroupChooseGroupInfoModal = ({
               className="text-md flex items-center font-normal gap-1 text-black-20
             dark:text-white/50"
             >
-              <RiErrorWarningLine className="w-5 h-5" />
-              Choose group image profile
+              <div className="flex gap-3 md:gap-2 items-center">
+                <RiErrorWarningLine className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                <p className="pt-2 md:pt-0">Choose group image profile</p>
+              </div>
             </div>
             <input
               ref={inputRef}
@@ -92,7 +94,7 @@ export const CreateGroupChooseGroupInfoModal = ({
               <button
                 className="px-2 py-2 text-sm action-button text-white rounded-lg
               dark:bg-dark-link-button flex items-center text-nowrap
-              bg-primary-link-button"
+              bg-primary-link-button font-bold"
                 onClick={() => inputRef.current?.click()}
               >
                 <MdOutlineFileUpload className="w-4 h-4 mr-2" />

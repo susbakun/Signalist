@@ -109,10 +109,10 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
 
   return (
     <Modal size="xl" show={openModal} onClose={handleCloseModal}>
-      <Modal.Header className="border-none pr-1 py-2" />
+      <Modal.Header className="border-none pr-1 py-2 mobile:py-1" />
       <Modal.Body
         className="flex overflow-y-auto
-        flex-col gap-2 py-0 mb-0 px-2 custom-modal"
+        flex-col gap-2 py-0 mb-0 px-2 mobile:px-1 custom-modal"
       >
         <PostTextArea
           postText={postText}

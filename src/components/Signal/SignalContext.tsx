@@ -31,7 +31,6 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const currentUsername = getCurrentUsername()
 
-
   const client = new Client()
   const storage = new Storage(client)
   client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
@@ -142,7 +141,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
                     "opacity-0 h-0": isImageLoading
                   }
                 )}
-                src={chartHref}
+                src={signal.chartImageId}
                 alt="Chart"
                 onLoad={handleImageLoaded}
                 onError={handleImageLoaded}
@@ -157,12 +156,16 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
               <div className="flex items-center">
                 <span className="font-semibold mr-2">Entry:</span>
                 <span>{signal.entry}</span>
-                <span className="ml-1 text-gray-500 dark:text-gray-400">{marketScale}</span>
+                <span className="ml-1 text-gray-500 dark:text-gray-400 text-sm md:text-base">
+                  {marketScale}
+                </span>
               </div>
               <div className="flex items-center">
                 <span className="font-semibold mr-2">Stoploss:</span>
                 <span>{signal.stoploss}</span>
-                <span className="ml-1 text-gray-500 dark:text-gray-400">{marketScale}</span>
+                <span className="ml-1 text-gray-500 dark:text-gray-400 text-sm md:text-base">
+                  {marketScale}
+                </span>
               </div>
             </div>
             <ul className="mt-8 flex flex-col gap-6">
@@ -177,7 +180,9 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
                     w-fit pl-2 h-fit flex items-center overflow-y-hidden"
                     >
                       <span>{target.value}</span>
-                      <span className="ml-1 text-gray-500 dark:text-gray-400">{marketScale}</span>
+                      <span className="ml-1 text-gray-500 dark:text-gray-400 text-sm md:text-base">
+                        {marketScale}
+                      </span>
                       <button
                         onClick={() => handleCopyTargetValue(target, index)}
                         className="ml-2 bg-gray-600/10

@@ -24,46 +24,46 @@ export const Navbar = () => {
   }
 
   return (
-    <nav className={cn("flex flex-col gap-4 pr-4", { "pr-2 pt-8": isInMessages })}>
+    <nav className={cn("flex flex-col gap-4 pr-4 w-full", { "pr-2 pt-8": isInMessages })}>
       <NavLink className="link-button" to="/">
         {getIcon(
           /^\/$/,
-          <IoHome className="w-full button-icon" />,
-          <IoHomeOutline className="w-full button-icon" />
+          <IoHome className="w-6 h-6 button-icon" />,
+          <IoHomeOutline className="w-6 h-6 button-icon" />
         )}
-        {!isInMessages && <span>Home</span>}
+        {!isInMessages && <span className="font-medium">Home</span>}
       </NavLink>
       <NavLink className="link-button" to="/explore">
         {getIcon(
           /^\/explore*/,
-          <BiSolidSearch className="w-full button-icon" />,
-          <IoSearchOutline className="w-full button-icon" />
+          <BiSolidSearch className="w-6 h-6 button-icon" />,
+          <IoSearchOutline className="w-6 h-6 button-icon" />
         )}
-        {!isInMessages && <span>Explore</span>}
+        {!isInMessages && <span className="font-medium">Explore</span>}
       </NavLink>
       <NavLink className="link-button" to="/signals">
         {getIcon(
           /^\/signals*/,
-          <IoBarChart className="w-full button-icon" />,
-          <IoBarChartOutline className="w-full button-icon" />
+          <IoBarChart className="w-6 h-6 button-icon" />,
+          <IoBarChartOutline className="w-6 h-6 button-icon" />
         )}
-        {!isInMessages && <span>Signals</span>}
+        {!isInMessages && <span className="font-medium">Signals</span>}
       </NavLink>
       <NavLink className="link-button" to="/messages">
         {getIcon(
           /^\/messages*/,
-          <IoMail className="w-full button-icon" />,
-          <IoMailOutline className="w-full button-icon" />
+          <IoMail className="w-6 h-6 button-icon" />,
+          <IoMailOutline className="w-6 h-6 button-icon" />
         )}
-        {!isInMessages && <span>Messages</span>}
+        {!isInMessages && <span className="font-medium">Messages</span>}
       </NavLink>
       <NavLink className="link-button" to="/premium">
         {getIcon(
           /^\/premium*/,
-          <TbCoinFilled className="w-full button-icon" />,
-          <TbPremiumRights className="w-full button-icon" />
+          <TbCoinFilled className="w-6 h-6 button-icon" />,
+          <TbPremiumRights className="w-6 h-6 button-icon" />
         )}
-        {!isInMessages && <span>Premium</span>}
+        {!isInMessages && <span className="font-medium">Premium</span>}
       </NavLink>
     </nav>
   )

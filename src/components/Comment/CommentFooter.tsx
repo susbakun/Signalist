@@ -43,15 +43,15 @@ export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) 
   }
 
   return (
-    <div className="flex items-center gap-1 -translate-x">
+    <div className="flex items-center gap-1 md:-translate-x">
       <button onClick={handleLikeComment} className="action-button">
         {isLiked ? (
-          <HiBolt className="w-6 h-6 text-yellow-300" />
+          <HiBolt className="w-5 h-5 md:w-6 md:h-6 text-yellow-300" />
         ) : (
-          <HiOutlineLightningBolt className="w-6 h-6" />
+          <HiOutlineLightningBolt className="w-5 h-5 md:w-6 md:h-6" />
         )}
       </button>
-      <span className="text-sm">{millify(likes.length)}</span>
+      <span className="text-xs md:text-sm">{millify(likes.length)}</span>
     </div>
   )
 }

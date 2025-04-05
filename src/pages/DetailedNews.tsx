@@ -80,8 +80,8 @@ export const DetailedNewsPage = () => {
           </Link>
           <h1 className="text-xl text-center w-full">Detailed News</h1>
         </div>
-        <div className="flex items-center justify-center h-full">
-          <Loader className="h-full w-full translate-x-[1%]" />
+        <div className="flex items-center justify-center min-h-screen w-full">
+          <Loader className="h-16 w-16" />
         </div>
       </div>
     )
@@ -96,12 +96,12 @@ export const DetailedNewsPage = () => {
           <h1 className="text-xl text-center w-full">Detailed News</h1>
         </div>
       </div>
-      <div className="py-4 flex gap-4 px-4">
-        <div className="w-1/2">
+      <div className="py-4 flex flex-col md:flex-row gap-4 px-4">
+        <div className="w-full md:w-1/2">
           <label className="block mb-2 text-sm font-medium">Select Source</label>
           <CustomSelect options={newsSources} selected={source} onChange={changeNewsSource} />
         </div>
-        <div className="w-1/2">
+        <div className="w-full md:w-1/2">
           <label className="block mb-2 text-sm font-medium">Select Category</label>
           <CustomSelect
             options={cryptoNewsCategories}
@@ -125,8 +125,8 @@ export const DetailedNewsPage = () => {
         ))}
       </div>
       {isFetching ? (
-        <div className="flex justify-center mt-8">
-          <Loader className="h-full w-full translate-x-[1%]" />
+        <div className="flex items-center justify-center h-full w-full">
+          <Loader className="h-16 w-16" />
         </div>
       ) : (
         newsData?.totalResults &&

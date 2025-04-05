@@ -45,17 +45,17 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{
-    entry: string;
-    stoploss: string;
-    openTime: string;
-    closeTime: string;
-    targets: string;
+    entry: string
+    stoploss: string
+    openTime: string
+    closeTime: string
+    targets: string
   }>({
-    entry: '',
-    stoploss: '',
-    openTime: '',
-    closeTime: '',
-    targets: ''
+    entry: "",
+    stoploss: "",
+    openTime: "",
+    closeTime: "",
+    targets: ""
   })
   const [formTouched, setFormTouched] = useState(false)
 
@@ -133,25 +133,25 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setPostButtonDisabled(false)
     setSelectedMarket({ name: "BTC", uuid: "Qwsogvtv82FCd" })
     setValidationErrors({
-      entry: '',
-      stoploss: '',
-      openTime: '',
-      closeTime: '',
-      targets: ''
+      entry: "",
+      stoploss: "",
+      openTime: "",
+      closeTime: "",
+      targets: ""
     })
     setFormTouched(false)
   }
 
   const handleCreateSignal = async () => {
     setFormTouched(true)
-    
+
     // Validate before proceeding
     const isValid = validateSignalData()
     if (!isValid) {
-      console.error('Validation failed:', validationErrors)
+      console.error("Validation failed:", validationErrors)
       return
     }
-    
+
     setPostButtonDisabled(true)
     const chartImageId = await handleSendImage(selectedImage)
     dispatch(
@@ -241,49 +241,51 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   // Validate all signal parameters
   const validateSignalData = useCallback(() => {
     const newErrors = {
-      entry: '',
-      stoploss: '',
-      openTime: '',
-      closeTime: '',
-      targets: ''
+      entry: "",
+      stoploss: "",
+      openTime: "",
+      closeTime: "",
+      targets: ""
     }
-    
+
     // Entry validation
     if (entryValue <= 0) {
-      newErrors.entry = 'Entry value must be greater than 0'
+      newErrors.entry = "Entry value must be greater than 0"
     }
-    
+
     // Stoploss validation
     if (stoplossValue <= 0) {
-      newErrors.stoploss = 'Stoploss value must be greater than 0'
+      newErrors.stoploss = "Stoploss value must be greater than 0"
     } else if (stoplossValue >= entryValue) {
-      newErrors.stoploss = 'Stoploss must be less than entry'
+      newErrors.stoploss = "Stoploss must be less than entry"
     }
-    
+
     // Time validation
     const now = new Date().getTime()
     if (openTime.getTime() < now) {
-      newErrors.openTime = 'Open time cannot be in the past'
+      newErrors.openTime = "Open time cannot be in the past"
     }
-    
+
     if (closeTime.getTime() <= openTime.getTime()) {
-      newErrors.closeTime = 'Close time must be after open time'
+      newErrors.closeTime = "Close time must be after open time"
     }
-    
+
     // Targets validation
     if (targetList.length === 0) {
-      newErrors.targets = 'At least one target is required'
+      newErrors.targets = "At least one target is required"
     } else {
-      const invalidTargets = targetList.filter(target => target.value <= 0 || target.value <= entryValue)
+      const invalidTargets = targetList.filter(
+        (target) => target.value <= 0 || target.value <= entryValue
+      )
       if (invalidTargets.length > 0) {
-        newErrors.targets = 'All targets must be greater than 0 and the entry value'
+        newErrors.targets = "All targets must be greater than 0 and the entry value"
       }
     }
-    
+
     setValidationErrors(newErrors)
-    
+
     // Check if there are any errors
-    return Object.values(newErrors).every(error => error === '')
+    return Object.values(newErrors).every((error) => error === "")
   }, [entryValue, stoplossValue, openTime, closeTime, targetList])
 
   // Run validation whenever relevant values change
@@ -299,18 +301,18 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   }, [formTouched, validateSignalData])
 
   return (
-    <Modal className="pl-9 custom-modal" size="5xl" show={openModal} onClose={resetForm}>
+    <Modal className="pl-0 md:pl-9 custom-modal" size="5xl" show={openModal} onClose={resetForm}>
       <Modal.Header className="border-none pr-1 py-2" />
       <Modal.Body
         className="flex overflow-y-auto
-        flex-col gap-2 py-4 mb-4 px-4 custom-modal"
+        flex-col gap-2 py-2 md:py-4 mb-4 px-2 md:px-4 custom-modal"
       >
         {!dropdownMarkets.length || isLoading ? (
           <Loader className="h-[80vh]" />
         ) : (
           <div className="flex flex-col gap-2 h-[80vh]">
-            <div className="h-full flex flex-col relative gap-4">
-              <Label className="text-xl" htmlFor="markets" value="Select your market:" />
+            <div className="h-full flex flex-col relative gap-2 md:gap-4">
+              <Label className="text-lg md:text-xl" htmlFor="markets" value="Select your market:" />
               <CustomDropdown
                 markets={dropdownMarkets}
                 selectedMarket={market}
@@ -326,7 +328,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
               />
               <div
                 className="bg-gray-100 dark:bg-gray-800
-                p-4 rounded-lg flex flex-col gap-12"
+                p-2 md:p-4 rounded-lg flex flex-col gap-6 md:gap-12"
               >
                 <SignalModalTopInputs
                   entryValue={entryValue}

@@ -60,7 +60,7 @@ export const UserPage = () => {
   if (!myAccount) {
     return (
       <>
-        <div className="flex flex-col px-[200px] pt-12 gap-8">
+        <div className="flex flex-col px-4 md:px-8 lg:px-[200px] pt-6 md:pt-12 gap-4 md:gap-8">
           <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
           <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
         </div>
@@ -72,7 +72,7 @@ export const UserPage = () => {
   // If both userAccount and myAccount exist, show the full profile
   return (
     <>
-      <div className="flex flex-col px-[200px] pt-12 gap-8">
+      <div className="flex flex-col px-4 md:px-8 lg:px-[200px] pt-6 md:pt-12 gap-4 md:gap-8">
         <AccountTopBar
           myAccount={myAccount}
           isItmMyAccount={isItmyAccount}

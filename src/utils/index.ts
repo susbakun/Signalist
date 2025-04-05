@@ -112,3 +112,7 @@ export const getCurrentUsername = () => {
   const user = getCurrentUser()
   return user?.username || null
 }
+
+export const isMobile = () => {
+  return window.matchMedia && window.matchMedia("(max-width: 639px)").matches
+}

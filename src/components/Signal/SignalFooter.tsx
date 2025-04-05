@@ -93,26 +93,26 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
   return (
     <>
       <div className="flex justify-between items-center mt-2">
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-3 md:gap-4 items-center">
           <div className="flex items-center gap-[2px]">
             <button onClick={handleLikeSignal} className="action-button">
               {isLiked ? (
-                <HiBolt className="w-6 h-6 text-yellow-300" />
+                <HiBolt className="w-5 h-5 md:w-6 md:h-6 text-yellow-300" />
               ) : (
-                <HiOutlineLightningBolt className="w-6 h-6" />
+                <HiOutlineLightningBolt className="w-5 h-5 md:w-6 md:h-6" />
               )}
             </button>
-            <span className="detail-text">{millify(signal.likes.length)}</span>
+            <span className="text-xs md:text-sm detail-text">{millify(signal.likes.length)}</span>
           </div>
-          <button onClick={handleOpenShareModal} className="action-button">
+          <button onClick={handleOpenShareModal} className="action-button text-sm md:text-base">
             Share
           </button>
         </div>
         <button onClick={handleBookmark} className="action-button">
           {isBookmarked ? (
-            <FaBookmark className="w-5 h-5" />
+            <FaBookmark className="w-4 h-4 md:w-5 md:h-5" />
           ) : (
-            <FaRegBookmark className="w-5 h-5" />
+            <FaRegBookmark className="w-4 h-4 md:w-5 md:h-5" />
           )}
         </button>
       </div>

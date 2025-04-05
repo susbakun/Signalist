@@ -25,14 +25,24 @@ export const CommentTopBar = ({ user, date, commentId, postId }: CommentTopBarPr
   }
 
   return (
-    <div className="flex justify-between">
-      <div className="flex gap-2 items-center">
-        <Avatar placeholderInitials={placeholder} size="md" img={user.imageUrl} rounded />
+    <div className="flex justify-between items-start">
+      <div className="flex gap-1 md:gap-2 items-center">
+        <Avatar
+          placeholderInitials={placeholder}
+          size="sm"
+          className="md:h-10 md:w-10"
+          img={user.imageUrl}
+          rounded
+        />
         <Link to={`/${user.username}`} className="flex flex-col justify-center">
-          <p>{user.name.toLowerCase()}</p>
-          <div className="flex gap-2">
-            <p className="text-sm text-gray-600/70 dark:text-white/50">@{user.username}</p>
-            <p className="detail-text">{moment(postDate).startOf("m").fromNow()}</p>
+          <p className="text-sm md:text-base">{user.name.toLowerCase()}</p>
+          <div className="flex gap-1 md:gap-2">
+            <p className="text-xs md:text-sm text-gray-600/70 dark:text-white/50">
+              @{user.username}
+            </p>
+            <p className="text-xs md:text-sm detail-text">
+              {moment(postDate).startOf("m").fromNow()}
+            </p>
           </div>
         </Link>
       </div>

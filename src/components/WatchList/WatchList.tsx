@@ -1,14 +1,15 @@
 import { CryptoPreview, Loader, MarketSelectionDrawer } from "@/components"
 import { EmptyPage } from "@/pages"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { STORAGE_KEYS } from "@/shared/constants"
+import { nobitexMarketChart, STORAGE_KEYS } from "@/shared/constants"
 import { CryptoResponseType } from "@/shared/models"
 import { CoinType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
 import { Table } from "flowbite-react"
 import { isEmpty } from "lodash"
+import { millify } from "millify"
 import { useEffect, useState } from "react"
-import { IoAddCircleOutline } from "react-icons/io5"
+import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 
 export const WatchList = () => {
   const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
@@ -57,7 +58,6 @@ export const WatchList = () => {
           (id) => cryptosList.data.coins.find((c) => c.uuid === id) || ({ uuid: id } as CoinType)
         )
       )
-      console.log(cryptosList.data.coins)
     } else if (cryptosList?.data?.coins) {
       // If no saved watchlist, use default from API
       setCryptos([])
@@ -96,7 +96,7 @@ export const WatchList = () => {
         </EmptyPage>
       ) : (
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="hidden md:table">
             <Table.Head>
               <Table.HeadCell className="text-center">Market</Table.HeadCell>
               <Table.HeadCell className="text-center">Current Price</Table.HeadCell>
@@ -117,6 +117,34 @@ export const WatchList = () => {
               ))}
             </Table.Body>
           </Table>
+          <div className="md:hidden grid grid-cols-2 gap-4">
+            {cryptos.map((crypto) => (
+              <div key={crypto.uuid} className="bg-white dark:bg-gray-800 p-4 rounded-md">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <img className="w-6 h-6" src={crypto.iconUrl} alt={crypto.name} />
+                    <span>{crypto.symbol}/USD</span>
+                  </div>
+                  <button onClick={() => handleRemoveFromWatchList(crypto.uuid)}>
+                    <IoTrashOutline className="w-5 h-5 text-red-500" />
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <p>Price: ${(+crypto.price).toLocaleString("en-Us")}</p>
+                  <p>Volume: {millify(+crypto["24hVolume"])}</p>
+                  <p className={+crypto.change > 0 ? "text-green-500" : "text-red-500"}>
+                    Change: {millify(+crypto.change)}%
+                  </p>
+                  <div className="flex justify-center mt-2">
+                    <img
+                      src={`${nobitexMarketChart}${crypto.symbol.toLowerCase()}.svg`}
+                      alt={crypto.name}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>

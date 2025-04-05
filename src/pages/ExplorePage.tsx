@@ -29,9 +29,11 @@ export const ExplorePage = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-row">
       <ExplorePosts />
-      <RightSideBar />
+      <div className="hidden md:block w-[38%]">
+        <RightSideBar />
+      </div>
       <CreatePostButton handleOpenModal={hanldeOpenCreatePostModal} />
       <CreatePostModal
         openModal={openCreatePostModal}
@@ -44,8 +46,8 @@ export const ExplorePage = () => {
 const ExplorePosts = () => {
   return (
     <div
-      className="flex-1 border-r-gray-600/20 dark:border-r-white/20
-      border-r"
+      className="flex-1 md:border-r-gray-600/20 md:dark:border-r-white/20
+      md:border-r overflow-hidden"
     >
       <ExploreTopBar />
       <Outlet />
@@ -66,7 +68,7 @@ export const RightSideBar = () => {
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
 
   return (
-    <aside className="w-[38%] h-screen flex flex-col pt-8 px-8 sticky top-0">
+    <aside className="w-full h-screen flex flex-col pt-8 px-4 md:px-8 sticky top-0">
       <div
         className="border border-gray-600/20 dark:border-white/20
         rounded-xl gap-4 p-3 flex flex-col"

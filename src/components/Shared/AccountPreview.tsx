@@ -1,27 +1,10 @@
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { Avatar } from "flowbite-react"
 import millify from "millify"
-import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 export const AccountPreview = () => {
   const { currentUser } = useCurrentUser()
-  const [size, setSize] = useState("lg")
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1536) {
-        setSize("xl")
-      } else {
-        setSize("lg")
-      }
-    }
-
-    handleResize()
-    window.addEventListener("resize", handleResize)
-
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
 
   if (!currentUser) return null
 
@@ -32,7 +15,7 @@ export const AccountPreview = () => {
           .split(" ")
           .map((n) => n[0])
           .join("")}
-        size={size}
+        size="xl"
         img={currentUser.imageUrl}
         rounded
       />
@@ -64,7 +47,7 @@ export const AccountPreview = () => {
               className="hover:text-primary-link-button transition ease-out dark:hover:text-dark-link-button"
               to={`/${currentUser.username}/followings`}
             >
-              following
+              followings
             </Link>
           </p>
         </div>

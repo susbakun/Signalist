@@ -43,8 +43,8 @@
 
 @layer utilities {
   .link-button {
-    @apply flex items-center gap-2 p-2 rounded-lg;
-    @apply bg-transparent  hover:text-primary-link-button;
+    @apply flex items-center gap-2 p-2 rounded-lg w-full;
+    @apply bg-transparent hover:text-primary-link-button;
     @apply transition ease-in;
   }
   .link-button.active {
