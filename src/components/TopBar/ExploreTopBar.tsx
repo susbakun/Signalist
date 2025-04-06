@@ -108,7 +108,7 @@ export const ExploreTopBar = () => {
       </div>
       <div
         className="border-b border-b-gray-600/20 dark:border-b-white/20
-        flex justify-between px-[60px] md:px-[80px]"
+        flex justify-between px-[50px] sm:px-[60px] md:px-[80px]"
       >
         <NavLink className="explore-nav-link" to="followings">
           Followings

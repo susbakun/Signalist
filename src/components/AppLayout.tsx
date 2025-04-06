@@ -60,8 +60,8 @@ export const AppSideBar = () => {
 export const AppContent = () => {
   return (
     <div
-      className="flex-1 border-l border-l-gray-600/20
-    dark:border-l-white/20 pb-10 md:pb-0"
+      className="flex-1 border-l border-transparent
+       md:border-l-gray-600/20 md:dark:border-l-white/20 pb-10 md:pb-0"
     >
       <Routes>
         <Route path="/" element={<HomePage />} />
