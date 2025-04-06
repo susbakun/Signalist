@@ -145,7 +145,6 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const handleCreateSignal = async () => {
     setFormTouched(true)
 
-    // Validate before proceeding
     const isValid = validateSignalData()
     if (!isValid) {
       console.error("Validation failed:", validationErrors)
@@ -238,7 +237,6 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     }
   }, [cryptosList])
 
-  // Validate all signal parameters
   const validateSignalData = useCallback(() => {
     const newErrors = {
       entry: "",
@@ -247,20 +245,16 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
       closeTime: "",
       targets: ""
     }
-
-    // Entry validation
     if (entryValue <= 0) {
       newErrors.entry = "Entry value must be greater than 0"
     }
 
-    // Stoploss validation
     if (stoplossValue <= 0) {
       newErrors.stoploss = "Stoploss value must be greater than 0"
     } else if (stoplossValue >= entryValue) {
       newErrors.stoploss = "Stoploss must be less than entry"
     }
 
-    // Time validation
     const now = new Date().getTime()
     if (openTime.getTime() < now) {
       newErrors.openTime = "Open time cannot be in the past"
@@ -270,7 +264,6 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
       newErrors.closeTime = "Close time must be after open time"
     }
 
-    // Targets validation
     if (targetList.length === 0) {
       newErrors.targets = "At least one target is required"
     } else {
@@ -284,11 +277,9 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
 
     setValidationErrors(newErrors)
 
-    // Check if there are any errors
     return Object.values(newErrors).every((error) => error === "")
   }, [entryValue, stoplossValue, openTime, closeTime, targetList])
 
-  // Run validation whenever relevant values change
   useEffect(() => {
     if (formTouched) {
       validateSignalData()

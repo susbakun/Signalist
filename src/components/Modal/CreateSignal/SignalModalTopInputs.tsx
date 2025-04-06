@@ -56,52 +56,56 @@ export const SignalModalTopInputs = ({
   }
 
   return (
-    <div className="flex justify-center w-full">
+    <div className="flex justify-center max-w-full">
       <div className="flex flex-col w-full max-w-md gap-4">
         <div className="flex flex-col w-full">
-          <div className="flex items-center">
-            <span className="font-semibold md:mr-2 text-sm md:text-base w-[70px] sm:w-[80px]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-sm md:text-base min-w-[60px] md:min-w-[70px] shrink-0">
               Entry:
             </span>
-            <input
-              value={entryValue}
-              name="entry"
-              onChange={handleEntryValueChange}
-              required
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              className={`signal-market-selector flex-1 ${touched.entry && errors.entry ? "border-red-500" : ""}`}
-              type="number"
-            />
-            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base w-[40px]">
-              USD
-            </span>
+            <div className="flex flex-1 items-center min-w-[120px]">
+              <input
+                value={entryValue}
+                name="entry"
+                onChange={handleEntryValueChange}
+                required
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                className={`signal-market-selector w-full ${touched.entry && errors.entry ? "border-red-500" : ""}`}
+                type="number"
+              />
+              <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base shrink-0">
+                USD
+              </span>
+            </div>
           </div>
           {touched.entry && errors.entry && (
-            <span className="text-red-500 text-sm mt-1 ml-[80px]">{errors.entry}</span>
+            <span className="text-red-500 text-sm mt-1 ml-2 md:ml-[80px]">{errors.entry}</span>
           )}
         </div>
         <div className="flex flex-col w-full">
-          <div className="flex items-center">
-            <span className="font-semibold mr-0 md:mr-2 text-sm md:text-base w-[70px] sm:w-[80px]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-sm md:text-base min-w-[60px] md:min-w-[70px] shrink-0">
               Stoploss:
             </span>
-            <input
-              value={stoplossValue}
-              name="stoploss"
-              onChange={handleStoplossValueChange}
-              required
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              className={`signal-market-selector flex-1 ${touched.stoploss && errors.stoploss ? "border-red-500" : ""}`}
-              type="number"
-            />
-            <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base w-[40px]">
-              USD
-            </span>
+            <div className="flex flex-1 items-center min-w-[120px]">
+              <input
+                value={stoplossValue}
+                name="stoploss"
+                onChange={handleStoplossValueChange}
+                required
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                className={`signal-market-selector w-full ${touched.stoploss && errors.stoploss ? "border-red-500" : ""}`}
+                type="number"
+              />
+              <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base shrink-0">
+                USD
+              </span>
+            </div>
           </div>
           {touched.stoploss && errors.stoploss && (
-            <span className="text-red-500 text-sm mt-1 ml-[80px]">{errors.stoploss}</span>
+            <span className="text-red-500 text-sm mt-1 ml-2 md:ml-[80px]">{errors.stoploss}</span>
           )}
         </div>
       </div>

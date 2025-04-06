@@ -79,7 +79,17 @@ export const SignalModalDatePickers = ({
             showTimeSelect
             timeIntervals={1}
             minDate={new Date()}
-            popperPlacement="bottom"
+            popperPlacement="bottom-start"
+            popperModifiers={[
+              {
+                name: "preventOverflow",
+                options: {
+                  boundary: "viewport",
+                  padding: 20
+                },
+                fn: ({ x, y }) => ({ x, y })
+              }
+            ]}
             popperClassName="custom-datepicker-popper"
             timeFormat="HH:mm"
             dateFormat="MMMM d, yyyy h:mm aa"
@@ -117,6 +127,17 @@ export const SignalModalDatePickers = ({
             className="w-full p-2 rounded-lg text-sm md:text-base"
             timeIntervals={1}
             minDate={openTime}
+            popperPlacement="bottom-start"
+            popperModifiers={[
+              {
+                name: "preventOverflow",
+                options: {
+                  boundary: "viewport",
+                  padding: 20
+                },
+                fn: ({ x, y }) => ({ x, y })
+              }
+            ]}
             calendarClassName="bg-[#101827] text-white"
             customInput={
               <button
