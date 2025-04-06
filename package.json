@@ -12,6 +12,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
     "@tippyjs/react": "^4.2.6",
+    "@vercel/analytics": "^1.5.0",
     "appwrite": "^15.0.0",
     "blurhash": "^2.0.5",
     "emoji-picker-react": "^4.9.4",

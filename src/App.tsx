@@ -11,6 +11,7 @@ import { UserPage } from "@/pages/UserPage"
 import { STORAGE_KEYS } from "@/shared/constants"
 import { toggleThemeMode } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
+import { Analytics } from "@vercel/analytics/react"
 import { useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
 
@@ -45,6 +46,7 @@ function App() {
         path="/*"
       />
       <Route path="/profile" element={<UserPage />} />
+      <Analytics />
     </Routes>
   )
 }
