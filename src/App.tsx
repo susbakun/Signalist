@@ -40,13 +40,13 @@ function App() {
               <AppSideBar />
               <AppContent />
               <MobileNavbar />
+              <Analytics />
             </RootLayout>
           </ProtectedRoute>
         }
         path="/*"
       />
       <Route path="/profile" element={<UserPage />} />
-      <Analytics />
     </Routes>
   )
 }
