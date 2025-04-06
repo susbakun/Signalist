@@ -76,14 +76,14 @@ export const MessageRoom = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen fixed md:sticky right-0 top-0 inset-0 bg-gray-100 dark:bg-gray-900 overflow-hidden">
-      {/* Top bar - fixed at top */}
-      <div className="sticky top-0 left-0 right-0 z-10 bg-gray-100 dark:bg-gray-900">
+    <div className="h-screen md:flex-1 flex flex-col bg-gray-100 dark:bg-gray-900 md:relative md:w-auto fixed w-full inset-0">
+      {/* Header */}
+      <div className="sticky top-0 left-0 right-0 z-20 bg-gray-100 dark:bg-gray-900 shadow-md">
         <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
       </div>
 
-      {/* Messages container - scrollable area that doesn't overlap with input */}
-      <div className="flex-1 overflow-y-auto pt-16 pb-24">
+      {/* Messages container */}
+      <div className="flex-1 overflow-y-auto pb-28 md:pb-24">
         <MessageRoomMessages
           isGroup={myMessages.isGroup}
           messages={myMessages.messages}
@@ -91,7 +91,8 @@ export const MessageRoom = () => {
         />
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 z-10 bg-gray-100 dark:bg-gray-900">
+      {/* Input container - Different positioning for mobile vs desktop */}
+      <div className="md:sticky md:bottom-0 md:left-0 md:right-0 md:w-auto fixed bottom-16 md:bottom-4 left-0 right-0 w-full z-30 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
         <MessageRoomInput
           messageText={messageText}
           isEmojiPickerOpen={isEmojiPickerOpen}

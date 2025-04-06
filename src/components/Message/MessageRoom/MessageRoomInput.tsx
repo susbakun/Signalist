@@ -74,10 +74,19 @@ export const MessageRoomInput = ({
     }
   }, [selectedImage])
 
+  // Force scroll into view when input is focused on mobile
+  useEffect(() => {
+    if (isInputFocused && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({ behavior: "smooth" })
+      }, 300)
+    }
+  }, [isInputFocused])
+
   return (
-    <div className="p-4">
+    <div className="p-4 w-full">
       {isEmojiPickerOpen && (
-        <div className="relative">
+        <div className="absolute bottom-16 left-0 z-40">
           <EmojiPicker
             open={isEmojiPickerOpen}
             theme={isDarkMode() ? Theme.DARK : Theme.LIGHT}
@@ -85,16 +94,15 @@ export const MessageRoomInput = ({
             width={350}
             height={400}
             style={{
-              position: "absolute",
-              bottom: "0px",
-              backgroundColor: isDarkMode() ? "rgb(31 41 55)" : "white"
+              backgroundColor: isDarkMode() ? "rgb(31 41 55)" : "white",
+              boxShadow: "0 0 10px rgba(0,0,0,0.2)"
             }}
           />
         </div>
       )}
       <div
         className={cn(
-          "mt-4 flex px-3 py-1 w-full rounded-2xl border-2",
+          "flex px-3 py-1 w-full rounded-2xl border-2",
           "bg-gray-200 dark:bg-gray-800 text-gray-600",
           "dark:text-gray-100 justify-center items-center",
           "border-transparent",
@@ -103,6 +111,7 @@ export const MessageRoomInput = ({
         )}
       >
         <button
+          type="button"
           onClick={handleToggleEmojiPicker}
           className={cn(
             "mr-1 action-button",
@@ -112,7 +121,7 @@ export const MessageRoomInput = ({
         >
           <BsEmojiGrin className="w-5 h-5" />
         </button>
-        <button className="action-button px-2 py-2">
+        <button type="button" className="action-button px-2 py-2">
           <MdOutlineKeyboardVoice className="w-6 h-6" />
         </button>
         <textarea
@@ -144,6 +153,7 @@ export const MessageRoomInput = ({
             <MediaOptionsButton handleChangeImage={handleChangeImage} />
           </Tippy>
           <button
+            type="button"
             disabled={isInputEmpty()}
             onClick={handleSendMessage}
             className="action-button text-white
