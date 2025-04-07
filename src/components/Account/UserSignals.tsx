@@ -38,10 +38,12 @@ export const UserSignals = () => {
 
   return (
     <>
-      <div className="pb-4 max-w-full overflow-hidden md:mx-16 md:px-16 md:pb-0 relative flex flex-col justify-center border-x dark:border-x-white/20 border-x-gray-600/20">
-        {mySignals.map((signal) => (
-          <Signal key={signal.id} signal={signal} />
-        ))}
+      <div className="pb-4 w-full overflow-hidden relative flex flex-col justify-center">
+        <div className="w-fit overflow-hidden border-x mx-0 dark:border-x-white/20 border-x-gray-600/20 px-0 inset-0">
+          {mySignals.map((signal) => (
+            <Signal key={signal.id} signal={signal} />
+          ))}
+        </div>
         {isItmyAccount && (
           <Tippy
             content="create signal"
