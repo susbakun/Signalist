@@ -15,7 +15,7 @@ export const UserStreamButton = () => {
       duration={10}
       hideOnClick={true}
     >
-      <button className="absolute top-[115px] left-2">
+      <button className="absolute top-[75%] left-0">
         <IoIosAddCircle className="w-8 h-8" />
       </button>
     </Tippy>

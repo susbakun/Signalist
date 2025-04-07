@@ -31,20 +31,16 @@ export const UserPosts = () => {
 
   if (myPosts.length == 0)
     return (
-      <EmptyPage className="text-center mt-8">
+      <EmptyPage className="text-center mt-8 pb-16">
         <h3 className="font-normal">No posts found</h3>
       </EmptyPage>
     )
   return (
     <>
-      <div
-        className="flex flex-col mx-[200px]
-      border-x border-x-gray-600/20 dark:border-white/20"
-      >
+      <div className="flex flex-col pb-4 mx-4 md:px-0 md:mx-16 border-x border-x-gray-600/20 dark:border-white/20">
         {myPosts.map((post) => (
           <Post
-            className="border-y border-y-gray-600/20 
-          dark:border-y-white/20 px-4 py-6"
+            className="border-y border-y-gray-600/20 dark:border-y-white/20 px-3 py-4 md:px-4 md:py-6"
             key={post.id}
             post={post}
           />
@@ -52,8 +48,7 @@ export const UserPosts = () => {
         {isItmyAccount && (
           <Tippy
             content="create post"
-            className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-            rounded-md px-1 py-[1px] text-sm"
+            className="dark:bg-gray-700 bg-gray-900 text-white font-sans rounded-md px-1 py-[1px] text-sm"
             delay={[1000, 0]}
             placement="top"
             animation="fade"
@@ -63,10 +58,9 @@ export const UserPosts = () => {
           >
             <button
               onClick={hanldeOpenCreatePostModal}
-              className="main-button transition-all duration-100 ease-out fixed
-              right-4 bottom-4 px-4 py-4 rounded-full"
+              className="main-button transition-all duration-100 ease-out fixed right-4 bottom-16 md:bottom-4 px-3 py-3 md:px-4 md:py-4 rounded-full z-10"
             >
-              <GoPlusCircle className="w-6 h-6" />
+              <GoPlusCircle className="w-5 h-5 md:w-6 md:h-6" />
             </button>
           </Tippy>
         )}

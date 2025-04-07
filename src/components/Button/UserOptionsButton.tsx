@@ -51,7 +51,7 @@ export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOption
       <button
         onClick={handleOpen}
         className="action-button
-          absolute top-2 right-0"
+          absolute top-8 right-8"
       >
         <TfiMore className="w-6 h-6" />
       </button>

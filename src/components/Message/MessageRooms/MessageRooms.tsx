@@ -112,7 +112,14 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                         </div>
                       )}
                     </div>
-                    {text && <p className="text-gray-400 truncate">{text}</p>}
+                    {text && (
+                      <p
+                        className="text-gray-400 truncate max-w-full break-all overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{ maxWidth: "280px" }}
+                      >
+                        {text}
+                      </p>
+                    )}
                   </div>
                 </div>
               </NavLink>

@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "@/shared/constants"
 
-const SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
+const SESSION_TIMEOUT = 60 * 60 * 1000 // 60 minutes
 
 export const initializeSession = () => {
   updateLastActivity()

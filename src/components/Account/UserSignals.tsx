@@ -31,28 +31,21 @@ export const UserSignals = () => {
 
   if (mySignals.length === 0)
     return (
-      <EmptyPage className="text-center mt-8">
+      <EmptyPage className="text-center mt-8 pb-16">
         <h3 className="font-normal">No signals found</h3>
       </EmptyPage>
     )
 
   return (
     <>
-      <div className="px-[200px] relative">
-        <ul
-          className="flex flex-col justify-center
-          border-x dark:border-x-white/20
-        border-x-gray-600/20"
-        >
-          {mySignals.map((signal) => (
-            <Signal key={signal.id} signal={signal} />
-          ))}
-        </ul>
+      <div className="pb-4 max-w-full overflow-hidden md:mx-16 md:px-16 md:pb-0 relative flex flex-col justify-center border-x dark:border-x-white/20 border-x-gray-600/20">
+        {mySignals.map((signal) => (
+          <Signal key={signal.id} signal={signal} />
+        ))}
         {isItmyAccount && (
           <Tippy
             content="create signal"
-            className="dark:bg-gray-700 bg-gray-900 text-white font-sans
-            rounded-md px-1 py-[1px] text-sm"
+            className="dark:bg-gray-700 bg-gray-900 text-white font-sans rounded-md px-1 py-[1px] text-sm"
             delay={[1000, 0]}
             placement="top"
             animation="fade"
@@ -62,10 +55,9 @@ export const UserSignals = () => {
           >
             <button
               onClick={hanldeOpenCreateSignalModal}
-              className="main-button transition-all duration-100 ease-out fixed
-            right-4 bottom-4 px-4 py-4 rounded-full"
+              className="main-button transition-all duration-100 ease-out fixed bottom-16 right-4 md:bottom-4 px-3 py-3 md:px-4 md:py-4 rounded-full z-10"
             >
-              <HiMiniSignal className="w-6 h-6" />
+              <HiMiniSignal className="w-5 h-5 md:w-6 md:h-6" />
             </button>
           </Tippy>
         )}

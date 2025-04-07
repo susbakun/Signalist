@@ -41,9 +41,9 @@ export const UserPage = () => {
   // If the profile doesn't exist, show a message
   if (!userAccount) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <h2 className="text-2xl font-bold mb-4">User not found</h2>
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="flex flex-col items-center justify-center h-screen px-4">
+        <h2 className="text-2xl font-bold mb-4 text-center">User not found</h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center">
           The user you're looking for doesn't exist or has been removed.
         </p>
         <button
@@ -60,7 +60,7 @@ export const UserPage = () => {
   if (!myAccount) {
     return (
       <>
-        <div className="flex flex-col px-4 md:px-8 lg:px-[200px] pt-6 md:pt-12 gap-4 md:gap-8">
+        <div className="flex flex-col px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-32 pt-4 md:pt-6 gap-3 md:gap-6">
           <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
           <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
         </div>
@@ -72,7 +72,7 @@ export const UserPage = () => {
   // If both userAccount and myAccount exist, show the full profile
   return (
     <>
-      <div className="flex flex-col px-4 md:px-8 lg:px-[200px] pt-6 md:pt-12 gap-4 md:gap-8">
+      <div className="flex flex-col px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-32 pt-4 md:pt-6 gap-3 md:gap-6">
         <AccountTopBar
           myAccount={myAccount}
           isItmMyAccount={isItmyAccount}

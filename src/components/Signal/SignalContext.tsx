@@ -84,7 +84,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   }, [])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 max-w-full">
       {signal.isPremium && !amISubscribed && publisher.username !== currentUsername ? (
         <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
           <BluredSignalComponent />

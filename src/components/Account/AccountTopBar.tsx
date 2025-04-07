@@ -4,13 +4,13 @@ import {
   UserNotificationsButton,
   UserOptionsButton,
   UserStreamButton
-} from '@/components'
-import { useIsUserSubscribed } from '@/hooks/useIsUserSubscribed'
-import { AccountModel } from '@/shared/models'
-import { cn, getAvatarPlaceholder } from '@/utils'
-import { Avatar } from 'flowbite-react'
-import { useState } from 'react'
-import { UserNumericInfo } from './UserNumericInfo'
+} from "@/components"
+import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { AccountModel } from "@/shared/models"
+import { getAvatarPlaceholder } from "@/utils"
+import { Avatar } from "flowbite-react"
+import { useState } from "react"
+import { UserNumericInfo } from "./UserNumericInfo"
 
 type AccountTopBarProps = {
   userAccount: AccountModel
@@ -33,36 +33,49 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
   }
 
   return (
-    <div
-      className={cn('flex items-center gap-28 relative', {
-        '2xl:gap-[25%] gap-24 pt-2': !isItmMyAccount
-      })}
-    >
-      <Avatar
-        bordered
-        placeholderInitials={placeholder}
-        size="xl"
-        img={userAccount.imageUrl}
-        rounded
-      />
-      {isItmMyAccount && <UserStreamButton />}
-      {isItmMyAccount ? (
-        <UserOptionsButton handleOpen={handleOpen} open={open} setIsOpen={setIsOpen} />
-      ) : (
-        <div className="flex gap-10 absolute top-0 right-0">
-          {amISubscribed && <SubscriberSign />}
-          <UserNotificationsButton />
-          <ProfilePageMoreOptionButton
-            handleClose={handleClose}
-            handleOpen={handleOpen}
-            myAccount={myAccount}
-            open={open}
-            setIsOpen={setIsOpen}
-            userUsername={userAccount.username}
+    <div className="flex flex-col sm:flex-row w-full">
+      <div className="flex items-center mb-4 sm:mb-0 relative w-full">
+        <div className="flex items-center w-fit md:w-full gap-[25%]">
+          <Avatar
+            bordered
+            placeholderInitials={placeholder}
+            size="xl"
+            img={userAccount.imageUrl}
+            rounded
           />
+          <div className="hidden md:flex mt-1 mb-4">
+            <UserNumericInfo userAccount={userAccount} />
+          </div>
         </div>
-      )}
-      <UserNumericInfo userAccount={userAccount} />
+        <div className="ml-4 sm:hidden">
+          <div className="font-medium">{userAccount.name}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">@{userAccount.username}</div>
+        </div>
+        {isItmMyAccount && <UserStreamButton />}
+      </div>
+
+      <div className="flex-1 flex flex-col sm:flex-row sm:justify-between">
+        <div className="block md:hidden">
+          <UserNumericInfo userAccount={userAccount} />
+        </div>
+
+        {isItmMyAccount ? (
+          <UserOptionsButton handleOpen={handleOpen} open={open} setIsOpen={setIsOpen} />
+        ) : (
+          <div className="flex gap-2 sm:gap-4 sm:absolute sm:top-4 sm:right-4 md:right-8 lg:right-12">
+            {amISubscribed && <SubscriberSign />}
+            <UserNotificationsButton />
+            <ProfilePageMoreOptionButton
+              handleClose={handleClose}
+              handleOpen={handleOpen}
+              myAccount={myAccount}
+              open={open}
+              setIsOpen={setIsOpen}
+              userUsername={userAccount.username}
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
+import { Avatar } from "flowbite-react"
 import { useMemo, useState } from "react"
 import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
@@ -111,6 +112,13 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   return (
     <>
       <div className="flex items-center justify-between">
+        <div className="flex gap-4 items-center">
+          <Avatar img={userAccount.imageUrl} size="lg" rounded />
+          <div className="flex flex-col">
+            <h2 className="text-lg font-bold">{userAccount.name}</h2>
+            <p className="text-sm text-gray-600/70 dark:text-white/50">@{userAccount.username}</p>
+          </div>
+        </div>
         <div className="flex gap-4">
           <div>
             <button
