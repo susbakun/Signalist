@@ -3,21 +3,75 @@ import { STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
+
+// Declare global grecaptcha type
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void
+      execute: (siteKey: string, options: { action: string }) => Promise<string>
+      render: (container: string | HTMLElement, parameters: object) => number
+    }
+  }
+}
 
 export const LoginPage = () => {
   const [identifier, setIdentifier] = useState("") // This will hold either email or username
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [captchaToken, setCaptchaToken] = useState("")
   const navigate = useNavigate()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
 
+  // Load reCAPTCHA script when component mounts
+  useEffect(() => {
+    // Only load if not already loaded
+    if (!window.grecaptcha) {
+      const script = document.createElement("script")
+      script.src = "https://www.google.com/recaptcha/api.js"
+      script.async = true
+      script.defer = true
+      document.head.appendChild(script)
+
+      return () => {
+        document.head.removeChild(script)
+      }
+    }
+  }, [])
+
   if (isAuthenticated) {
     return <Navigate to="/" replace />
+  }
+
+  const verifyCaptcha = () => {
+    return new Promise<string>((resolve) => {
+      if (window.grecaptcha) {
+        window.grecaptcha.ready(() => {
+          try {
+            // Render the reCAPTCHA without storing the tokenId
+            window.grecaptcha.render("recaptcha-container", {
+              sitekey: "6LfFeQ0rAAAAAKVT2b9TzvvznE8hk2geZfIEgeZq",
+              callback: (token: string) => {
+                setCaptchaToken(token)
+                resolve(token)
+              },
+              theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
+              size: "normal"
+            })
+          } catch (error) {
+            console.error("reCAPTCHA error:", error)
+            resolve("")
+          }
+        })
+      } else {
+        resolve("")
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,6 +80,11 @@ export const LoginPage = () => {
     setError("")
 
     try {
+      // Ensure captcha is verified
+      if (!captchaToken) {
+        await verifyCaptcha()
+      }
+
       // Check if the identifier is an email or username
       const isEmail = identifier.includes("@")
 
@@ -82,7 +141,7 @@ export const LoginPage = () => {
             <p className="text-gray-100 text-center mt-2">Please sign in to continue</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
+          <form onSubmit={handleSubmit} className="px-8 py-6 space-y-5">
             {error && (
               <div className="text-red-500 text-sm text-center bg-red-100 dark:bg-red-900/20 rounded-lg py-2">
                 {error}
@@ -131,6 +190,11 @@ export const LoginPage = () => {
               >
                 Forgot Password?
               </Link>
+            </div>
+
+            {/* reCAPTCHA container - nicely styled and positioned */}
+            <div className="flex justify-center mt-4">
+              <div id="recaptcha-container" className="transform scale-95 origin-center"></div>
             </div>
 
             <button
