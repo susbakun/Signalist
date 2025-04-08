@@ -1,9 +1,9 @@
 import { usersMock } from "@/assets/mocks"
-import { STORAGE_KEYS } from "@/shared/constants"
+import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 
@@ -14,9 +14,13 @@ declare global {
       ready: (callback: () => void) => void
       execute: (siteKey: string, options: { action: string }) => Promise<string>
       render: (container: string | HTMLElement, parameters: object) => number
+      reset: (widgetId?: number) => void // Added the reset method
     }
+    onRecaptchaLoad: () => void
   }
 }
+
+// reCAPTCHA site key
 
 export const LoginPage = () => {
   const [identifier, setIdentifier] = useState("") // This will hold either email or username
@@ -24,6 +28,7 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
+  const recaptchaRef = useRef<number | null>(null)
   const navigate = useNavigate()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
@@ -31,47 +36,63 @@ export const LoginPage = () => {
   // Load reCAPTCHA script when component mounts
   useEffect(() => {
     // Only load if not already loaded
-    if (!window.grecaptcha) {
+    if (!document.getElementById("recaptcha-script")) {
+      // Define callback function
+      window.onRecaptchaLoad = () => {
+        initializeRecaptcha()
+      }
+
       const script = document.createElement("script")
-      script.src = "https://www.google.com/recaptcha/api.js"
+      script.id = "recaptcha-script"
+      script.src = `https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`
       script.async = true
       script.defer = true
       document.head.appendChild(script)
 
       return () => {
-        document.head.removeChild(script)
+        const scriptElement = document.getElementById("recaptcha-script")
+        if (scriptElement) {
+          document.head.removeChild(scriptElement)
+        }
       }
+    } else {
+      // If script already exists, initialize recaptcha
+      initializeRecaptcha()
     }
   }, [])
 
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />
-  }
-
-  const verifyCaptcha = () => {
-    return new Promise<string>((resolve) => {
-      if (window.grecaptcha) {
-        window.grecaptcha.ready(() => {
-          try {
-            // Render the reCAPTCHA without storing the tokenId
-            window.grecaptcha.render("recaptcha-container", {
-              sitekey: "6LfFeQ0rAAAAAKVT2b9TzvvznE8hk2geZfIEgeZq",
+  // Initialize reCAPTCHA
+  const initializeRecaptcha = () => {
+    if (window.grecaptcha && document.getElementById("recaptcha-container")) {
+      try {
+        if (recaptchaRef.current === null) {
+          window.grecaptcha.ready(() => {
+            recaptchaRef.current = window.grecaptcha.render("recaptcha-container", {
+              sitekey: recaptchaSiteKey,
               callback: (token: string) => {
                 setCaptchaToken(token)
-                resolve(token)
               },
               theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
               size: "normal"
             })
-          } catch (error) {
-            console.error("reCAPTCHA error:", error)
-            resolve("")
-          }
-        })
-      } else {
-        resolve("")
+          })
+        }
+      } catch (error) {
+        console.error("reCAPTCHA initialization error:", error)
       }
-    })
+    }
+  }
+
+  // Reset reCAPTCHA
+  const resetCaptcha = () => {
+    if (window.grecaptcha && recaptchaRef.current !== null) {
+      window.grecaptcha.reset(recaptchaRef.current)
+      setCaptchaToken("")
+    }
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,9 +101,11 @@ export const LoginPage = () => {
     setError("")
 
     try {
-      // Ensure captcha is verified
+      // Check if captcha token exists
       if (!captchaToken) {
-        await verifyCaptcha()
+        setError("Please complete the reCAPTCHA verification")
+        setIsLoading(false)
+        return
       }
 
       // Check if the identifier is an email or username
@@ -118,10 +141,12 @@ export const LoginPage = () => {
         navigate("/", { replace: true })
       } else {
         setError("Invalid username/email or password")
+        resetCaptcha() // Reset captcha on failed login
       }
     } catch (error) {
       console.error("Login failed:", error)
       setError("An error occurred during login")
+      resetCaptcha() // Reset captcha on error
     } finally {
       setIsLoading(false)
     }
@@ -199,7 +224,7 @@ export const LoginPage = () => {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !captchaToken}
               className={cn(
                 "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity",
                 "disabled:opacity-50 disabled:cursor-not-allowed"

@@ -9,6 +9,7 @@ export const appwritePostsBucketId = import.meta.env.VITE_APPWRITE_POSTS_BUCKET_
 export const appwriteSignalsBucketId = import.meta.env.VITE_APPWRITE_SIGNALS_BUCKET_ID
 export const appwriteMessagesBucketId = import.meta.env.VITE_APPWRITE_MESSAGES_BUCKET_ID
 export const newsApiKey = import.meta.env.VITE_NEWS_API_KEY
+export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 
 // Storage Keys
 export const STORAGE_KEYS = {
