@@ -14,7 +14,7 @@ declare global {
       ready: (callback: () => void) => void
       execute: (siteKey: string, options: { action: string }) => Promise<string>
       render: (container: string | HTMLElement, parameters: object) => number
-      reset: (widgetId?: number) => void // Added the reset method
+      reset: (widgetId?: number) => void
     }
     onRecaptchaLoad: () => void
   }
@@ -28,6 +28,7 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
+  const [isCaptchaReady, setIsCaptchaReady] = useState(false)
   const recaptchaRef = useRef<number | null>(null)
   const navigate = useNavigate()
 
@@ -35,13 +36,13 @@ export const LoginPage = () => {
 
   // Load reCAPTCHA script when component mounts
   useEffect(() => {
+    // Define callback function
+    window.onRecaptchaLoad = () => {
+      initializeRecaptcha()
+    }
+
     // Only load if not already loaded
     if (!document.getElementById("recaptcha-script")) {
-      // Define callback function
-      window.onRecaptchaLoad = () => {
-        initializeRecaptcha()
-      }
-
       const script = document.createElement("script")
       script.id = "recaptcha-script"
       script.src = `https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`
@@ -55,9 +56,11 @@ export const LoginPage = () => {
           document.head.removeChild(scriptElement)
         }
       }
-    } else {
+    } else if (window.grecaptcha && window.grecaptcha.ready) {
       // If script already exists, initialize recaptcha
-      initializeRecaptcha()
+      window.grecaptcha.ready(() => {
+        initializeRecaptcha()
+      })
     }
   }, [])
 
@@ -66,16 +69,18 @@ export const LoginPage = () => {
     if (window.grecaptcha && document.getElementById("recaptcha-container")) {
       try {
         if (recaptchaRef.current === null) {
-          window.grecaptcha.ready(() => {
-            recaptchaRef.current = window.grecaptcha.render("recaptcha-container", {
-              sitekey: recaptchaSiteKey,
-              callback: (token: string) => {
-                setCaptchaToken(token)
-              },
-              theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
-              size: "normal"
-            })
+          recaptchaRef.current = window.grecaptcha.render("recaptcha-container", {
+            sitekey: recaptchaSiteKey,
+            callback: (token: string) => {
+              setCaptchaToken(token)
+            },
+            "expired-callback": () => {
+              setCaptchaToken("")
+            },
+            theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
+            size: "normal"
           })
+          setIsCaptchaReady(true)
         }
       } catch (error) {
         console.error("reCAPTCHA initialization error:", error)
@@ -217,9 +222,13 @@ export const LoginPage = () => {
               </Link>
             </div>
 
-            {/* reCAPTCHA container - nicely styled and positioned */}
+            {/* reCAPTCHA container with loading indicator */}
             <div className="flex justify-center mt-4">
-              <div id="recaptcha-container" className="transform scale-95 origin-center"></div>
+              <div id="recaptcha-container" className="transform scale-95 origin-center">
+                {!isCaptchaReady && (
+                  <div className="text-center py-3 text-sm text-gray-500">Loading reCAPTCHA...</div>
+                )}
+              </div>
             </div>
 
             <button
