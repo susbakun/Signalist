@@ -1,11 +1,12 @@
 import { RootState } from "@/app/store"
 import { addUser } from "@/features/User/usersSlice"
-import { STORAGE_KEYS } from "@/shared/constants"
+import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { AccountModel } from "@/shared/models"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useRef, useState } from "react"
+import ReCAPTCHA from "react-google-recaptcha"
 import { FaLock, FaUser } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
 import { useDispatch, useSelector } from "react-redux"
@@ -18,12 +19,15 @@ export const SignUpPage = () => {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState("")
+  const recaptchaRef = useRef<ReCAPTCHA>(null)
   const [errors, setErrors] = useState<{
     name?: string
     username?: string
     email?: string
     password?: string
     confirmPassword?: string
+    captcha?: string
     general?: string
   }>({})
 
@@ -34,6 +38,16 @@ export const SignUpPage = () => {
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
+  }
+
+  // Handle reCAPTCHA change
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token || "")
+  }
+
+  // Handle reCAPTCHA expiration
+  const handleCaptchaExpired = () => {
+    setCaptchaToken("")
   }
 
   const validateForm = () => {
@@ -74,12 +88,23 @@ export const SignUpPage = () => {
       newErrors.confirmPassword = "Passwords do not match"
     }
 
+    // Captcha validation
+    if (!captchaToken) {
+      newErrors.captcha = "Please complete the reCAPTCHA verification"
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Check if captcha token exists
+    if (!captchaToken) {
+      setErrors({ captcha: "Please complete the reCAPTCHA verification" })
+      return
+    }
 
     if (!validateForm()) {
       return
@@ -129,6 +154,11 @@ export const SignUpPage = () => {
     } catch (error) {
       console.error("Sign up failed:", error)
       setErrors({ general: "An error occurred during sign up" })
+      // Reset captcha on error
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset()
+      }
+      setCaptchaToken("")
     } finally {
       setIsLoading(false)
     }
@@ -239,9 +269,23 @@ export const SignUpPage = () => {
               </div>
             </div>
 
+            {/* reCAPTCHA component */}
+            <div className="flex justify-center mt-4">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={recaptchaSiteKey}
+                onChange={handleCaptchaChange}
+                onExpired={handleCaptchaExpired}
+                theme={document.documentElement.classList.contains("dark") ? "dark" : "light"}
+              />
+            </div>
+            {errors.captcha && (
+              <p className="text-red-500 text-xs mt-1 text-center">{errors.captcha}</p>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !captchaToken}
               className={cn(
                 "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity mt-6",
                 "disabled:opacity-50 disabled:cursor-not-allowed"

@@ -3,95 +3,36 @@ import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
+import ReCAPTCHA from "react-google-recaptcha"
 import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 
-// Declare global grecaptcha type
-declare global {
-  interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void
-      execute: (siteKey: string, options: { action: string }) => Promise<string>
-      render: (container: string | HTMLElement, parameters: object) => number
-      reset: (widgetId?: number) => void
-    }
-    onRecaptchaLoad: () => void
-  }
-}
-
-// reCAPTCHA site key
-
 export const LoginPage = () => {
-  const [identifier, setIdentifier] = useState("") // This will hold either email or username
+  const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
-  const [isCaptchaReady, setIsCaptchaReady] = useState(false)
-  const recaptchaRef = useRef<number | null>(null)
+  const recaptchaRef = useRef<ReCAPTCHA>(null)
   const navigate = useNavigate()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
 
-  // Load reCAPTCHA script when component mounts
-  useEffect(() => {
-    // Define callback function
-    window.onRecaptchaLoad = () => {
-      initializeRecaptcha()
-    }
+  // Handle reCAPTCHA change
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token || "")
+  }
 
-    // Only load if not already loaded
-    if (!document.getElementById("recaptcha-script")) {
-      const script = document.createElement("script")
-      script.id = "recaptcha-script"
-      script.src = `https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit`
-      script.async = true
-      script.defer = true
-      document.head.appendChild(script)
-
-      return () => {
-        const scriptElement = document.getElementById("recaptcha-script")
-        if (scriptElement) {
-          document.head.removeChild(scriptElement)
-        }
-      }
-    } else if (window.grecaptcha && window.grecaptcha.ready) {
-      // If script already exists, initialize recaptcha
-      window.grecaptcha.ready(() => {
-        initializeRecaptcha()
-      })
-    }
-  }, [])
-
-  // Initialize reCAPTCHA
-  const initializeRecaptcha = () => {
-    if (window.grecaptcha && document.getElementById("recaptcha-container")) {
-      try {
-        if (recaptchaRef.current === null) {
-          recaptchaRef.current = window.grecaptcha.render("recaptcha-container", {
-            sitekey: recaptchaSiteKey,
-            callback: (token: string) => {
-              setCaptchaToken(token)
-            },
-            "expired-callback": () => {
-              setCaptchaToken("")
-            },
-            theme: document.documentElement.classList.contains("dark") ? "dark" : "light",
-            size: "normal"
-          })
-          setIsCaptchaReady(true)
-        }
-      } catch (error) {
-        console.error("reCAPTCHA initialization error:", error)
-      }
-    }
+  // Handle reCAPTCHA expiration
+  const handleCaptchaExpired = () => {
+    setCaptchaToken("")
   }
 
   // Reset reCAPTCHA
   const resetCaptcha = () => {
-    if (window.grecaptcha && recaptchaRef.current !== null) {
-      window.grecaptcha.reset(recaptchaRef.current)
+    if (recaptchaRef.current) {
+      recaptchaRef.current.reset()
       setCaptchaToken("")
     }
   }
@@ -222,14 +163,19 @@ export const LoginPage = () => {
               </Link>
             </div>
 
-            {/* reCAPTCHA container with loading indicator */}
+            {/* reCAPTCHA component */}
             <div className="flex justify-center mt-4">
-              <div id="recaptcha-container" className="transform scale-95 origin-center">
-                {!isCaptchaReady && (
-                  <div className="text-center py-3 text-sm text-gray-500">Loading reCAPTCHA...</div>
-                )}
-              </div>
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={recaptchaSiteKey}
+                onChange={handleCaptchaChange}
+                onExpired={handleCaptchaExpired}
+                theme={document.documentElement.classList.contains("dark") ? "dark" : "light"}
+              />
             </div>
+            {error && error.includes("reCAPTCHA") && (
+              <p className="text-red-500 text-xs mt-1 text-center">{error}</p>
+            )}
 
             <button
               type="submit"
