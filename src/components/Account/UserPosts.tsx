@@ -37,7 +37,7 @@ export const UserPosts = () => {
     )
   return (
     <>
-      <div className="flex flex-col pb-4 mx-4 md:px-0 md:mx-16 border-x border-x-gray-600/20 dark:border-white/20">
+      <div className="flex flex-col pb-4 mx-4 md:px-0 md:pb-0 md:mx-16 border-x border-x-gray-600/20 dark:border-white/20">
         {myPosts.map((post) => (
           <Post
             className="border-y border-y-gray-600/20 dark:border-y-white/20 px-3 py-4 md:px-4 md:py-6"

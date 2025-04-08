@@ -72,7 +72,7 @@ export const UserPage = () => {
   // If both userAccount and myAccount exist, show the full profile
   return (
     <>
-      <div className="flex flex-col px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-32 pt-4 md:pt-6 gap-3 md:gap-6">
+      <div className="flex flex-col px-4 md:px-16 pt-4 md:pt-6 gap-3 md:gap-6">
         <AccountTopBar
           myAccount={myAccount}
           isItmMyAccount={isItmyAccount}

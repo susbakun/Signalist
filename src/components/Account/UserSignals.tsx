@@ -38,8 +38,8 @@ export const UserSignals = () => {
 
   return (
     <>
-      <div className="pb-4 w-full overflow-hidden relative flex flex-col justify-center">
-        <div className="w-fit overflow-hidden border-x mx-0 dark:border-x-white/20 border-x-gray-600/20 px-0 inset-0">
+      <div className="pb-4 w-full overflow-hidden relative flex flex-col justify-center md:px-16 md:pb-0">
+        <div className="w-full overflow-hidden border-x mx-0 dark:border-x-white/20 border-x-gray-600/20 px-0 inset-0">
           {mySignals.map((signal) => (
             <Signal key={signal.id} signal={signal} />
           ))}
