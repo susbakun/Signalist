@@ -141,7 +141,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
                     "opacity-0 h-0": isImageLoading
                   }
                 )}
-                src={signal.chartImageId}
+                src={chartHref}
                 alt="Chart"
                 onLoad={handleImageLoaded}
                 onError={handleImageLoaded}

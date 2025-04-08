@@ -490,7 +490,7 @@ export const signalsMock: SignalModel[] = [
       }
     ],
     isPremium: false,
-    chartImageId: "https://signals.storage.c2.liara.space/screenshot3.png",
+    chartImageId: "67f0532800082dc4529a",
     targets: [
       { id: v4(), value: 61500, touched: true },
       { id: v4(), value: 62000, touched: true },
@@ -515,7 +515,7 @@ export const signalsMock: SignalModel[] = [
       name: "BNB/USD",
       uuid: "WcwrkfNI4FUAe"
     },
-    chartImageId: "https://signals.storage.c2.liara.space/screenshot1.png",
+    chartImageId: "67f0522b000c23b90bf6",
     entry: 600,
     status: "open",
     likes: [
@@ -554,7 +554,7 @@ export const signalsMock: SignalModel[] = [
       name: "ETH/USD",
       uuid: "razxDUgYGNAdQ"
     },
-    chartImageId: "https://signals.storage.c2.liara.space/screenshot2.png",
+    chartImageId: "67f0523600065bc47cb7",
     entry: 2887,
     status: "closed",
     likes: [
