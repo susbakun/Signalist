@@ -146,7 +146,7 @@ export const MessageRoomMessages = ({
                     onClick={() => handleImageEnlarge(message.sender.imageUrl)}
                   >
                     {getProperAvatar(
-                      getAvatarPlaceholder(message.sender.username),
+                      getAvatarPlaceholder(message.sender.name),
                       message.sender,
                       undefined
                     )}

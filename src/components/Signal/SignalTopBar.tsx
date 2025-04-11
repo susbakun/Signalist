@@ -13,7 +13,7 @@ type SignalTopBarProps = {
 }
 
 export const SignalTopBar = ({ date, publisher, signalId, subscribed }: SignalTopBarProps) => {
-  const placeholder = getAvatarPlaceholder(publisher.username)
+  const placeholder = getAvatarPlaceholder(publisher.name)
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">

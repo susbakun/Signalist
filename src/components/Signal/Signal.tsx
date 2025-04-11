@@ -1,7 +1,6 @@
 import { AppDispatch } from "@/app/store"
 import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { updateSignalStatusAsync } from "@/features/Signal/signalsSlice"
-import { updateUserScoreAsync } from "@/features/User/usersSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { AccountModel, SignalModel } from "@/shared/models"
@@ -33,17 +32,70 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
   }
 
   useEffect(() => {
+    // Don't set up checks for already closed signals
+    if (signal.status === "closed") {
+      return
+    }
+
+    // Update once immediately to catch any immediate state changes
     updateSignalStatus()
-    const intervalId = setInterval(() => {
-      updateSignalStatus()
-    }, 60000)
 
-    return () => clearInterval(intervalId)
-  }, [])
+    const now = new Date().getTime()
+    const OFFSET_BUFFER = 30000 // 30 seconds buffer
 
-  useEffect(() => {
-    dispatch(updateUserScoreAsync({ signal }))
-  }, [signal, dispatch])
+    // Array to keep track of all timeout ids so we can clear them on cleanup
+    const timeoutIds: NodeJS.Timeout[] = []
+
+    // Schedule checks at strategic times based on signal state
+    if (signal.status === "not_opened") {
+      // Check 1: Right before opening time
+      if (signal.openTime > now) {
+        const timeUntilOpen = Math.max(500, signal.openTime - now - OFFSET_BUFFER)
+        console.log(
+          `Scheduling check for signal ${signal.id} opening in ${Math.round(timeUntilOpen / 1000)} seconds`
+        )
+
+        const openingTimeoutId = setTimeout(() => {
+          console.log(`Checking signal ${signal.id} near opening time`)
+          updateSignalStatus()
+        }, timeUntilOpen)
+
+        timeoutIds.push(openingTimeoutId)
+      }
+    }
+
+    // Schedule check for closing time (regardless of current status)
+    if (signal.closeTime > now) {
+      // Check 2: Right before closing time
+      const timeUntilClose = Math.max(500, signal.closeTime - now - OFFSET_BUFFER)
+      console.log(
+        `Scheduling check for signal ${signal.id} closing in ${Math.round(timeUntilClose / 1000)} seconds`
+      )
+
+      const closingTimeoutId = setTimeout(() => {
+        console.log(`Checking signal ${signal.id} near closing time`)
+        updateSignalStatus()
+      }, timeUntilClose)
+
+      // Check 3: After closing time (final status update + cleanup)
+      const timeUntilAfterClose = Math.max(1000, signal.closeTime - now + OFFSET_BUFFER)
+      console.log(
+        `Scheduling final check for signal ${signal.id} after closing in ${Math.round(timeUntilAfterClose / 1000)} seconds`
+      )
+
+      const afterCloseTimeoutId = setTimeout(() => {
+        console.log(`Final check for signal ${signal.id} after closing time`)
+        updateSignalStatus()
+      }, timeUntilAfterClose)
+
+      timeoutIds.push(closingTimeoutId, afterCloseTimeoutId)
+    }
+
+    // Cleanup function to clear all timeouts
+    return () => {
+      timeoutIds.forEach((id) => clearTimeout(id))
+    }
+  }, [signal.id, signal.status, signal.openTime, signal.closeTime])
 
   useEffect(() => {
     if (myAccount) {

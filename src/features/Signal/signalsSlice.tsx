@@ -3,6 +3,7 @@ import { CoinType, RootState, SignalAccountType, SimplifiedAccountType } from "@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import * as signalsApi from "@/services/signalsApi"
+import { getUserByUsernameAsync } from "@/features/User/usersSlice"
 
 // Define async thunks for API operations
 export const fetchSignals = createAsyncThunk("signals/fetchSignals", async () => {
@@ -30,9 +31,26 @@ export const createSignalAsync = createAsyncThunk(
 
 export const updateSignalStatusAsync = createAsyncThunk(
   "signals/updateSignalStatus",
-  async ({ signalId }: { signalId: string }, { rejectWithValue }) => {
+  async ({ signalId }: { signalId: string }, { dispatch, getState, rejectWithValue }) => {
     try {
+      const state = getState() as RootState
+      const oldSignal = state.signals.signals.find((signal) => signal.id === signalId)
       const updatedSignal = await signalsApi.updateSignalStatus(signalId)
+
+      // If there's an old signal and a publisher score change, update the user data
+      if (
+        oldSignal &&
+        oldSignal.publisher.score !== updatedSignal.publisher.score &&
+        updatedSignal.publisher.username
+      ) {
+        console.log(
+          `Publisher score changed from ${oldSignal.publisher.score} to ${updatedSignal.publisher.score}`
+        )
+
+        // Fetch the latest user data to update the UI
+        dispatch(getUserByUsernameAsync(updatedSignal.publisher.username))
+      }
+
       return updatedSignal
     } catch (error: unknown) {
       return rejectWithValue(error instanceof Error ? error.toString() : String(error))

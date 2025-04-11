@@ -120,11 +120,12 @@ const usersSlice = createSlice({
 
       // Handle get user by username cases
       .addCase(getUserByUsernameAsync.pending, (state) => {
-        state.loading = true
+        // Don't set global loading state to true for user fetching
+        // This prevents unnecessary UI refreshes when updating scores
         state.error = null
       })
       .addCase(getUserByUsernameAsync.fulfilled, (state, action) => {
-        state.loading = false
+        // Update only the specific user that changed
         const index = state.users.findIndex((user) => user.username === action.payload.username)
         if (index !== -1) {
           state.users[index] = action.payload
@@ -133,7 +134,7 @@ const usersSlice = createSlice({
         }
       })
       .addCase(getUserByUsernameAsync.rejected, (state, action) => {
-        state.loading = false
+        // Don't set loading to false here since we didn't set it to true in pending
         state.error = action.error.message || "Failed to fetch user"
       })
 
