@@ -42,7 +42,7 @@ describe("useIsUserBlocked hook", () => {
   })
 
   it("should handle undefined account", () => {
-    const { isUserBlocked } = useIsUserBlocked(undefined)
+    const { isUserBlocked } = useIsUserBlocked(null)
     const result = isUserBlocked("anyuser")
     expect(result).toBe(undefined)
   })

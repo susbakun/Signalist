@@ -1,6 +1,7 @@
 import { Post } from "@/components/Post/Post"
-import { PostModel } from "@/shared/models"
-import { render, screen } from "@testing-library/react"
+import { AccountModel, PostModel } from "@/shared/models"
+import "@testing-library/jest-dom"
+import { render, screen, fireEvent } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import { vi } from "vitest"
@@ -84,6 +85,7 @@ describe("Post Component", () => {
     likes: [],
     comments: [],
     isPremium: false,
+    postImageHref: "post-123.png",
     publisher: {
       username: "publisher",
       name: "Publisher Name",
@@ -91,12 +93,26 @@ describe("Post Component", () => {
     }
   }
 
+  const mockAccount: AccountModel = {
+    username: "testuser",
+    name: "Test User",
+    email: "test@example.com",
+    password: "password",
+    imageUrl: "test-image.jpg",
+    score: 100,
+    hasPremium: false,
+    followings: [],
+    followers: [],
+    bookmarks: { signals: [], posts: [] },
+    blockedAccounts: []
+  }
+
   test("renders post component correctly", () => {
     render(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <Post post={mockPost} />
+          <Post post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -117,7 +133,7 @@ describe("Post Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <Post post={mockPost} />
+          <Post post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -125,16 +141,12 @@ describe("Post Component", () => {
     expect(container.firstChild).toBeNull()
   })
 
-  // This test would require a way to trigger the handleOpenEditPostModal function
-  // Since we've mocked the components, we'll need to simulate this differently
-  test("opens edit post modal when triggered", () => {
-    // We need to create a custom implementation to test this
-    // For now, we'll just verify the initial state
+  test("opens edit post modal when edit button is clicked", () => {
     render(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <Post post={mockPost} />
+          <Post post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -142,8 +154,30 @@ describe("Post Component", () => {
     // Initially the modal should not be visible
     expect(screen.queryByTestId("edit-post-modal")).not.toBeInTheDocument()
 
-    // In a real test, we would trigger the modal opening here
-    // But since we've mocked the components, we'll need a different approach
-    // This would typically involve finding a button and clicking it
+    // Find and click the edit button (assuming it's in the PostTopBar)
+    const editButton = screen.getByTestId("edit-post-button")
+    fireEvent.click(editButton)
+
+    // Modal should now be visible
+    expect(screen.getByTestId("edit-post-modal")).toBeInTheDocument()
+  })
+
+  test("handles premium post correctly", () => {
+    const premiumPost: PostModel = {
+      ...mockPost,
+      isPremium: true
+    }
+
+    render(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <Provider store={mockStore as any}>
+        <BrowserRouter>
+          <Post post={premiumPost} myAccount={mockAccount} />
+        </BrowserRouter>
+      </Provider>
+    )
+
+    // Check if the premium content is blurred
+    expect(screen.getByTestId("blured-post-component")).toBeInTheDocument()
   })
 })

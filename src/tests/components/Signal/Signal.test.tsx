@@ -1,7 +1,7 @@
 import { Signal } from "@/components/Signal/Signal"
-import { SignalModel } from "@/shared/models"
+import { AccountModel, SignalModel } from "@/shared/models"
 import "@testing-library/jest-dom"
-import { render, screen } from "@testing-library/react"
+import { render, screen, fireEvent } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import { vi } from "vitest"
@@ -110,6 +110,7 @@ describe("Signal Component", () => {
     likes: [],
     description: "Test signal description",
     isPremium: false,
+    chartImageHref: "chart-123.png",
     publisher: {
       username: "publisher",
       name: "Publisher Name",
@@ -118,12 +119,26 @@ describe("Signal Component", () => {
     }
   }
 
+  const mockAccount: AccountModel = {
+    username: "testuser",
+    name: "Test User",
+    email: "test@example.com",
+    password: "password",
+    imageUrl: "test-image.jpg",
+    score: 100,
+    hasPremium: false,
+    followings: [],
+    followers: [],
+    bookmarks: { signals: [], posts: [] },
+    blockedAccounts: []
+  }
+
   test("renders signal component correctly", () => {
     render(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <Signal signal={mockSignal} />
+          <Signal signal={mockSignal} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -143,11 +158,32 @@ describe("Signal Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <Signal signal={mockSignal} />
+          <Signal signal={mockSignal} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
 
     expect(container.firstChild).toBeNull()
+  })
+
+  test("opens edit signal modal when triggered", () => {
+    render(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <Provider store={mockStore as any}>
+        <BrowserRouter>
+          <Signal signal={mockSignal} myAccount={mockAccount} />
+        </BrowserRouter>
+      </Provider>
+    )
+
+    // Initially the modal should not be visible
+    expect(screen.queryByTestId("edit-signal-modal")).not.toBeInTheDocument()
+
+    // Find and click the edit button (assuming it's in the SignalTopBar)
+    const editButton = screen.getByTestId("edit-signal-button")
+    fireEvent.click(editButton)
+
+    // Modal should now be visible
+    expect(screen.getByTestId("edit-signal-modal")).toBeInTheDocument()
   })
 })

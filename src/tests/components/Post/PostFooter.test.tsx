@@ -1,6 +1,6 @@
 import { PostFooter } from "@/components/Post/PostFooter"
 import * as postsSlice from "@/features/Post/postsSlice"
-import { PostModel } from "@/shared/models"
+import { AccountModel, PostModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import "@testing-library/jest-dom"
 import { fireEvent, render, screen } from "@testing-library/react"
@@ -50,6 +50,20 @@ describe("PostFooter Component", () => {
     imageUrl: "test-image.jpg"
   }
 
+  const mockAccount: AccountModel = {
+    username: "testuser",
+    name: "Test User",
+    email: "test@example.com",
+    password: "password",
+    imageUrl: "test-image.jpg",
+    score: 100,
+    hasPremium: false,
+    followings: [],
+    followers: [],
+    bookmarks: { signals: [], posts: [] },
+    blockedAccounts: []
+  }
+
   const mockPost: PostModel = {
     id: "1",
     content: "Test post content",
@@ -57,6 +71,7 @@ describe("PostFooter Component", () => {
     likes: [],
     comments: [],
     isPremium: false,
+    postImageHref: "post-123.png",
     publisher: {
       username: "publisher",
       name: "Publisher Name",
@@ -73,7 +88,7 @@ describe("PostFooter Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <PostFooter post={mockPost} />
+          <PostFooter post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -112,7 +127,7 @@ describe("PostFooter Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <PostFooter post={postWithLikesAndComments} />
+          <PostFooter post={postWithLikesAndComments} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -122,14 +137,14 @@ describe("PostFooter Component", () => {
   })
 
   test("handles like button click when post is not liked", () => {
-    // Spy on the likePost action
-    const likePostSpy = vi.spyOn(postsSlice, "likePost")
+    // Spy on the likePostAsync action
+    const likePostSpy = vi.spyOn(postsSlice, "likePostAsync")
 
     render(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <PostFooter post={mockPost} />
+          <PostFooter post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -137,7 +152,7 @@ describe("PostFooter Component", () => {
     // Click the like button
     fireEvent.click(screen.getByTestId("like-button"))
 
-    // Check if the likePost action was dispatched with correct parameters
+    // Check if the likePostAsync action was dispatched with correct parameters
     expect(likePostSpy).toHaveBeenCalledWith({
       postId: mockPost.id,
       user: expect.objectContaining({ username: "testuser" })
@@ -146,8 +161,8 @@ describe("PostFooter Component", () => {
   })
 
   test("handles like button click when post is already liked", () => {
-    // Spy on the dislikePost action
-    const dislikePostSpy = vi.spyOn(postsSlice, "dislikePost")
+    // Spy on the dislikePostAsync action
+    const dislikePostSpy = vi.spyOn(postsSlice, "dislikePostAsync")
 
     const likedPost: PostModel = {
       ...mockPost,
@@ -158,7 +173,7 @@ describe("PostFooter Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <PostFooter post={likedPost} />
+          <PostFooter post={likedPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -166,7 +181,7 @@ describe("PostFooter Component", () => {
     // Click the like button (which should dislike since it's already liked)
     fireEvent.click(screen.getByTestId("like-button"))
 
-    // Check if the dislikePost action was dispatched with correct parameters
+    // Check if the dislikePostAsync action was dispatched with correct parameters
     expect(dislikePostSpy).toHaveBeenCalledWith({
       postId: likedPost.id,
       user: expect.objectContaining({ username: "testuser" })
@@ -179,7 +194,7 @@ describe("PostFooter Component", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <Provider store={mockStore as any}>
         <BrowserRouter>
-          <PostFooter post={mockPost} />
+          <PostFooter post={mockPost} myAccount={mockAccount} />
         </BrowserRouter>
       </Provider>
     )
@@ -198,5 +213,59 @@ describe("PostFooter Component", () => {
 
     // Comment section should be hidden again
     expect(screen.queryByTestId("comment-section")).not.toBeInTheDocument()
+  })
+
+  test("handles premium post interactions correctly", () => {
+    const premiumPost: PostModel = {
+      ...mockPost,
+      isPremium: true
+    }
+
+    render(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <Provider store={mockStore as any}>
+        <BrowserRouter>
+          <PostFooter post={premiumPost} myAccount={mockAccount} amISubscribed={false} />
+        </BrowserRouter>
+      </Provider>
+    )
+
+    // Like button should be disabled for non-subscribed users
+    const likeButton = screen.getByTestId("like-button")
+    expect(likeButton).toBeDisabled()
+
+    // Comment button should be disabled for non-subscribed users
+    const commentButton = screen.getByTestId("comment-button")
+    expect(commentButton).toBeDisabled()
+
+    // Should show subscription prompt
+    expect(screen.getByText("Subscribe to interact")).toBeInTheDocument()
+  })
+
+  test("allows interactions for subscribed users on premium posts", () => {
+    const premiumPost: PostModel = {
+      ...mockPost,
+      isPremium: true
+    }
+
+    render(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <Provider store={mockStore as any}>
+        <BrowserRouter>
+          <PostFooter post={premiumPost} myAccount={mockAccount} amISubscribed={true} />
+        </BrowserRouter>
+      </Provider>
+    )
+
+    // Like button should be enabled for subscribed users
+    const likeButton = screen.getByTestId("like-button")
+    expect(likeButton).not.toBeDisabled()
+
+    // Comment button should be enabled for subscribed users
+    const commentButton = screen.getByTestId("comment-button")
+    expect(commentButton).not.toBeDisabled()
+
+    // Should not show subscription prompt
+    expect(screen.queryByText("Subscribe to interact")).not.toBeInTheDocument()
   })
 })

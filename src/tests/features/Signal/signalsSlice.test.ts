@@ -1,11 +1,10 @@
 import signalsReducer, {
-  createSignal,
-  dislikeSignal,
-  likeSignal,
-  updateSignalsState
+  createSignalAsync,
+  dislikeSignalAsync,
+  likeSignalAsync,
+  updateSignalStatusAsync
 } from "@/features/Signal/signalsSlice"
-import { SignalModel } from "@/shared/models"
-import { CoinType, SimplifiedAccountType } from "@/shared/types"
+import { SimplifiedAccountType, StatusType } from "@/shared/types"
 import { vi } from "vitest"
 
 // Mock uuid generation
@@ -27,40 +26,48 @@ describe("signalsSlice", () => {
     score: 100
   }
 
-  const initialState: SignalModel[] = [
-    {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: false },
-        { id: "t2", value: 55000, touched: false }
-      ],
-      openTime: Date.now() + 3600000, // 1 hour in the future
-      closeTime: Date.now() + 86400000, // 24 hours in the future
-      status: "not_opened",
-      date: Date.now() - 3600000, // 1 hour ago
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: mockPublisher
-    }
-  ]
+  const initialState = {
+    signals: [
+      {
+        id: "1",
+        market: {
+          name: "BTC/USD",
+          uuid: "bitcoin-uuid"
+        },
+        entry: 50000,
+        stoploss: 48000,
+        targets: [
+          { id: "t1", value: 52000, touched: false },
+          { id: "t2", value: 55000, touched: false }
+        ],
+        openTime: Date.now() + 3600000, // 1 hour in the future
+        closeTime: Date.now() + 86400000, // 24 hours in the future
+        status: "not_opened" as StatusType,
+        date: Date.now() - 3600000, // 1 hour ago
+        likes: [],
+        description: "Test signal",
+        isPremium: false,
+        publisher: mockPublisher
+      }
+    ],
+    loading: false,
+    error: null
+  }
 
   test("should handle initial state", () => {
-    expect(signalsReducer(undefined, { type: "unknown" })).toEqual(expect.any(Array))
+    expect(signalsReducer(undefined, { type: "unknown" })).toEqual({
+      signals: [],
+      loading: false,
+      error: null
+    })
   })
 
-  test("should handle createSignal", () => {
+  test("should handle createSignalAsync.fulfilled", () => {
     const newSignal = {
       openTime: Date.now() + 3600000,
       closeTime: Date.now() + 86400000,
       publisher: mockPublisher,
-      status: "not_opened",
+      status: "not_opened" as StatusType,
       isPremium: false,
       market: {
         name: "ETH/USD",
@@ -75,24 +82,27 @@ describe("signalsSlice", () => {
       description: "New test signal"
     }
 
-    const action = createSignal(newSignal)
+    const action = {
+      type: createSignalAsync.fulfilled.type,
+      payload: {
+        id: "mocked-uuid",
+        date: expect.any(Number),
+        likes: [],
+        ...newSignal
+      }
+    }
     const state = signalsReducer(initialState, action)
 
-    expect(state.length).toBe(2)
-    expect(state[1]).toEqual({
-      id: "mocked-uuid",
-      date: expect.any(Number),
-      likes: [],
-      ...newSignal
-    })
+    expect(state.signals.length).toBe(2)
+    expect(state.signals[1]).toEqual(action.payload)
   })
 
-  test("should handle createSignal with chart image", () => {
+  test("should handle createSignalAsync.fulfilled with chart image", () => {
     const newSignal = {
       openTime: Date.now() + 3600000,
       closeTime: Date.now() + 86400000,
       publisher: mockPublisher,
-      status: "not_opened",
+      status: "not_opened" as StatusType,
       isPremium: false,
       market: {
         name: "ETH/USD",
@@ -105,82 +115,83 @@ describe("signalsSlice", () => {
         { id: "t2", value: 3500, touched: false }
       ],
       description: "New test signal with chart",
-      chartImageId: "chart-123"
+      chartImageHref: "chart-123.png"
     }
 
-    const action = createSignal(newSignal)
+    const action = {
+      type: createSignalAsync.fulfilled.type,
+      payload: {
+        id: "mocked-uuid",
+        date: expect.any(Number),
+        likes: [],
+        ...newSignal
+      }
+    }
     const state = signalsReducer(initialState, action)
 
-    expect(state.length).toBe(2)
-    expect(state[1].chartImageId).toBe("chart-123")
+    expect(state.signals.length).toBe(2)
+    expect(state.signals[1].chartImageHref).toBe("chart-123.png")
   })
 
-  test("should handle likeSignal", () => {
-    const action = likeSignal({ signalId: "1", user: mockUser })
+  test("should handle likeSignalAsync.fulfilled", () => {
+    const action = {
+      type: likeSignalAsync.fulfilled.type,
+      payload: {
+        signalId: "1",
+        likes: [mockUser]
+      }
+    }
     const state = signalsReducer(initialState, action)
 
-    expect(state[0].likes).toContainEqual(mockUser)
-    expect(state[0].likes.length).toBe(1)
+    expect(state.signals[0].likes).toContainEqual(mockUser)
+    expect(state.signals[0].likes.length).toBe(1)
   })
 
-  test("should not add duplicate likes", () => {
-    // First like
-    let state = signalsReducer(initialState, likeSignal({ signalId: "1", user: mockUser }))
+  test("should handle dislikeSignalAsync.fulfilled", () => {
+    const action = {
+      type: dislikeSignalAsync.fulfilled.type,
+      payload: {
+        signalId: "1",
+        likes: []
+      }
+    }
+    const state = signalsReducer(initialState, action)
 
-    // Try to like again with same user
-    state = signalsReducer(state, likeSignal({ signalId: "1", user: mockUser }))
-
-    // Should still only have one like
-    expect(state[0].likes.length).toBe(1)
+    expect(state.signals[0].likes).not.toContainEqual(mockUser)
+    expect(state.signals[0].likes.length).toBe(0)
   })
 
-  test("should handle dislikeSignal", () => {
-    // First add a like
-    let state = signalsReducer(initialState, likeSignal({ signalId: "1", user: mockUser }))
-
-    // Then remove it
-    const action = dislikeSignal({ signalId: "1", user: mockUser })
-    state = signalsReducer(state, action)
-
-    expect(state[0].likes).not.toContainEqual(mockUser)
-    expect(state[0].likes.length).toBe(0)
-  })
-
-  test("should handle updateSignalsState for not_opened signals", () => {
+  test("should handle updateSignalStatusAsync.fulfilled for not_opened signals", () => {
     // Mock the current time to be after the openTime
-    const mockCurrentTime = initialState[0].openTime + 1000
+    const mockCurrentTime = initialState.signals[0].openTime + 1000
     const originalDate = Date.now
     Date.now = vi.fn().mockReturnValue(mockCurrentTime)
 
-    const mockCoins: CoinType[] = [
-      {
-        uuid: "bitcoin-uuid",
-        rank: 1,
-        symbol: "BTC",
-        change: "2.5",
-        marketCap: "1000000000",
-        price: "51000",
-        iconUrl: "btc-icon.png",
-        name: "Bitcoin",
-        "24hVolume": "50000000"
+    const action = {
+      type: updateSignalStatusAsync.fulfilled.type,
+      payload: {
+        signals: [
+          {
+            ...initialState.signals[0],
+            status: "open" as StatusType
+          }
+        ]
       }
-    ]
-
-    const action = updateSignalsState({ coins: mockCoins })
+    }
     const state = signalsReducer(initialState, action)
 
     // Signal should now be open
-    expect(state[0].status).toBe("open")
+    expect(state.signals[0].status).toBe("open")
 
     // Restore the original Date.now
     Date.now = originalDate
   })
 
-  test("should handle updateSignalsState for open signals", () => {
+  test("should handle updateSignalStatusAsync.fulfilled for open signals", () => {
     // Create a signal that's already open
     const openSignal = {
-      ...initialState[0],
-      status: "open",
+      ...initialState.signals[0],
+      status: "open" as StatusType,
       openTime: Date.now() - 3600000, // 1 hour ago
       closeTime: Date.now() + 1000 // Just about to close
     }
@@ -190,163 +201,56 @@ describe("signalsSlice", () => {
     const originalDate = Date.now
     Date.now = vi.fn().mockReturnValue(mockCurrentTime)
 
-    // Mock the current price to be above the first target
-    const mockCoins: CoinType[] = [
-      {
-        uuid: "bitcoin-uuid",
-        rank: 1,
-        symbol: "BTC",
-        change: "2.5",
-        marketCap: "1000000000",
-        price: "53000", // Above the first target
-        iconUrl: "btc-icon.png",
-        name: "Bitcoin",
-        "24hVolume": "50000000"
+    const action = {
+      type: updateSignalStatusAsync.fulfilled.type,
+      payload: {
+        signals: [
+          {
+            ...openSignal,
+            status: "closed" as StatusType,
+            targets: [
+              { id: "t1", value: 52000, touched: true },
+              { id: "t2", value: 55000, touched: false }
+            ],
+            publisher: {
+              ...mockPublisher,
+              score: 101
+            }
+          }
+        ]
       }
-    ]
-
-    const action = updateSignalsState({ coins: mockCoins })
-    const state = signalsReducer([{ ...openSignal, status: "open" as const }], action)
+    }
+    const state = signalsReducer({ ...initialState, signals: [openSignal] }, action)
 
     // Signal should now be closed
-    expect(state[0].status).toBe("closed")
+    expect(state.signals[0].status).toBe("closed")
 
     // First target should be marked as touched
-    expect(state[0].targets[0].touched).toBe(true)
+    expect(state.signals[0].targets[0].touched).toBe(true)
 
     // Second target should not be touched (price not high enough)
-    expect(state[0].targets[1].touched).toBe(false)
+    expect(state.signals[0].targets[1].touched).toBe(false)
 
     // Publisher score should be increased
-    expect(state[0].publisher.score).toBe(101) // Original 100 + 1 for the touched target
+    expect(state.signals[0].publisher.score).toBe(101) // Original 100 + 1 for the touched target
 
     // Restore the original Date.now
     Date.now = originalDate
   })
 
-  test("should handle updateSignalsState for open signals with all targets touched", () => {
-    // Create a signal that's already open
-    const openSignal = {
-      ...initialState[0],
-      status: "open",
-      openTime: Date.now() - 3600000, // 1 hour ago
-      closeTime: Date.now() + 1000 // Just about to close
+  test("should handle loading states", () => {
+    const loadingAction = {
+      type: createSignalAsync.pending.type
     }
+    const loadingState = signalsReducer(initialState, loadingAction)
+    expect(loadingState.loading).toBe(true)
 
-    // Mock the current time to be after the closeTime
-    const mockCurrentTime = openSignal.closeTime + 1000
-    const originalDate = Date.now
-    Date.now = vi.fn().mockReturnValue(mockCurrentTime)
-
-    // Mock the current price to be above all targets
-    const mockCoins: CoinType[] = [
-      {
-        uuid: "bitcoin-uuid",
-        rank: 1,
-        symbol: "BTC",
-        change: "2.5",
-        marketCap: "1000000000",
-        price: "56000", // Above both targets
-        iconUrl: "btc-icon.png",
-        name: "Bitcoin",
-        "24hVolume": "50000000"
-      }
-    ]
-
-    const action = updateSignalsState({ coins: mockCoins })
-    const state = signalsReducer([{ ...openSignal, status: "open" as const }], action)
-
-    // Signal should now be closed
-    expect(state[0].status).toBe("closed")
-
-    // Both targets should be marked as touched
-    expect(state[0].targets[0].touched).toBe(true)
-    expect(state[0].targets[1].touched).toBe(true)
-
-    // Publisher score should be increased by 2
-    expect(state[0].publisher.score).toBe(102) // Original 100 + 2 for the touched targets
-
-    // Restore the original Date.now
-    Date.now = originalDate
-  })
-
-  test("should not update signal status if time conditions are not met", () => {
-    // Create a signal that's not opened yet
-    const notOpenedSignal = {
-      ...initialState[0],
-      status: "not_opened",
-      openTime: Date.now() + 3600000, // 1 hour in the future
-      closeTime: Date.now() + 86400000 // 24 hours in the future
+    const errorAction = {
+      type: createSignalAsync.rejected.type,
+      error: { message: "Failed to create signal" }
     }
-
-    // Mock the current time to be before the openTime
-    const mockCurrentTime = notOpenedSignal.openTime - 3600000 // 1 hour before open time
-    const originalDate = Date.now
-    Date.now = vi.fn().mockReturnValue(mockCurrentTime)
-
-    const mockCoins: CoinType[] = [
-      {
-        uuid: "bitcoin-uuid",
-        rank: 1,
-        symbol: "BTC",
-        change: "2.5",
-        marketCap: "1000000000",
-        price: "51000",
-        iconUrl: "btc-icon.png",
-        name: "Bitcoin",
-        "24hVolume": "50000000"
-      }
-    ]
-
-    const action = updateSignalsState({ coins: mockCoins })
-    const state = signalsReducer([{ ...notOpenedSignal, status: "not_opened" as const }], action)
-
-    // Signal should still be not_opened
-    expect(state[0].status).toBe("not_opened")
-
-    // Restore the original Date.now
-    Date.now = originalDate
-  })
-
-  test("should handle updateSignalsState with no matching coin", () => {
-    // Create a signal that's open
-    const openSignal = {
-      ...initialState[0],
-      status: "open",
-      openTime: Date.now() - 3600000, // 1 hour ago
-      closeTime: Date.now() + 1000 // Just about to close
-    }
-
-    // Mock the current time to be after the closeTime
-    const mockCurrentTime = openSignal.closeTime + 1000
-    const originalDate = Date.now
-    Date.now = vi.fn().mockReturnValue(mockCurrentTime)
-
-    // Mock coins with no matching coin for the signal
-    const mockCoins: CoinType[] = [
-      {
-        uuid: "ethereum-uuid", // Different coin
-        rank: 2,
-        symbol: "ETH",
-        change: "3.5",
-        marketCap: "500000000",
-        price: "3500",
-        iconUrl: "eth-icon.png",
-        name: "Ethereum",
-        "24hVolume": "30000000"
-      }
-    ]
-
-    const action = updateSignalsState({ coins: mockCoins })
-    const state = signalsReducer([{ ...openSignal, status: "open" as const }], action)
-
-    // Signal should be closed due to time, but targets should not be touched
-    expect(state[0].status).toBe("closed")
-    expect(state[0].targets[0].touched).toBe(false)
-    expect(state[0].targets[1].touched).toBe(false)
-    expect(state[0].publisher.score).toBe(100) // Score unchanged
-
-    // Restore the original Date.now
-    Date.now = originalDate
+    const errorState = signalsReducer(loadingState, errorAction)
+    expect(errorState.loading).toBe(false)
+    expect(errorState.error).toBe("Failed to create signal")
   })
 })

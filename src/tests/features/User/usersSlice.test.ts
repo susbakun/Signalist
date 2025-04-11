@@ -1,16 +1,13 @@
 import usersReducer, {
-  addUser,
-  blockUser,
-  bookmarkPost,
-  bookmarkSignal,
-  followUser,
-  unBookmarkPost,
-  unBookmarkSignal,
-  unfollowUser,
-  updateUserScore,
+  fetchUsersAsync,
+  followUserAsync,
+  unfollowUserAsync,
+  blockUserAsync,
+  updateBookmarksAsync,
+  updateUserScoreAsync,
   useAppSelector
 } from "@/features/User/usersSlice"
-import { AccountModel, PostModel, SignalModel } from "@/shared/models"
+import { AccountModel, PostModel } from "@/shared/models"
 
 describe("usersSlice", () => {
   // Mock user data
@@ -22,6 +19,7 @@ describe("usersSlice", () => {
     imageUrl: "test-image.jpg",
     score: 100,
     hasPremium: false,
+    subscriptionPlan: [],
     followings: [],
     followers: [],
     bookmarks: { signals: [], posts: [] },
@@ -36,140 +34,102 @@ describe("usersSlice", () => {
     imageUrl: "another-image.jpg",
     score: 200,
     hasPremium: true,
+    subscriptionPlan: [{ duration: "30 days", price: 9.99 }],
     followings: [],
     followers: [],
     bookmarks: { signals: [], posts: [] },
     blockedAccounts: []
   }
 
-  const initialState: AccountModel[] = [mockUser1]
+  const initialState = {
+    users: [mockUser1],
+    loading: false,
+    error: null
+  }
 
   test("should handle initial state", () => {
-    expect(usersReducer(undefined, { type: "unknown" })).toEqual(expect.any(Array))
+    expect(usersReducer(undefined, { type: "unknown" })).toEqual({
+      users: [],
+      loading: false,
+      error: null
+    })
   })
 
-  test("should handle addUser", () => {
-    const action = addUser(mockUser2)
+  test("should handle fetchUsersAsync.fulfilled", () => {
+    const action = {
+      type: fetchUsersAsync.fulfilled.type,
+      payload: [mockUser1, mockUser2]
+    }
     const state = usersReducer(initialState, action)
-
-    expect(state.length).toBe(2)
-    expect(state[1]).toEqual(mockUser2)
+    expect(state.users.length).toBe(2)
+    expect(state.users[1]).toEqual(mockUser2)
   })
 
-  test("should handle followUser", () => {
-    const action = followUser({
-      followerUsername: "testuser",
-      followingUsername: "anotheruser"
-    })
-
-    // Add both users to the state
-    const stateWithBothUsers = [...initialState, mockUser2]
-    const state = usersReducer(stateWithBothUsers, action)
-
-    // Check if testuser is now following anotheruser
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.followings.length).toBe(1)
-    expect(testUser?.followings[0].username).toBe("anotheruser")
-
-    // Check if anotheruser now has testuser as a follower
-    const anotherUser = state.find((user) => user.username === "anotheruser")
-    expect(anotherUser?.followers.length).toBe(1)
-    expect(anotherUser?.followers[0].username).toBe("testuser")
-  })
-
-  test("should handle unfollowUser", () => {
-    // First make testuser follow anotheruser
-    const stateWithBothUsers = [...initialState, mockUser2]
-    let state = usersReducer(
-      stateWithBothUsers,
-      followUser({
-        followerUsername: "testuser",
-        followingUsername: "anotheruser"
-      })
-    )
-
-    // Then unfollow
-    const action = unfollowUser({
-      followerUsername: "testuser",
-      followingUsername: "anotheruser"
-    })
-    state = usersReducer(state, action)
-
-    // Check if testuser is no longer following anotheruser
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.followings.length).toBe(0)
-
-    // Check if anotheruser no longer has testuser as a follower
-    const anotherUser = state.find((user) => user.username === "anotheruser")
-    expect(anotherUser?.followers.length).toBe(0)
-  })
-
-  test("should handle updateUserScore", () => {
-    // Create a mock signal with touched targets
-    const mockSignal: SignalModel = {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: true },
-        { id: "t2", value: 55000, touched: false }
-      ],
-      openTime: Date.now() - 7200000, // 2 hours ago
-      closeTime: Date.now() - 3600000, // 1 hour ago (recently closed)
-      status: "closed",
-      date: Date.now() - 86400000, // 1 day ago
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: {
-        username: "testuser",
-        name: "Test User",
-        imageUrl: "test-image.jpg",
-        score: 100
-      }
+  test("should handle followUserAsync.fulfilled", () => {
+    const updatedUser1 = {
+      ...mockUser1,
+      followings: [{ username: "anotheruser", name: "Another User", imageUrl: "another-image.jpg" }]
     }
 
-    // Mock the current time to be just after the signal closed
-    const originalDate = Date.now
-    Date.now = jest.fn().mockReturnValue(mockSignal.closeTime + 60000) // 1 minute after close
-
-    const action = updateUserScore({ signal: mockSignal })
+    const action = {
+      type: followUserAsync.fulfilled.type,
+      payload: updatedUser1
+    }
     const state = usersReducer(initialState, action)
 
-    // Check if the user's score was increased
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.score).toBe(101) // Original 100 + 1 for the touched target
-
-    // Restore the original Date.now
-    Date.now = originalDate
+    expect(state.users[0].followings.length).toBe(1)
+    expect(state.users[0].followings[0].username).toBe("anotheruser")
   })
 
-  test("should handle blockUser", () => {
-    // Add both users to the state
-    const stateWithBothUsers = [...initialState, mockUser2]
+  test("should handle unfollowUserAsync.fulfilled", () => {
+    const updatedUser1 = {
+      ...mockUser1,
+      followings: []
+    }
 
-    const action = blockUser({
-      blockerUsername: "testuser",
-      blockedUsername: "anotheruser"
-    })
+    const action = {
+      type: unfollowUserAsync.fulfilled.type,
+      payload: updatedUser1
+    }
+    const state = usersReducer(initialState, action)
 
-    const state = usersReducer(stateWithBothUsers, action)
-
-    // Check if anotheruser is in testuser's blockedAccounts
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.blockedAccounts.length).toBe(1)
-    expect(testUser?.blockedAccounts[0].username).toBe("anotheruser")
-
-    // If they were following each other, they should no longer be
-    expect(testUser?.followings.length).toBe(0)
-    expect(testUser?.followers.length).toBe(0)
+    expect(state.users[0].followings.length).toBe(0)
   })
 
-  test("should handle bookmarkPost", () => {
+  test("should handle updateUserScoreAsync.fulfilled", () => {
+    const updatedUser1 = {
+      ...mockUser1,
+      score: 101
+    }
+
+    const action = {
+      type: updateUserScoreAsync.fulfilled.type,
+      payload: updatedUser1
+    }
+    const state = usersReducer(initialState, action)
+
+    expect(state.users[0].score).toBe(101)
+  })
+
+  test("should handle blockUserAsync.fulfilled", () => {
+    const updatedUser1 = {
+      ...mockUser1,
+      blockedAccounts: [
+        { username: "anotheruser", name: "Another User", imageUrl: "another-image.jpg" }
+      ]
+    }
+
+    const action = {
+      type: blockUserAsync.fulfilled.type,
+      payload: updatedUser1
+    }
+    const state = usersReducer(initialState, action)
+
+    expect(state.users[0].blockedAccounts.length).toBe(1)
+    expect(state.users[0].blockedAccounts[0].username).toBe("anotheruser")
+  })
+
+  test("should handle updateBookmarksAsync.fulfilled", () => {
     const mockPost: PostModel = {
       id: "1",
       content: "Test post content",
@@ -184,297 +144,38 @@ describe("usersSlice", () => {
       }
     }
 
-    const action = bookmarkPost({
-      userUsername: "testuser",
-      post: mockPost
-    })
-
-    const state = usersReducer(initialState, action)
-
-    // Check if the post was added to the user's bookmarks
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.bookmarks.posts.length).toBe(1)
-    expect(testUser?.bookmarks.posts[0].id).toBe("1")
-    expect(testUser?.bookmarks.signals.length).toBe(0) // Signals should be unchanged
-  })
-
-  test("should handle unBookmarkPost", () => {
-    // First bookmark a post
-    const mockPost: PostModel = {
-      id: "1",
-      content: "Test post content",
-      date: Date.now(),
-      likes: [],
-      comments: [],
-      isPremium: false,
-      publisher: {
-        username: "anotheruser",
-        name: "Another User",
-        imageUrl: "another-image.jpg"
+    const updatedUser1 = {
+      ...mockUser1,
+      bookmarks: {
+        signals: [],
+        posts: [mockPost]
       }
     }
 
-    let state = usersReducer(
-      initialState,
-      bookmarkPost({
-        userUsername: "testuser",
-        post: mockPost
-      })
-    )
-
-    // Then unbookmark it
-    const action = unBookmarkPost({
-      userUsername: "testuser",
-      postId: "1"
-    })
-
-    state = usersReducer(state, action)
-
-    // Check if the post was removed from the user's bookmarks
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.bookmarks.posts.length).toBe(0)
-  })
-
-  test("should handle bookmarkSignal", () => {
-    const mockSignal: SignalModel = {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: false },
-        { id: "t2", value: 55000, touched: false }
-      ],
-      openTime: Date.now() + 3600000,
-      closeTime: Date.now() + 86400000,
-      status: "not_opened",
-      date: Date.now(),
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: {
-        username: "anotheruser",
-        name: "Another User",
-        imageUrl: "another-image.jpg",
-        score: 200
-      }
+    const action = {
+      type: updateBookmarksAsync.fulfilled.type,
+      payload: updatedUser1
     }
-
-    const action = bookmarkSignal({
-      userUsername: "testuser",
-      signal: mockSignal
-    })
-
     const state = usersReducer(initialState, action)
 
-    // Check if the signal was added to the user's bookmarks
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.bookmarks.signals.length).toBe(1)
-    expect(testUser?.bookmarks.signals[0].id).toBe("1")
-    expect(testUser?.bookmarks.posts.length).toBe(0) // Posts should be unchanged
+    expect(state.users[0].bookmarks.posts.length).toBe(1)
+    expect(state.users[0].bookmarks.posts[0].id).toBe("1")
   })
 
-  test("should handle unBookmarkSignal", () => {
-    // First bookmark a signal
-    const mockSignal: SignalModel = {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: false },
-        { id: "t2", value: 55000, touched: false }
-      ],
-      openTime: Date.now() + 3600000,
-      closeTime: Date.now() + 86400000,
-      status: "not_opened",
-      date: Date.now(),
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: {
-        username: "anotheruser",
-        name: "Another User",
-        imageUrl: "another-image.jpg",
-        score: 200
-      }
+  test("should handle loading states", () => {
+    const loadingAction = {
+      type: fetchUsersAsync.pending.type
     }
+    const loadingState = usersReducer(initialState, loadingAction)
+    expect(loadingState.loading).toBe(true)
 
-    let state = usersReducer(
-      initialState,
-      bookmarkSignal({
-        userUsername: "testuser",
-        signal: mockSignal
-      })
-    )
-
-    // Then unbookmark it
-    const action = unBookmarkSignal({
-      userUsername: "testuser",
-      signalId: "1"
-    })
-
-    state = usersReducer(state, action)
-
-    // Check if the signal was removed from the user's bookmarks
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.bookmarks.signals.length).toBe(0)
-  })
-
-  test("should not modify state when following a non-existent user", () => {
-    const action = followUser({
-      followerUsername: "testuser",
-      followingUsername: "nonexistent"
-    })
-
-    const state = usersReducer(initialState, action)
-
-    // State should remain unchanged
-    expect(state).toEqual(initialState)
-  })
-
-  test("should not modify state when unfollowing a non-existent user", () => {
-    const action = unfollowUser({
-      followerUsername: "testuser",
-      followingUsername: "nonexistent"
-    })
-
-    const state = usersReducer(initialState, action)
-
-    // State should remain unchanged
-    expect(state).toEqual(initialState)
-  })
-
-  test("should not modify state when blocking a non-existent user", () => {
-    const action = blockUser({
-      blockerUsername: "testuser",
-      blockedUsername: "nonexistent"
-    })
-
-    const state = usersReducer(initialState, action)
-
-    // State should remain unchanged
-    expect(state).toEqual(initialState)
-  })
-
-  test("should not add duplicate blocked accounts", () => {
-    // First block a user
-    const stateWithBothUsers = [...initialState, mockUser2]
-    let state = usersReducer(
-      stateWithBothUsers,
-      blockUser({
-        blockerUsername: "testuser",
-        blockedUsername: "anotheruser"
-      })
-    )
-
-    // Try to block the same user again
-    state = usersReducer(
-      state,
-      blockUser({
-        blockerUsername: "testuser",
-        blockedUsername: "anotheruser"
-      })
-    )
-
-    // Should still only have one blocked account
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.blockedAccounts.length).toBe(1)
-  })
-
-  test("should handle updateUserScore with multiple touched targets", () => {
-    // Create a mock signal with multiple touched targets
-    const mockSignal: SignalModel = {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: true },
-        { id: "t2", value: 55000, touched: true },
-        { id: "t3", value: 58000, touched: true }
-      ],
-      openTime: Date.now() - 7200000, // 2 hours ago
-      closeTime: Date.now() - 3600000, // 1 hour ago (recently closed)
-      status: "closed",
-      date: Date.now() - 86400000, // 1 day ago
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: {
-        username: "testuser",
-        name: "Test User",
-        imageUrl: "test-image.jpg",
-        score: 100
-      }
+    const errorAction = {
+      type: fetchUsersAsync.rejected.type,
+      error: { message: "Failed to fetch users" }
     }
-
-    // Mock the current time to be just after the signal closed
-    const originalDate = Date.now
-    Date.now = jest.fn().mockReturnValue(mockSignal.closeTime + 60000) // 1 minute after close
-
-    const action = updateUserScore({ signal: mockSignal })
-    const state = usersReducer(initialState, action)
-
-    // Check if the user's score was increased by 3 (for 3 touched targets)
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.score).toBe(103) // Original 100 + 3 for the touched targets
-
-    // Restore the original Date.now
-    Date.now = originalDate
-  })
-
-  test("should not update score for signals that closed too long ago", () => {
-    // Create a mock signal that closed a long time ago
-    const mockSignal: SignalModel = {
-      id: "1",
-      market: {
-        name: "BTC/USD",
-        uuid: "bitcoin-uuid"
-      },
-      entry: 50000,
-      stoploss: 48000,
-      targets: [
-        { id: "t1", value: 52000, touched: true },
-        { id: "t2", value: 55000, touched: true }
-      ],
-      openTime: Date.now() - 86400000, // 1 day ago
-      closeTime: Date.now() - 3600000, // 1 hour ago
-      status: "closed",
-      date: Date.now() - 172800000, // 2 days ago
-      likes: [],
-      description: "Test signal",
-      isPremium: false,
-      publisher: {
-        username: "testuser",
-        name: "Test User",
-        imageUrl: "test-image.jpg",
-        score: 100
-      }
-    }
-
-    // Mock the current time to be long after the signal closed
-    const originalDate = Date.now
-    Date.now = jest.fn().mockReturnValue(mockSignal.closeTime + 3600000) // 1 hour after close
-
-    const action = updateUserScore({ signal: mockSignal })
-    const state = usersReducer(initialState, action)
-
-    // Check if the user's score remains unchanged
-    const testUser = state.find((user) => user.username === "testuser")
-    expect(testUser?.score).toBe(100) // Score should remain unchanged
-
-    // Restore the original Date.now
-    Date.now = originalDate
+    const errorState = usersReducer(loadingState, errorAction)
+    expect(errorState.loading).toBe(false)
+    expect(errorState.error).toBe("Failed to fetch users")
   })
 
   // Test for useAppSelector
