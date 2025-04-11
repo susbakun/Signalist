@@ -157,9 +157,8 @@ describe("usersSlice", () => {
       payload: updatedUser1
     }
     const state = usersReducer(initialState, action)
-
     expect(state.users[0].bookmarks.posts.length).toBe(1)
-    expect(state.users[0].bookmarks.posts[0].id).toBe("1")
+    expect(state.users[0].bookmarks.posts[0]).toBe("1")
   })
 
   test("should handle loading states", () => {
