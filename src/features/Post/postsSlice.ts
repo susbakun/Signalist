@@ -1,163 +1,218 @@
-import { postsMock } from "@/assets/mocks"
-import { CommentModel, PostModel } from "@/shared/models"
+import { PostModel } from "@/shared/models"
 import { RootState, SimplifiedAccountType } from "@/shared/types"
-import { createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
-import { v4 } from "uuid"
+import * as postsApi from "@/services/postsApi"
 
-const initialState = postsMock
+// Define async thunks for API operations
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+  return await postsApi.fetchPosts()
+})
+
+export const createPostAsync = createAsyncThunk(
+  "posts/createPost",
+  async (postData: {
+    content: string
+    isPremium: boolean
+    publisher: SimplifiedAccountType
+    postImageHref?: string
+  }) => {
+    return await postsApi.createPost(postData)
+  }
+)
+
+export const editPostAsync = createAsyncThunk(
+  "posts/editPost",
+  async (data: {
+    postId: string
+    content: string
+    postImageHref?: string
+    removePostImage?: boolean
+  }) => {
+    return await postsApi.editPost(data.postId, {
+      content: data.content,
+      postImageHref: data.postImageHref,
+      removePostImage: data.removePostImage
+    })
+  }
+)
+
+export const removePostAsync = createAsyncThunk("posts/removePost", async (id: string) => {
+  await postsApi.removePost(id)
+  return id
+})
+
+export const likePostAsync = createAsyncThunk(
+  "posts/likePost",
+  async (data: { postId: string; user: SimplifiedAccountType }) => {
+    return await postsApi.likePost(data.postId, data.user)
+  }
+)
+
+export const dislikePostAsync = createAsyncThunk(
+  "posts/dislikePost",
+  async (data: { postId: string; user: SimplifiedAccountType }) => {
+    return await postsApi.dislikePost(data.postId, data.user)
+  }
+)
+
+export const postCommentAsync = createAsyncThunk(
+  "posts/postComment",
+  async (data: { postId: string; body: string; publisher: SimplifiedAccountType }) => {
+    const comment = await postsApi.postComment(data.postId, {
+      body: data.body,
+      publisher: data.publisher
+    })
+    return { postId: data.postId, comment }
+  }
+)
+
+export const deleteCommentAsync = createAsyncThunk(
+  "posts/deleteComment",
+  async (data: { postId: string; commentId: string }) => {
+    await postsApi.deleteComment(data.postId, data.commentId)
+    return data
+  }
+)
+
+export const likeCommentAsync = createAsyncThunk(
+  "posts/likeComment",
+  async (data: { postId: string; commentId: string; user: SimplifiedAccountType }) => {
+    const updatedComment = await postsApi.likeComment(data.postId, data.commentId, data.user)
+    return { postId: data.postId, commentId: data.commentId, updatedComment }
+  }
+)
+
+export const dislikeCommentAsync = createAsyncThunk(
+  "posts/dislikeComment",
+  async (data: { postId: string; commentId: string; user: SimplifiedAccountType }) => {
+    const updatedComment = await postsApi.dislikeComment(data.postId, data.commentId, data.user)
+    return { postId: data.postId, commentId: data.commentId, updatedComment }
+  }
+)
+
+// Define the state type
+interface PostsState {
+  posts: PostModel[]
+  loading: boolean
+  error: string | null
+}
+
+// Initial state now includes loading and error states
+const initialState: PostsState = {
+  posts: [],
+  loading: false,
+  error: null
+}
 
 const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {
-    createPost: (state, action) => {
-      const newPost: PostModel = {
-        id: v4(),
-        isPremium: action.payload.isPremium,
-        content: action.payload.content,
-        likes: [],
-        publisher: action.payload.publisher,
-        date: new Date().getTime(),
-        comments: []
-      }
-      if (action.payload.postImageId) {
-        newPost.postImageId = action.payload.postImageId
-      }
-      state.push(newPost)
-    },
-    removePostFromInterests: (state, action) => {
-      return state.filter((post) => post.id !== action.payload.id)
-    },
-    likePost: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          if (post.likes.every((user) => user.username !== action.payload.user.username)) {
-            const newLikesList: SimplifiedAccountType[] = [...post.likes, action.payload.user]
-            return { ...post, likes: newLikesList }
-          }
-        }
-        return post
+    // Keep empty reducers object for potential synchronous actions in the future
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch posts
+      .addCase(fetchPosts.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
-    },
-    dislikePost: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          if (post.likes.some((user) => user.username === action.payload.user.username)) {
-            const newLikesList: SimplifiedAccountType[] = post.likes.filter(
-              (user) => user.username !== action.payload.user.username
-            )
-            return { ...post, likes: newLikesList }
-          }
-        }
-        return post
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.loading = false
+        state.posts = action.payload
       })
-    },
-    postComment: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const postComments = [...post.comments]
-          const newComment: CommentModel = {
-            body: action.payload.body,
-            commentId: v4(),
-            date: new Date().getTime(),
-            likes: [],
-            postId: action.payload.postId,
-            publisher: action.payload.publisher
-          }
-          postComments.push(newComment)
-          return { ...post, comments: postComments }
-        }
-        return post
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || "Failed to fetch posts"
       })
-    },
 
-    deleteComment: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const updatedCommentPost = post.comments.filter(
-            (comment) => comment.commentId !== action.payload.commentId
+      // Create post
+      .addCase(createPostAsync.fulfilled, (state, action) => {
+        state.posts.push(action.payload)
+      })
+
+      // Edit post
+      .addCase(editPostAsync.fulfilled, (state, action) => {
+        const index = state.posts.findIndex((post) => post.id === action.payload.id)
+        if (index !== -1) {
+          state.posts[index] = action.payload
+        }
+      })
+
+      // Remove post
+      .addCase(removePostAsync.fulfilled, (state, action) => {
+        state.posts = state.posts.filter((post) => post.id !== action.payload)
+      })
+
+      // Like post
+      .addCase(likePostAsync.fulfilled, (state, action) => {
+        const index = state.posts.findIndex((post) => post.id === action.payload.id)
+        if (index !== -1) {
+          state.posts[index] = action.payload
+        }
+      })
+
+      // Dislike post
+      .addCase(dislikePostAsync.fulfilled, (state, action) => {
+        const index = state.posts.findIndex((post) => post.id === action.payload.id)
+        if (index !== -1) {
+          state.posts[index] = action.payload
+        }
+      })
+
+      // Post comment
+      .addCase(postCommentAsync.fulfilled, (state, action) => {
+        const { postId, comment } = action.payload
+        const postIndex = state.posts.findIndex((post) => post.id === postId)
+        if (postIndex !== -1) {
+          state.posts[postIndex].comments.push(comment)
+        }
+      })
+
+      // Delete comment
+      .addCase(deleteCommentAsync.fulfilled, (state, action) => {
+        const { postId, commentId } = action.payload
+        const postIndex = state.posts.findIndex((post) => post.id === postId)
+        if (postIndex !== -1) {
+          state.posts[postIndex].comments = state.posts[postIndex].comments.filter(
+            (comment) => comment.commentId !== commentId
           )
-          return { ...post, comments: updatedCommentPost }
         }
-        return post
       })
-    },
-    likeComment: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const likedComment: CommentModel = post.comments.find(
-            (commnet) => commnet.commentId === action.payload.commentId
-          )!
 
-          const exceptLikedComments: CommentModel[] = post.comments.filter(
-            (commnet) => commnet.commentId !== action.payload.commentId
+      // Like comment
+      .addCase(likeCommentAsync.fulfilled, (state, action) => {
+        const { postId, commentId, updatedComment } = action.payload
+        const postIndex = state.posts.findIndex((post) => post.id === postId)
+        if (postIndex !== -1) {
+          const commentIndex = state.posts[postIndex].comments.findIndex(
+            (comment) => comment.commentId === commentId
           )
-
-          const updatedCommentPost = { ...likedComment }
-          updatedCommentPost.likes = [...updatedCommentPost.likes, action.payload.user]
-          return { ...post, comments: [...exceptLikedComments, updatedCommentPost] }
-        }
-        return post
-      })
-    },
-    dislikeComment: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const dislikedComment: CommentModel = post.comments.find(
-            (comment) => comment.commentId === action.payload.commentId
-          )!
-
-          const updatedCommentPost: CommentModel = {
-            ...dislikedComment,
-            likes: [
-              ...dislikedComment.likes.filter(
-                (user) => user.username !== action.payload.user.username
-              )
-            ]
+          if (commentIndex !== -1) {
+            state.posts[postIndex].comments[commentIndex] = updatedComment
           }
+        }
+      })
 
-          const exceptDisLikedComments: CommentModel[] = post.comments.filter(
-            (commnet) => commnet.commentId !== action.payload.commentId
+      // Dislike comment
+      .addCase(dislikeCommentAsync.fulfilled, (state, action) => {
+        const { postId, commentId, updatedComment } = action.payload
+        const postIndex = state.posts.findIndex((post) => post.id === postId)
+        if (postIndex !== -1) {
+          const commentIndex = state.posts[postIndex].comments.findIndex(
+            (comment) => comment.commentId === commentId
           )
-
-          return { ...post, comments: [...exceptDisLikedComments, updatedCommentPost] }
+          if (commentIndex !== -1) {
+            state.posts[postIndex].comments[commentIndex] = updatedComment
+          }
         }
-        return post
       })
-    },
-    editPost: (state, action) => {
-      return state.map((post) => {
-        if (post.id === action.payload.postId) {
-          const editedPost: PostModel = {
-            ...post,
-            content: action.payload.content,
-            date: new Date().getTime()
-          }
-          if (action.payload.postImageId) {
-            editedPost.postImageId = action.payload.postImageId
-          }
-          if (action.payload.removePostImage) {
-            editedPost.postImageId = ""
-          }
-          return editedPost
-        }
-        return post
-      })
-    }
   }
 })
 
-export const {
-  createPost,
-  removePostFromInterests,
-  likePost,
-  dislikePost,
-  likeComment,
-  editPost,
-  postComment,
-  dislikeComment,
-  deleteComment
-} = postsSlice.actions
+// Export the typed selector hook
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+
+// Export the reducer as the default export
 export default postsSlice.reducer

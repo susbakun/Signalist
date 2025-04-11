@@ -1,12 +1,11 @@
 import { ImagePreview, PostModalFooter, PostTextArea } from "@/components"
-import { editPost } from "@/features/Post/postsSlice"
-import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
+import { editPostAsync } from "@/features/Post/postsSlice"
 import { PostModel } from "@/shared/models"
-import { Client, ID, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import "./togglebutton.css"
+import { AppDispatch } from "@/app/store"
 
 export type EditPostModalProps = {
   openModal: boolean
@@ -22,11 +21,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   const [postButtonDisabled, setPostButtonDisabled] = useState(true)
   const [isPostSending, setIsPostSending] = useState(false)
 
-  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
-
-  const storage = new Storage(client)
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -45,9 +40,11 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   const handleEditPost = async () => {
     setPostButtonDisabled(true)
     setIsPostSending(true)
-    const postImageId = await handleSendImage(selectedImage)
-    const removePostImage = postImageId ? false : true
-    dispatch(editPost({ content: postText, postId: post.id, postImageId, removePostImage }))
+    const postImageHref = await handleSendImage(selectedImage)
+    const removePostImage = !postImageHref && !post.postImageHref
+    await dispatch(
+      editPostAsync({ postId: post.id, content: postText, postImageHref, removePostImage })
+    )
     handleResetForm()
   }
 
@@ -60,7 +57,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   }
 
   const handleResetFileInput = () => {
-    if (!post.postImageId) {
+    if (!post.postImageHref) {
       setPostButtonDisabled(true)
     }
     setImagePreview(null)
@@ -80,11 +77,16 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
 
   const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
-      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
+      const formData = new FormData()
+      formData.append("file", selectedFile)
       try {
-        const response = await storage.createFile(appwritePostsBucketId, ID.unique(), file)
-        console.log("Image uploaded successfully:", response)
-        return response.$id
+        const response = await fetch("https://signalist-backend.liara.run/api/upload/posts", {
+          method: "POST",
+          body: formData
+        })
+        const data = await response.json()
+        console.log("Image uploaded successfully:", data)
+        return data.url
       } catch (error) {
         console.error("Failed to upload image:", error)
       }
@@ -92,7 +94,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
   }
 
   useEffect(() => {
-    if (!post.postImageId) {
+    if (!post.postImageHref) {
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
@@ -106,23 +108,8 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
     setIsPremium(post.isPremium)
     setSelectedImage(undefined)
     setPostButtonDisabled(true)
-    if (post.postImageId) {
-      const result = storage.getFilePreview(
-        appwritePostsBucketId,
-        post.postImageId,
-        0,
-        0,
-        ImageGravity.Center,
-        100,
-        0,
-        "fff",
-        0,
-        1,
-        0,
-        "fff",
-        ImageFormat.Png
-      )
-      setImagePreview(result.href)
+    if (post.postImageHref) {
+      setImagePreview(post.postImageHref)
     } else {
       setImagePreview(null)
     }

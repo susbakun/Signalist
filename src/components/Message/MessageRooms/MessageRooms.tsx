@@ -1,9 +1,9 @@
 import { CreateGroupModal, CreateMessageModal, MessageRoomsTopBar } from "@/components"
-import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { MessageModel } from "@/shared/models"
-import { getAvatarPlaceholder, getCurrentUsername } from "@/utils"
+import { getAvatarPlaceholder } from "@/utils"
 import { useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import { NavLink } from "react-router-dom"
@@ -34,10 +34,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
     setShowCreateGroupModal(false)
   }
 
-  const currentUsername = getCurrentUsername()
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
+  const { currentUser: myAccount } = useCurrentUser()
 
   const { isUserBlocked } = useIsUserBlocked(myAccount)
   const { getProperAvatar, isGroupRoom } = useUserMessageRoom()

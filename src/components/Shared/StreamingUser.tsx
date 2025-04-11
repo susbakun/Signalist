@@ -1,23 +1,26 @@
-import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { AccountModel } from "@/shared/models"
-import { cn, getAvatarPlaceholder, getCurrentUsername, isDarkMode, isMobile } from "@/utils"
+import { cn, getAvatarPlaceholder, isDarkMode, isMobile } from "@/utils"
 import { Avatar } from "flowbite-react"
 import { ComponentProps, useEffect, useState } from "react"
 import { TbExternalLink } from "react-icons/tb"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
 
-type StreamingUserProps = Pick<AccountModel, "name" | "username" | "imageUrl"> &
-  ComponentProps<"div">
+type StreamingUserProps = Pick<AccountModel, "name" | "username" | "imageUrl"> & {
+  myAccount: AccountModel
+} & ComponentProps<"div">
 
-export const StreamingUser = ({ name, username, imageUrl, className }: StreamingUserProps) => {
+export const StreamingUser = ({
+  name,
+  username,
+  imageUrl,
+  className,
+  myAccount
+}: StreamingUserProps) => {
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
   const placeholder = getAvatarPlaceholder(name)
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
 
   const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
 

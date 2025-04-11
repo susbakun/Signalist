@@ -1,5 +1,6 @@
+import { AppDispatch } from "@/app/store"
 import { ToastContainer, UserUnfollowModal } from "@/components"
-import { followUser, unfollowUser } from "@/features/User/usersSlice"
+import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel } from "@/shared/models"
 import { cn, getAvatarPlaceholder } from "@/utils"
@@ -33,6 +34,9 @@ export const UserPreview = ({
   handleCheckboxChange
 }: UserPreviewProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
+  const [isActionLoading, setIsActionLoading] = useState(false)
+  // Add local state to track follow status for optimistic updates
+  const [localIsFollowed, setLocalIsFollowed] = useState(false)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const isFollowed = useMemo(
@@ -40,33 +44,67 @@ export const UserPreview = ({
     [userUsername, follower]
   )
 
+  // Update local state when the actual data changes
+  useMemo(() => {
+    setLocalIsFollowed(isFollowed || false)
+  }, [isFollowed])
+
   const placeholder = getAvatarPlaceholder(name)
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
-  const handleUserFollow = () => {
-    if (!isFollowed) {
-      handleShowToast(`You followed user @${userUsername}`, "follow")
-      dispatch(
-        followUser({
-          followerUsername: follower?.username,
-          followingUsername: userUsername
-        })
-      )
+  const handleUserFollow = async () => {
+    if (!follower || isActionLoading) return
+
+    // Optimistically update UI state
+    const wasFollowed = localIsFollowed
+    if (!wasFollowed) {
+      // Optimistically update UI
+      setLocalIsFollowed(true)
+      setIsActionLoading(true)
+      try {
+        await dispatch(
+          followUserAsync({
+            followerUsername: follower.username,
+            followingUsername: userUsername
+          })
+        ).unwrap()
+        handleShowToast(`You followed user @${userUsername}`, "follow")
+      } catch (error) {
+        // Revert optimistic update on error
+        setLocalIsFollowed(false)
+        handleShowToast("Failed to follow user", "error")
+      } finally {
+        setIsActionLoading(false)
+      }
     } else {
       setOpenUnfollowModal(true)
     }
   }
 
-  const handleAcceptUnfollowModal = () => {
-    handleShowToast(`You unfollowed user @${userUsername}`, "unfollow")
-    dispatch(
-      unfollowUser({
-        followerUsername: follower?.username,
-        followingUsername: userUsername
-      })
-    )
+  const handleAcceptUnfollowModal = async () => {
+    if (!follower || isActionLoading) return
+
+    // Optimistically update UI
+    setLocalIsFollowed(false)
+    setIsActionLoading(true)
     setOpenUnfollowModal(false)
+
+    try {
+      await dispatch(
+        unfollowUserAsync({
+          followerUsername: follower.username,
+          followingUsername: userUsername
+        })
+      ).unwrap()
+      handleShowToast(`You unfollowed user @${userUsername}`, "unfollow")
+    } catch (error) {
+      // Revert optimistic update on error
+      setLocalIsFollowed(true)
+      handleShowToast("Failed to unfollow user", "error")
+    } finally {
+      setIsActionLoading(false)
+    }
   }
 
   const handleCloseModal = () => {
@@ -97,20 +135,22 @@ export const UserPreview = ({
         {follower && follower.username !== userUsername && (
           <button
             onClick={handleUserFollow}
+            disabled={isActionLoading}
             className={cn("action-button", {
-              "dark:text-dark-link-button": isFollowed,
-              "text-primary-link-button": isFollowed
+              "dark:text-dark-link-button": localIsFollowed,
+              "text-primary-link-button": localIsFollowed,
+              "opacity-50 cursor-not-allowed": isActionLoading
             })}
           >
-            {isFollowed ? "followed" : "follow"}
+            {isActionLoading ? "Loading..." : localIsFollowed ? "followed" : "follow"}
           </button>
         )}
         {isForMessageRoom && (
           <button
             onClick={handleCreateMessage}
             className={cn("action-button", {
-              "dark:text-dark-link-button": isFollowed,
-              "text-primary-link-button": isFollowed
+              "dark:text-dark-link-button": localIsFollowed,
+              "text-primary-link-button": localIsFollowed
             })}
           >
             <TbMessage className="w-6 h-6" />

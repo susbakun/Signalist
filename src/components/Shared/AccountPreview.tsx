@@ -1,22 +1,24 @@
-import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { Avatar } from "flowbite-react"
 import millify from "millify"
 import { Link } from "react-router-dom"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { getCurrentUser } from "@/utils"
 
 export const AccountPreview = () => {
   const { currentUser } = useCurrentUser()
+  const userSimplified = getCurrentUser()
 
-  if (!currentUser) return null
+  if (!currentUser) return <div className="text-center p-4">User not found</div>
 
   return (
     <div className="flex flex-col justify-center space-y-4 mb-4">
       <Avatar
-        placeholderInitials={currentUser.name
+        placeholderInitials={userSimplified?.name
           .split(" ")
-          .map((n) => n[0])
+          .map((n: string) => n[0])
           .join("")}
         size="xl"
-        img={currentUser.imageUrl}
+        img={userSimplified.imageUrl}
         rounded
       />
       <div className="space-y-1 font-medium dark:text-white text-slate-700 flex flex-col justify-center text-center">

@@ -1,15 +1,14 @@
 import { Signal } from "@/components/Signal/Signal"
-import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
-import { cn, getCurrentUsername, isEmpty } from "@/utils"
+import { cn, isEmpty } from "@/utils"
 
 export const BookmarkedSignals = () => {
-  const currentUsername = getCurrentUsername()
-  const myUsername = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )!
+  const { currentUser: myAccount } = useCurrentUser()
 
-  const bookmarkedSignals = myUsername?.bookmarks.signals
+  if (!myAccount) return null
+
+  const bookmarkedSignals = myAccount.bookmarks.signals
 
   if (isEmpty(bookmarkedSignals)) {
     return (
@@ -27,6 +26,8 @@ export const BookmarkedSignals = () => {
             className={cn({ "border-none": index === bookmarkedSignals.length - 1 })}
             key={signal.id}
             signal={signal}
+            myAccount={myAccount}
+            isBookmarkPage={true}
           />
         ))}
       </div>

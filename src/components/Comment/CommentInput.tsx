@@ -1,4 +1,5 @@
-import { postComment } from "@/features/Post/postsSlice"
+import { AppDispatch } from "@/app/store"
+import { postCommentAsync } from "@/features/Post/postsSlice"
 import { CommentModel, PostModel } from "@/shared/models"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -11,7 +12,7 @@ export type CommentInputProps = {
 export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) => {
   const [commentBody, setCommentBody] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const handleCommentInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setCommentBody(e.target.value)
   }
@@ -30,16 +31,25 @@ export const CommentInput = ({ commentPublisher, postId }: CommentInputProps) =>
     }
   }, [commentBody])
 
-  const handlePostComment = () => {
-    if (commentBody.trim() === "") return
+  const [isPosting, setIsPosting] = useState(false)
 
-    setCommentBody("")
-    const publisher: CommentModel["publisher"] = {
-      name: commentPublisher.name,
-      imageUrl: commentPublisher.imageUrl,
-      username: commentPublisher.username
+  const handlePostComment = async () => {
+    if (commentBody.trim() === "" || isPosting) return
+
+    try {
+      setIsPosting(true)
+      const publisher: CommentModel["publisher"] = {
+        name: commentPublisher.name,
+        imageUrl: commentPublisher.imageUrl,
+        username: commentPublisher.username
+      }
+      await dispatch(postCommentAsync({ body: commentBody, publisher, postId }))
+      setCommentBody("")
+    } catch (error) {
+      console.error("Failed to post comment:", error)
+    } finally {
+      setIsPosting(false)
     }
-    dispatch(postComment({ body: commentBody, publisher, postId }))
   }
   return (
     <div

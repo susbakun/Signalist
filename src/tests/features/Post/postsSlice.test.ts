@@ -71,7 +71,7 @@ describe("postsSlice", () => {
       content: "New post with image",
       isPremium: false,
       publisher: mockUser,
-      postImageId: "image-123"
+      postImageHref: "https://example.com/image-123.jpg"
     }
 
     const action = createPost(newPost)
@@ -86,7 +86,7 @@ describe("postsSlice", () => {
       comments: [],
       isPremium: false,
       publisher: mockUser,
-      postImageId: "image-123"
+      postImageHref: "https://example.com/image-123.jpg"
     })
   })
 
@@ -221,12 +221,12 @@ describe("postsSlice", () => {
     const action = editPost({
       postId: "1",
       content: "Updated content with image",
-      postImageId: "new-image-123"
+      postImageHref: "https://example.com/new-image-123.jpg"
     })
     const state = postsReducer(initialState, action)
 
     expect(state[0].content).toBe("Updated content with image")
-    expect(state[0].postImageId).toBe("new-image-123")
+    expect(state[0].postImageHref).toBe("https://example.com/new-image-123.jpg")
   })
 
   test("should handle editPost with image removal", () => {
@@ -236,7 +236,7 @@ describe("postsSlice", () => {
       editPost({
         postId: "1",
         content: "Post with image",
-        postImageId: "image-123"
+        postImageHref: "https://example.com/image-123.jpg"
       })
     )
 
@@ -249,6 +249,6 @@ describe("postsSlice", () => {
     state = postsReducer(state, action)
 
     expect(state[0].content).toBe("Post without image")
-    expect(state[0].postImageId).toBe("") // Image should be removed
+    expect(state[0].postImageHref).toBe(undefined) // Image should be removed
   })
 })

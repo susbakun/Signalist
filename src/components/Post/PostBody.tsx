@@ -1,8 +1,6 @@
 import { BluredPostComponent, Loader } from "@/components" // Adjust the import path as needed
-import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
 import { AccountModel, PostModel } from "@/shared/models"
 import { cn } from "@/utils"
-import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
@@ -11,7 +9,7 @@ type PostBodyProps = {
   amISubscribed?: boolean
   publisherUsername: AccountModel["username"]
   isPremium: boolean
-  postImageId?: string
+  postImageHref?: string
 }
 
 export const PostBody = ({
@@ -19,15 +17,10 @@ export const PostBody = ({
   publisherUsername,
   amISubscribed,
   isPremium,
-  postImageId
+  postImageHref
 }: PostBodyProps) => {
-  const [postImageHref, setPostImageHref] = useState("")
   const [enlarged, setEnlarged] = useState(false)
   const [isImageLoading, setisImageLoading] = useState(false)
-
-  const client = new Client()
-  const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const handleImageClick = () => {
     setEnlarged((prev) => !prev)
@@ -38,28 +31,10 @@ export const PostBody = ({
   }
 
   useEffect(() => {
-    if (postImageId) {
+    if (postImageHref) {
       setisImageLoading(true)
-      const result = storage.getFilePreview(
-        appwritePostsBucketId,
-        postImageId,
-        0,
-        0,
-        ImageGravity.Center,
-        100,
-        0,
-        "fff",
-        0,
-        1,
-        0,
-        "fff",
-        ImageFormat.Png
-      )
-      setPostImageHref(result.href)
-    } else if (!postImageId) {
-      setPostImageHref("")
     }
-  }, [postImageId])
+  }, [postImageHref])
 
   const parseContent = (text: string) => {
     const words = text.split(" ")
@@ -124,7 +99,7 @@ export const PostBody = ({
                 }
               )}
               src={postImageHref}
-              alt="Chart"
+              alt="Post image"
               onLoad={handleImageLoaded}
               onError={handleImageLoaded}
             />

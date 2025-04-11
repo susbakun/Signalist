@@ -1,7 +1,11 @@
-import { CreateSignalButton, CreateSignalModal, Signal, StreamingUser } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
-import { getCurrentUsername } from "@/utils"
-import { useState } from "react"
+import { AppDispatch } from "@/app/store"
+import { CreateSignalButton, CreateSignalModal, Loader, Signal, StreamingUser } from "@/components"
+import { fetchSignals, useAppSelector } from "@/features/Signal/signalsSlice"
+import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
+import { EmptyPage } from "./EmptyPage"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 
 export const SignalsPage = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
@@ -28,8 +32,39 @@ export const SignalsPage = () => {
 }
 
 const ExploreSignals = () => {
-  const signals = useAppSelector((state) => state.signals)
+  const dispatch = useDispatch<AppDispatch>()
+
+  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+
+  const { signals, loading } = useAppSelector((state) => state.signals)
   const sortedSignals = [...signals].sort((a, b) => b.date - a.date)
+
+  useEffect(() => {
+    dispatch(fetchSignals())
+  }, [dispatch])
+
+  if (loading || userLoading) {
+    return (
+      <EmptyPage
+        className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r 
+        dark:md:border-r-white/20 md:border-r-gray-600/20 md:h-screen"
+      >
+        <Loader className="h-[350px]" />
+      </EmptyPage>
+    )
+  }
+
+  if (!sortedSignals.length)
+    return (
+      <EmptyPage
+        className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r
+        dark:md:border-r-white/20 md:border-r-gray-600/20 md:h-screen"
+      >
+        <h3 className="font-normal">There are no signals yet</h3>
+      </EmptyPage>
+    )
+
+  if (!myAccount) return null
 
   return (
     <div
@@ -39,7 +74,7 @@ const ExploreSignals = () => {
       <h2 className="text-2xl px-4 pt-4 md:pt-11 pb-2 font-bold">Signals</h2>
       <div className="flex flex-col justify-center">
         {sortedSignals.map((signal) => (
-          <Signal key={signal.id} signal={signal} />
+          <Signal myAccount={myAccount} key={signal.id} signal={signal} />
         ))}
       </div>
     </div>
@@ -47,11 +82,17 @@ const ExploreSignals = () => {
 }
 
 const RightSidebar = () => {
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
-  let selectedUsers = [...users.filter((user) => user.username !== myAccount?.username)]
+  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
+  const { currentUser: myAccount } = useCurrentUser()
+  const { isUserBlocked } = useIsUserBlocked(myAccount)
+  let selectedUsers = [
+    ...users.filter(
+      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+    )
+  ]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
+
+  if (!myAccount) return null
 
   return (
     <aside
@@ -64,9 +105,17 @@ const RightSidebar = () => {
       >
         <h2 className="text-xl font-bold">Streams</h2>
         <div className="flex flex-col gap-4">
-          {selectedUsers.map((user) => (
-            <StreamingUser key={user.username} {...user} />
-          ))}
+          {usersLoading ? (
+            <Loader className="h-[350px]" />
+          ) : selectedUsers.length > 0 ? (
+            selectedUsers.map((user) => (
+              <StreamingUser myAccount={myAccount} key={user.username} {...user} />
+            ))
+          ) : (
+            <EmptyPage className="text-center mt-8 pb-16">
+              <h3 className="font-normal">No streams right now</h3>
+            </EmptyPage>
+          )}
         </div>
       </div>
     </aside>
@@ -74,22 +123,39 @@ const RightSidebar = () => {
 }
 
 const MobileTopBar = () => {
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
-  let selectedUsers = [...users.filter((user) => user.username !== myAccount?.username)]
+  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
+  const { currentUser: myAccount } = useCurrentUser()
+  const { isUserBlocked } = useIsUserBlocked(myAccount)
+
+  let selectedUsers = [
+    ...users.filter(
+      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+    )
+  ]
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
+
+  if (!myAccount) return null
 
   return (
     <div className="md:hidden w-full overflow-x-auto py-4 px-4 border-b border-b-gray-600/20 dark:border-b-white/20">
       <h2 className="text-xl font-bold mb-4">Streams</h2>
       <div className="flex gap-6">
-        {selectedUsers.map((user) => (
-          <div className="flex flex-col items-center">
-            <StreamingUser key={user.username} {...user} />
-            <span className="text-xs mt-1 truncate max-w-[64px] text-center">{user.username}</span>
-          </div>
-        ))}
+        {usersLoading ? (
+          <Loader className="w-full" />
+        ) : selectedUsers.length > 0 ? (
+          selectedUsers.map((user) => (
+            <div className="flex flex-col items-center">
+              <StreamingUser myAccount={myAccount} key={user.username} {...user} />
+              <span className="text-xs mt-1 truncate max-w-[64px] text-center">
+                {user.username}
+              </span>
+            </div>
+          ))
+        ) : (
+          <EmptyPage className="text-center mt-8 pb-8 md:pb-16 w-full">
+            <h3 className="font-normal">No streams right now</h3>
+          </EmptyPage>
+        )}
       </div>
     </div>
   )

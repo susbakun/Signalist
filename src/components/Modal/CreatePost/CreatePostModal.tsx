@@ -1,15 +1,13 @@
 import { ImagePreview, PostTextArea } from "@/components"
-import { useAppSelector } from "@/features/Message/messagesSlice"
-import { createPost } from "@/features/Post/postsSlice"
-import { appwriteEndpoint, appwritePostsBucketId, appwriteProjectId } from "@/shared/constants"
+import { createPostAsync } from "@/features/Post/postsSlice"
 import { SimplifiedAccountType } from "@/shared/types"
-import { getCurrentUsername } from "@/utils"
-import { Client, ID, Storage } from "appwrite"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, KeyboardEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { PostModalFooter } from "./PostModalFooter"
 import "./togglebutton.css"
+import { AppDispatch } from "@/app/store"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 
 export type CreatePostModalProps = {
   openModal: boolean
@@ -24,9 +22,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   const [postButtonDisabled, setPostButtonDisabled] = useState(false)
   const [isPostSending, setIsPostSending] = useState(false)
 
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
+  const { currentUser: myAccount } = useCurrentUser()
 
   const postPublisher: SimplifiedAccountType | undefined = myAccount
     ? {
@@ -36,11 +32,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
       }
     : undefined
 
-  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
-
-  const storage = new Storage(client)
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -61,11 +53,22 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
   }
 
   const handleCreatePost = async () => {
-    setPostButtonDisabled(true)
-    setIsPostSending(true)
-    const postImageId = await handleSendImage(selectedImage)
-    dispatch(createPost({ content: postText, publisher: postPublisher, isPremium, postImageId }))
-    hanldeResetForm()
+    if (!postPublisher || !postText.trim() || isPostSending) return
+
+    try {
+      setPostButtonDisabled(true)
+      setIsPostSending(true)
+      const postImageHref = await handleSendImage(selectedImage)
+      await dispatch(
+        createPostAsync({ content: postText, publisher: postPublisher, isPremium, postImageHref })
+      ).unwrap()
+      hanldeResetForm()
+    } catch (error) {
+      console.error("Failed to create post:", error)
+      setPostButtonDisabled(false)
+    } finally {
+      setIsPostSending(false)
+    }
   }
 
   const handleTogglePremium = () => {
@@ -88,11 +91,16 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
 
   const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
-      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
+      const formData = new FormData()
+      formData.append("file", selectedFile)
       try {
-        const response = await storage.createFile(appwritePostsBucketId, ID.unique(), file)
-        console.log("Image uploaded successfully:", response)
-        return response.$id
+        const response = await fetch("https://signalist-backend.liara.run/api/upload/posts", {
+          method: "POST",
+          body: formData
+        })
+        const data = await response.json()
+        console.log("Image uploaded successfully:", data)
+        return data.url
       } catch (error) {
         console.error("Failed to upload image:", error)
       }

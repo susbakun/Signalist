@@ -1,7 +1,7 @@
-import { RootState } from "@/app/store"
-import { addUser } from "@/features/User/usersSlice"
+import { AppDispatch } from "@/app/store"
+import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
+import { registerUserAsync } from "@/features/User/usersSlice"
 import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
-import { AccountModel } from "@/shared/models"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
@@ -9,7 +9,7 @@ import { useRef, useState } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
 import { FaLock, FaUser } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 
 export const SignUpPage = () => {
@@ -18,6 +18,8 @@ export const SignUpPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [bio, setBio] = useState("")
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState("")
   const recaptchaRef = useRef<ReCAPTCHA>(null)
@@ -27,13 +29,14 @@ export const SignUpPage = () => {
     email?: string
     password?: string
     confirmPassword?: string
+    bio?: string
+    profileImage?: string
     captcha?: string
     general?: string
   }>({})
 
   const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const users = useSelector((state: RootState) => state.users)
+  const dispatch = useDispatch<AppDispatch>()
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
 
   if (isAuthenticated) {
@@ -50,6 +53,10 @@ export const SignUpPage = () => {
     setCaptchaToken("")
   }
 
+  const handleImageChange = (file: File | null) => {
+    setSelectedImage(file)
+  }
+
   const validateForm = () => {
     const newErrors: typeof errors = {}
 
@@ -63,8 +70,6 @@ export const SignUpPage = () => {
       newErrors.username = "Username is required"
     } else if (username.includes(" ")) {
       newErrors.username = "Username cannot contain spaces"
-    } else if (users.some((user: AccountModel) => user.username === username)) {
-      newErrors.username = "Username already exists"
     }
 
     // Email validation
@@ -72,20 +77,39 @@ export const SignUpPage = () => {
       newErrors.email = "Email is required"
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Email is invalid"
-    } else if (users.some((user: AccountModel) => user.email === email)) {
-      newErrors.email = "Email already exists"
     }
 
     // Password validation
     if (!password) {
       newErrors.password = "Password is required"
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters"
+    } else {
+      // Check for password complexity
+      const hasUpperCase = /[A-Z]/.test(password)
+      const hasLowerCase = /[a-z]/.test(password)
+      const hasNumbers = /[0-9]/.test(password)
+      const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+
+      if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+        const missingRequirements = []
+        if (!hasUpperCase) missingRequirements.push("uppercase letter")
+        if (!hasLowerCase) missingRequirements.push("lowercase letter")
+        if (!hasNumbers) missingRequirements.push("number")
+        if (!hasSpecialChar) missingRequirements.push("special character")
+
+        newErrors.password = `Password must include at least one ${missingRequirements.join(", ")}`
+      }
     }
 
     // Confirm password validation
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match"
+    }
+
+    // Bio validation
+    if (bio.length > 150) {
+      newErrors.bio = "Bio cannot exceed 150 characters"
     }
 
     // Captcha validation
@@ -95,6 +119,30 @@ export const SignUpPage = () => {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  // Function to upload profile image
+  const uploadProfileImage = async (image: File): Promise<string> => {
+    try {
+      const formData = new FormData()
+      formData.append("file", image)
+
+      // Use the posts upload endpoint for now - in production, you'd ideally have a dedicated user images endpoint
+      const response = await fetch("https://signalist-backend.liara.run/api/upload/users", {
+        method: "POST",
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload profile image")
+      }
+
+      const data = await response.json()
+      return data.url
+    } catch (error) {
+      console.error("Error uploading profile image:", error)
+      throw error
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,43 +162,54 @@ export const SignUpPage = () => {
     setErrors({})
 
     try {
-      // Create new user object
-      const newUser: AccountModel = {
-        name,
-        username,
-        email,
-        password,
-        score: 0,
-        hasPremium: false,
-        followers: [],
-        followings: [],
-        blockedAccounts: [],
-        bookmarks: { signals: [], posts: [] }
+      // Upload image if one was selected
+      let imageUrl = ""
+      if (selectedImage) {
+        try {
+          imageUrl = await uploadProfileImage(selectedImage)
+        } catch (error) {
+          setErrors({
+            profileImage:
+              "Failed to upload profile image. You can continue without an image or try again."
+          })
+        }
       }
 
-      // Dispatch action to add user to Redux store
-      dispatch(addUser(newUser))
-
-      // Store user info and auth status
-      localStorage.setItem(STORAGE_KEYS.AUTH, "true")
-      localStorage.setItem(
-        STORAGE_KEYS.CURRENT_USER,
-        JSON.stringify({
-          name: newUser.name,
-          username: newUser.username,
-          email: newUser.email,
-          imageUrl: newUser.imageUrl,
-          hasPremium: newUser.hasPremium,
-          followers: [],
-          followings: []
+      const resultAction = await dispatch(
+        registerUserAsync({
+          name,
+          username,
+          email,
+          password,
+          imageUrl,
+          bio,
+          hasPremium: false,
+          subscriptionPlan: []
         })
       )
 
-      // Initialize session management
-      initializeSession()
-      setupActivityListeners()
+      if (registerUserAsync.fulfilled.match(resultAction)) {
+        const user = resultAction.payload
 
-      navigate("/", { replace: true })
+        localStorage.setItem(STORAGE_KEYS.AUTH, "true")
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user))
+
+        // Initialize session management
+        initializeSession()
+        setupActivityListeners()
+
+        navigate("/", { replace: true })
+      } else {
+        // Registration failed
+        const errorMessage = resultAction.error?.message || "Registration failed"
+        setErrors({ general: errorMessage })
+
+        // Reset captcha on error
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset()
+        }
+        setCaptchaToken("")
+      }
     } catch (error) {
       console.error("Sign up failed:", error)
       setErrors({ general: "An error occurred during sign up" })
@@ -184,6 +243,14 @@ export const SignUpPage = () => {
                 {errors.general}
               </div>
             )}
+
+            {/* Profile Image Picker */}
+            <ProfileImagePicker
+              name={name || "Ex"}
+              selectedImage={selectedImage}
+              onImageChange={handleImageChange}
+              error={errors.profileImage}
+            />
 
             <div className="space-y-4">
               {/* Name field */}
@@ -248,6 +315,12 @@ export const SignUpPage = () => {
                   )}
                 />
                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                {!errors.password && (
+                  <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                    Password must be at least 8 characters and include uppercase, lowercase, number,
+                    and special character.
+                  </p>
+                )}
               </div>
 
               {/* Confirm Password field */}
@@ -266,6 +339,31 @@ export const SignUpPage = () => {
                 {errors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
                 )}
+              </div>
+
+              {/* Bio field */}
+              <div className="relative">
+                <div className="flex items-center mb-1">
+                  <label htmlFor="bio" className="text-sm text-gray-600 dark:text-gray-300">
+                    Bio <span className="text-gray-400">(optional)</span>
+                  </label>
+                </div>
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Tell us a bit about yourself..."
+                  rows={3}
+                  maxLength={150}
+                  className={cn(
+                    "w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 resize-none",
+                    errors.bio && "border-red-500 dark:border-red-500"
+                  )}
+                />
+                {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio}</p>}
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {bio.length}/150 characters
+                </p>
               </div>
             </div>
 

@@ -1,15 +1,14 @@
 import { Post } from "@/components/Post/Post"
-import { useAppSelector } from "@/features/Message/messagesSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
-import { cn, getCurrentUsername, isEmpty } from "@/utils"
+import { cn, isEmpty } from "@/utils"
 
 export const BookmarkedPosts = () => {
-  const currentUsername = getCurrentUsername()
-  const myUsername = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )!
+  const { currentUser: myAccount } = useCurrentUser()
 
-  const bookmarkedPosts = myUsername?.bookmarks.posts
+  if (!myAccount) return null
+
+  const bookmarkedPosts = myAccount.bookmarks.posts
 
   if (isEmpty(bookmarkedPosts)) {
     return (
@@ -29,6 +28,7 @@ export const BookmarkedPosts = () => {
             })}
             key={post.id}
             post={post}
+            myAccount={myAccount}
           />
         ))}
       </div>

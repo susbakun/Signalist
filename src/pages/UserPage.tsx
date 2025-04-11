@@ -1,5 +1,6 @@
-import { AccountBottomBar, AccountTopBar, UserActivities, UserInfo } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
+import { AccountBottomBar, AccountTopBar, Loader, UserActivities, UserInfo } from "@/components"
+import { useAppSelector } from "@/features/User/usersSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { getCurrentUsername } from "@/utils"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
@@ -13,12 +14,11 @@ export const UserPage = () => {
   const { username: profileUsername } = useParams()
   const currentUsername = getCurrentUsername()
 
-  const userAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === profileUsername
-  )
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
+  // Get users state with loading
+  const { users, loading } = useAppSelector((state) => state.users)
+
+  const userAccount = users.find((user) => user.username === profileUsername)
+  const { currentUser: myAccount } = useCurrentUser()
   const isItmyAccount = profileUsername === currentUsername
 
   const handleShareEmail = () => {
@@ -37,6 +37,11 @@ export const UserPage = () => {
       navigate(activeLink, { replace: false })
     }
   }, [location, navigate, userAccount?.username, activeLink])
+
+  // Show loading if users are still being fetched
+  if (loading) {
+    return <Loader className="h-screen" />
+  }
 
   // If the profile doesn't exist, show a message
   if (!userAccount) {

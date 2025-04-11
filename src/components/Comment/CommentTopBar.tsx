@@ -1,9 +1,11 @@
+import { AppDispatch } from "@/app/store"
 import { MoreOptionsButton } from "@/components"
-import { deleteComment } from "@/features/Post/postsSlice"
+import { deleteCommentAsync } from "@/features/Post/postsSlice"
 import { CommentModel, PostModel } from "@/shared/models"
 import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
 import { Avatar } from "flowbite-react"
 import moment from "jalali-moment"
+import { useState } from "react"
 import { useDispatch } from "react-redux"
 import { Link } from "react-router-dom"
 
@@ -18,10 +20,19 @@ export const CommentTopBar = ({ user, date, commentId, postId }: CommentTopBarPr
   const placeholder = getAvatarPlaceholder(user.name)
   const postDate = formatDateFromMS(date)
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleDeleteComment = () => {
-    dispatch(deleteComment({ commentId, postId }))
+  const handleDeleteComment = async () => {
+    if (isLoading) return
+    try {
+      setIsLoading(true)
+      await dispatch(deleteCommentAsync({ commentId, postId }))
+    } catch (error) {
+      console.error("Failed to update comment like:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

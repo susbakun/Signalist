@@ -121,7 +121,7 @@ export type AccountModel = {
   bio?: string
   score: number
   subscribers?: SubscriberType[]
-  susbscriptionPlan?: SubscriptionPlanType
+  subscriptionPlan?: SubscriptionPlanType
   hasPremium: boolean
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
@@ -146,7 +146,7 @@ export type PostModel = {
   comments: CommentModel[]
   isPremium: boolean
   publisher: SimplifiedAccountType
-  postImageId?: string
+  postImageHref?: string
 }
 
 export type SignalModel = {
@@ -164,7 +164,7 @@ export type SignalModel = {
   date: number
   likes: SimplifiedAccountType[]
   description?: string
-  chartImageId?: string
+  chartImageHref?: string
   isPremium: boolean
   publisher: SignalAccountType
 }

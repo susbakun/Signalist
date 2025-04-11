@@ -1,12 +1,13 @@
 import { CreateGroupChooseGroupInfoModal, CreateGroupPickUsersModal } from "@/components"
 import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
-import { MessageModel } from "@/shared/models"
+import { AccountModel, MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
-import { ChangeEvent, useCallback, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { v4 } from "uuid"
@@ -28,15 +29,14 @@ export const CreateGroupModal = ({
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [isGroupImageSending, setIsGroupImageSending] = useState(false)
   const [createGroupButtonDisabled, setCreateGroupButtonDisabled] = useState(false)
+  const [exceptMeUsers, setExceptMeUsers] = useState<AccountModel[]>([])
 
-  const users = useAppSelector((state) => state.users)
+  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const { currentUser: myAccount } = useCurrentUser()
   const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
-
-  const exceptMeUsers = users.filter((user) => user.username !== currentUsername)
 
   const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
@@ -149,6 +149,12 @@ export const CreateGroupModal = ({
     handleCloseChooseGroupInfo()
   }
 
+  useEffect(() => {
+    if (selectedUsers.length > 0) {
+      setExceptMeUsers(users.filter((user) => user.username !== currentUsername))
+    }
+  }, [users, currentUsername])
+
   return (
     <>
       <CreateGroupPickUsersModal
@@ -160,6 +166,7 @@ export const CreateGroupModal = ({
         isUserSelected={isUserSelected}
         openModal={openPickUsersModal}
         searched={searched}
+        usersLoading={usersLoading}
       />
       <CreateGroupChooseGroupInfoModal
         openModal={chooseGroupInfoModalOpen}

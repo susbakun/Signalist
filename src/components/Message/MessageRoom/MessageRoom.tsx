@@ -1,8 +1,8 @@
 import { MessageRoomInput, MessageRoomMessages, MessageRoomTopBar } from "@/components"
-import { sendMessage, useAppSelector } from "@/features/Message/messagesSlice"
+import { sendMessage } from "@/features/Message/messagesSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
-import { getCurrentUsername } from "@/utils"
 import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -19,10 +19,8 @@ export const MessageRoom = () => {
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [isMessageSending, setIsMessageSending] = useState(false)
 
-  const currentUsername = getCurrentUsername()
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
+  const { currentUser: myAccount } = useCurrentUser()
+
   const { myMessages, onBack } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch()
   const { id } = useParams()

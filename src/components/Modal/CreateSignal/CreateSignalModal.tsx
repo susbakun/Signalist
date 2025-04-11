@@ -1,3 +1,4 @@
+import { AppDispatch } from "@/app/store"
 import {
   CustomDropdown,
   Loader,
@@ -9,14 +10,11 @@ import {
   SignalModalTextArea,
   SignalModalTopInputs
 } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
-import { createSignal } from "@/features/Signal/signalsSlice"
+import { createSignalAsync } from "@/features/Signal/signalsSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { CryptoResponseType, SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
-import { getCurrentUsername } from "@/utils"
-import { Client, ID, Storage } from "appwrite"
 import { Label, Modal } from "flowbite-react"
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -60,16 +58,18 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const [formTouched, setFormTouched] = useState(false)
 
   const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
-  const dispatch = useDispatch()
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)!
-  const signalPublisher: SignalAccountType = {
-    name: myAccount.name,
-    username: myAccount.username,
-    imageUrl: myAccount.imageUrl,
-    score: myAccount.score
-  }
+  const dispatch = useDispatch<AppDispatch>()
+  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+
+  // Only create signalPublisher if myAccount exists
+  const signalPublisher: SignalAccountType | undefined = myAccount
+    ? {
+        name: myAccount.name,
+        username: myAccount.username,
+        imageUrl: myAccount.imageUrl,
+        score: myAccount.score || 0 // Provide default value for score
+      }
+    : undefined
 
   const handleSelectMarket = (market: SignalModel["market"]) => {
     setSelectedMarket(market)
@@ -145,19 +145,32 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   const handleCreateSignal = async () => {
     setFormTouched(true)
 
+    // Check if signalPublisher exists
+    if (!signalPublisher) {
+      console.error("Cannot create signal: User information is missing")
+      return
+    }
+
     const isValid = validateSignalData()
     if (!isValid) {
       console.error("Validation failed:", validationErrors)
       return
     }
 
+    // Check if signalPublisher exists
+    if (!signalPublisher) {
+      console.error("Cannot create signal: User information is missing")
+      setPostButtonDisabled(false)
+      return
+    }
+
     setPostButtonDisabled(true)
-    const chartImageId = await handleSendImage(selectedImage)
+    const chartImageHref = await handleSendImage(selectedImage)
     dispatch(
-      createSignal({
+      createSignalAsync({
         openTime: openTime.getTime(),
         closeTime: closeTime.getTime(),
-        chartImageId,
+        chartImageHref,
         market: { ...selectedMarket, name: `${selectedMarket.name}/USD` },
         entry: entryValue,
         stoploss: stoplossValue,
@@ -211,11 +224,16 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
 
   const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
-      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
+      const formData = new FormData()
+      formData.append("file", selectedFile)
       try {
-        const response = await storage.createFile(appwriteSignalsBucketId, ID.unique(), file)
-        console.log("Image uploaded successfully:", response)
-        return response.$id
+        const response = await fetch("https://signalist-backend.liara.run/api/upload/signals", {
+          method: "POST",
+          body: formData
+        })
+        const data = await response.json()
+        console.log("Image uploaded successfully:", data)
+        return data.url
       } catch (error) {
         console.error("Failed to upload image:", error)
       }
@@ -226,10 +244,6 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     () => dropdownMarkets.find((market) => market.symbol === selectedMarket.name),
     [selectedMarket, dropdownMarkets]
   )!
-
-  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
-
-  const storage = new Storage(client)
 
   useEffect(() => {
     if (cryptosList?.data.coins) {
@@ -298,7 +312,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
         className="flex overflow-y-auto
         flex-col gap-2 py-2 md:py-4 mb-4 px-2 md:px-4 custom-modal"
       >
-        {!dropdownMarkets.length || isLoading ? (
+        {!dropdownMarkets.length || isLoading || userLoading ? (
           <Loader className="h-[80vh]" />
         ) : (
           <div className="flex flex-col gap-2 h-[80vh]">

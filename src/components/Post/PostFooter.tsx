@@ -1,9 +1,9 @@
+import { AppDispatch } from "@/app/store"
 import { PostCommentModal, SharePostModal, ToastContainer } from "@/components"
-import { useAppSelector } from "@/features/Message/messagesSlice"
-import { dislikePost, likePost } from "@/features/Post/postsSlice"
-import { bookmarkPost, unBookmarkPost } from "@/features/User/usersSlice"
+import { dislikePostAsync, likePostAsync } from "@/features/Post/postsSlice"
+import { updateBookmarksAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
-import { PostModel } from "@/shared/models"
+import { AccountModel, PostModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import { cn, getCurrentUsername } from "@/utils"
 import millify from "millify"
@@ -19,6 +19,7 @@ type PostFooterProps = {
   simplified?: boolean
   amISubscribed?: boolean
   handleOpenEditPostModal?: () => void
+  myAccount: AccountModel
 }
 
 export const PostFooter = ({
@@ -26,28 +27,28 @@ export const PostFooter = ({
   comments,
   simplified,
   amISubscribed,
-  handleOpenEditPostModal
+  handleOpenEditPostModal,
+  myAccount
 }: PostFooterProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const currentUsername = getCurrentUsername()
-  const [isLiked, setIsLiked] = useState(() => {
-    return post.likes.some((user) => user.username === currentUsername)
-  })
+
+  const isLiked = post.likes.some((user) => user.username === currentUsername)
 
   const [openShareModal, setOpenShareModal] = useState(false)
   const [openCommentsModal, setOpenCommentsModal] = useState(false)
+  const [isLikeLoading, setIsLikeLoading] = useState(false)
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
   const { publisher } = post
 
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
+  const handleLikePost = async () => {
+    if (isLikeLoading) return
 
-  const handleLikePost = () => {
-    if (!myAccount) return
+    setIsLikeLoading(true)
 
     const user: SimplifiedAccountType = {
       name: myAccount.name,
@@ -55,21 +56,57 @@ export const PostFooter = ({
       imageUrl: myAccount.imageUrl
     }
 
-    if (!isLiked) {
-      dispatch(likePost({ postId: post.id, user }))
-    } else {
-      dispatch(dislikePost({ postId: post.id, user }))
+    try {
+      if (!isLiked) {
+        await dispatch(likePostAsync({ postId: post.id, user }))
+      } else {
+        await dispatch(dislikePostAsync({ postId: post.id, user }))
+      }
+    } catch (error) {
+      console.error("Failed to update like status:", error)
+      handleShowToast("Failed to update like status", "error")
+    } finally {
+      setIsLikeLoading(false)
     }
-    setIsLiked((prev) => !prev)
   }
 
-  const handleBookmarkPost = () => {
-    if (!isBookmarked) {
-      dispatch(bookmarkPost({ userUsername: myAccount?.username, post: post }))
-    } else {
-      dispatch(unBookmarkPost({ userUsername: myAccount?.username, postId: post.id }))
+  const handleBookmarkPost = async () => {
+    if (!myAccount || isBookmarkLoading) return
+
+    // Optimistically update UI
+    setIsBookmarkLoading(true)
+    const wasBookmarked = isBookmarked
+    setIsBookmarked(!wasBookmarked)
+
+    try {
+      const updatedBookmarks = { ...myAccount.bookmarks }
+
+      if (!wasBookmarked) {
+        // Add post to bookmarks with necessary type casting
+        const postToAdd = {
+          ...post,
+          comments: comments || []
+        }
+        updatedBookmarks.posts = [...updatedBookmarks.posts, postToAdd]
+      } else {
+        // Remove post from bookmarks
+        updatedBookmarks.posts = updatedBookmarks.posts.filter((p) => p.id !== post.id)
+      }
+
+      await dispatch(
+        updateBookmarksAsync({
+          username: myAccount.username,
+          bookmarks: updatedBookmarks
+        })
+      ).unwrap()
+    } catch (error) {
+      // Revert optimistic update on error
+      setIsBookmarked(wasBookmarked)
+      console.error("Failed to update bookmark status:", error)
+      handleShowToast("Failed to bookmark post", "error")
+    } finally {
+      setIsBookmarkLoading(false)
     }
-    setIsBookmarked((prev) => !prev)
   }
 
   const handleCloseShareModal = () => {
@@ -110,7 +147,7 @@ export const PostFooter = ({
       )
       setIsBookmarked(isPostBookmarked)
     }
-  }, [myAccount])
+  }, [myAccount, post.id])
 
   return (
     <>
@@ -119,7 +156,11 @@ export const PostFooter = ({
       >
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-[2px]">
-            <button onClick={handleLikePost} className="action-button">
+            <button
+              onClick={handleLikePost}
+              className="action-button disabled:opacity-20"
+              disabled={isLikeLoading}
+            >
               {isLiked ? (
                 <HiBolt className="w-6 h-6 text-yellow-300" />
               ) : (
@@ -153,7 +194,7 @@ export const PostFooter = ({
             </>
           )}
         </div>
-        <button onClick={handleBookmarkPost} className="action-button">
+        <button onClick={handleBookmarkPost} className="action-button" disabled={isBookmarkLoading}>
           {isBookmarked ? (
             <FaBookmark className="w-5 h-5" />
           ) : (

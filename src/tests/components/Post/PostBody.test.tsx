@@ -5,21 +5,6 @@ import React from "react"
 import { BrowserRouter } from "react-router-dom"
 import { vi } from "vitest"
 
-// Mock the appwrite client and storage
-vi.mock("appwrite", () => ({
-  Client: vi.fn().mockImplementation(() => ({
-    setEndpoint: vi.fn().mockReturnThis(),
-    setProject: vi.fn().mockReturnThis()
-  })),
-  Storage: vi.fn().mockImplementation(() => ({
-    getFilePreview: vi.fn().mockReturnValue({
-      href: "mocked-image-url.jpg"
-    })
-  })),
-  ImageFormat: { Png: "png" },
-  ImageGravity: { Center: "center" }
-}))
-
 // Mock the BluredPostComponent
 vi.mock("@/components", () => ({
   BluredPostComponent: () => <div data-testid="blured-post-component">Blured Content</div>,
@@ -96,7 +81,7 @@ describe("PostBody Component", () => {
     expect(hashtagLink).toHaveAttribute("href", "/hashtag/hashtag")
   })
 
-  test("renders post with image when postImageId is provided", async () => {
+  test("renders post with image when postImageHref is provided", async () => {
     // Mock useEffect and useState
     const useEffectSpy = vi.spyOn(React, "useEffect")
 
@@ -106,7 +91,7 @@ describe("PostBody Component", () => {
           content="This post has an image"
           publisherUsername="testuser"
           isPremium={false}
-          postImageId="test-image-id"
+          postImageHref="https://example.com/test-image.jpg"
         />
       </BrowserRouter>
     )
@@ -115,7 +100,7 @@ describe("PostBody Component", () => {
     expect(useEffectSpy).toHaveBeenCalled()
 
     // Since we can't easily test the image loading in this test environment,
-    // we'll just verify that the component doesn't crash when postImageId is provided
+    // we'll just verify that the component doesn't crash when postImageHref is provided
     expect(screen.getByText("This post has an image")).toBeInTheDocument()
   })
 })

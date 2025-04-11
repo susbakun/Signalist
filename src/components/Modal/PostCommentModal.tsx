@@ -1,7 +1,6 @@
 import { CommentInput, PostBody, PostComment, PostFooter, PostTopBar } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { PostModel } from "@/shared/models"
-import { getCurrentUsername } from "@/utils"
 import { Modal } from "flowbite-react"
 
 type PostCommentMoalProps = {
@@ -19,10 +18,7 @@ export const PostCommentModal = ({
   post,
   handleOpenEditPostModal
 }: PostCommentMoalProps) => {
-  const currentUsername = getCurrentUsername()
-  const me = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
+  const { currentUser: me } = useCurrentUser()
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
   return (
     <Modal size="3xl" show={openModal} onClose={handleCloseCommentsModal}>

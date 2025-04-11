@@ -1,7 +1,7 @@
 import { getCurrentUsername } from "@/utils"
 import { Modal } from "flowbite-react"
 import { useEffect, useState } from "react"
-import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom"
+import { NavLink, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 
 export const BookmarksModal = () => {
   const [openModal, setOpenModal] = useState(true)
@@ -9,6 +9,7 @@ export const BookmarksModal = () => {
   const { username: profileUsername } = useParams()
   const currentUsername = getCurrentUsername()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleCloseModal = () => {
     setOpenModal(false)
@@ -19,7 +20,8 @@ export const BookmarksModal = () => {
     // Only allow users to access their own bookmarks
     if (profileUsername !== currentUsername) {
       navigate("/", { replace: true })
-    } else {
+    } else if (!location.pathname.includes("signals") && !location.pathname.includes("posts")) {
+      // Only navigate to posts if we're not already on a specific tab
       navigate("posts")
     }
   }, [profileUsername, currentUsername, navigate])
@@ -33,7 +35,7 @@ export const BookmarksModal = () => {
       >
         <div
           className="border-b border-b-gray-600/20 dark:border-b-white/20
-        flex justify-between px-20"
+        flex justify-between px-12 md:px-20"
         >
           <NavLink className="explore-nav-link" to="posts">
             Posts

@@ -1,4 +1,3 @@
-import { usersMock } from "@/assets/mocks"
 import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
@@ -7,15 +6,19 @@ import { useRef, useState } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
 import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/app/store"
+import { loginUserAsync } from "@/features/User/usersSlice"
 
 export const LoginPage = () => {
-  const [identifier, setIdentifier] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
   const recaptchaRef = useRef<ReCAPTCHA>(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
 
@@ -54,30 +57,18 @@ export const LoginPage = () => {
         return
       }
 
-      // Check if the identifier is an email or username
-      const isEmail = identifier.includes("@")
+      // Use the login thunk
+      const resultAction = await dispatch(loginUserAsync({ email, password }))
 
-      // Find user with matching email/username and password
-      const user = usersMock.find(
-        (user) =>
-          (isEmail ? user.email === identifier : user.username === identifier) &&
-          user.password === password
-      )
+      if (loginUserAsync.fulfilled.match(resultAction)) {
+        // Login successful
+        const user = resultAction.payload
 
-      if (user) {
         // Store user info and auth status
         localStorage.setItem(STORAGE_KEYS.AUTH, "true")
         localStorage.setItem(
           STORAGE_KEYS.CURRENT_USER,
-          JSON.stringify({
-            name: user.name,
-            username: user.username,
-            email: user.email,
-            imageUrl: user.imageUrl,
-            hasPremium: user.hasPremium,
-            followers: user.followers,
-            followings: user.followings
-          })
+          JSON.stringify(user) // Store the complete user object
         )
 
         // Initialize session management
@@ -86,7 +77,9 @@ export const LoginPage = () => {
 
         navigate("/", { replace: true })
       } else {
-        setError("Invalid username/email or password")
+        // Login failed
+        const errorMessage = resultAction.error?.message || "Invalid email or password"
+        setError(errorMessage)
         resetCaptcha() // Reset captcha on failed login
       }
     } catch (error) {
@@ -123,10 +116,10 @@ export const LoginPage = () => {
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Username or Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
                   required
                   className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600"
                 />

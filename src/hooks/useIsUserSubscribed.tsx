@@ -11,7 +11,7 @@ export const useIsUserSubscribed = (publisher: SimplifiedAccountType | AccountMo
     if (subscribers) return subscribers.some((subscriber) => subscriber.username === myUsername)
   }
 
-  const users = useAppSelector((state) => state.users)
+  const { users } = useAppSelector((state) => state.users)
   const currentUsername = getCurrentUsername()
   const myAccount = users.find((user) => user.username === currentUsername)!
   const publisherAccount = users.find((user) => user.username === publisher.username)

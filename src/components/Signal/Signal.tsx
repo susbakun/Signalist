@@ -1,31 +1,27 @@
+import { AppDispatch } from "@/app/store"
 import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
-import { useAppSelector } from "@/features/Message/messagesSlice"
-import { updateSignalsState } from "@/features/Signal/signalsSlice"
-import { updateUserScore } from "@/features/User/usersSlice"
+import { updateSignalStatusAsync } from "@/features/Signal/signalsSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { SignalModel } from "@/shared/models"
-import { getCurrentUsername } from "@/utils"
+import { AccountModel, SignalModel } from "@/shared/models"
 import { ComponentProps, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { twMerge } from "tailwind-merge"
 
 type SignalProps = {
   signal: SignalModel
+  myAccount: AccountModel
+  isBookmarkPage?: boolean
 } & ComponentProps<"div">
 
-export const Signal = ({ signal, className }: SignalProps) => {
+export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
-
   const { data: cryptosList } = useGetCryptosQuery(5)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
   const { publisher } = signal
 
@@ -34,7 +30,9 @@ export const Signal = ({ signal, className }: SignalProps) => {
 
   const updateSignalStatus = () => {
     setCurrentTime(new Date().getTime())
-    dispatch(updateSignalsState(cryptosList?.data))
+    if (cryptosList?.data) {
+      dispatch(updateSignalStatusAsync({ signalId: signal.id, cryptoData: cryptosList.data.coins }))
+    }
   }
 
   useEffect(() => {
@@ -51,13 +49,9 @@ export const Signal = ({ signal, className }: SignalProps) => {
       const userUsername = signal.publisher.username
       setIsUserBlocked(determineIsUserBlocked(userUsername))
     }
-  }, [myAccount])
+  }, [myAccount, determineIsUserBlocked, signal.publisher.username])
 
-  useEffect(() => {
-    dispatch(updateUserScore({ signal }))
-  }, [signal])
-
-  if (isUserBlocked) return
+  if (isUserBlocked) return null
 
   return (
     <div
@@ -73,7 +67,7 @@ export const Signal = ({ signal, className }: SignalProps) => {
         date={signal.date}
         signalId={signal.id}
       />
-      <SignalContext signal={signal} />
+      <SignalContext signal={signal} isBookmarkPage={isBookmarkPage} />
       <SignalFooter signal={signal} username={publisher.username} />
     </div>
   )

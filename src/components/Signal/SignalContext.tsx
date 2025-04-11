@@ -1,9 +1,7 @@
 import { BlackPulse, BluredSignalComponent, GreenPulse, Loader, RedPulse } from "@/components"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { appwriteEndpoint, appwriteProjectId, appwriteSignalsBucketId } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { cn, getCurrentUsername, getMarketScale } from "@/utils"
-import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
 import { FaCheck } from "react-icons/fa"
@@ -12,6 +10,7 @@ import { Link } from "react-router-dom"
 
 type SignalContextProps = {
   signal: SignalModel
+  isBookmarkPage?: boolean
 }
 
 type IsTargetCopiedType = {
@@ -19,7 +18,7 @@ type IsTargetCopiedType = {
   isCopied: boolean
 }[]
 
-export const SignalContext = ({ signal }: SignalContextProps) => {
+export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) => {
   const [isTargetCopied, setIsTargetCopied] = useState<IsTargetCopiedType>(() => {
     return signal.targets.map((target) => ({ id: target.id, isCopied: false }))
   })
@@ -30,10 +29,6 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   const { publisher } = signal
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const currentUsername = getCurrentUsername()
-
-  const client = new Client()
-  const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const marketScale = getMarketScale(signal.market.name)
 
@@ -62,26 +57,11 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
   }
 
   useEffect(() => {
-    if (signal.chartImageId) {
+    if (signal.chartImageHref) {
       setisImageLoading(true)
-      const result = storage.getFilePreview(
-        appwriteSignalsBucketId,
-        signal.chartImageId,
-        0,
-        0,
-        ImageGravity.Center,
-        100,
-        0,
-        "fff",
-        0,
-        1,
-        0,
-        "fff",
-        ImageFormat.Png
-      )
-      setChartHref(result.href)
+      setChartHref(signal.chartImageHref)
     }
-  }, [])
+  }, [signal.chartImageHref])
 
   return (
     <div className="flex flex-col gap-2 max-w-full">
@@ -141,7 +121,7 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
                     "opacity-0 h-0": isImageLoading
                   }
                 )}
-                src={signal.chartImageId}
+                src={chartHref}
                 alt="Chart"
                 onLoad={handleImageLoaded}
                 onError={handleImageLoaded}
@@ -152,15 +132,20 @@ export const SignalContext = ({ signal }: SignalContextProps) => {
             className="bg-white dark:bg-gray-900
           p-4 rounded-lg border border-white/20"
           >
-            <div className="flex justify-center gap-10">
-              <div className="flex items-center">
+            <div
+              className={cn("flex justify-center", {
+                "gap-10": !isBookmarkPage,
+                "gap-4": isBookmarkPage
+              })}
+            >
+              <div className={`flex items-center ${isBookmarkPage && "text-sm"}`}>
                 <span className="font-semibold mr-2">Entry:</span>
                 <span>{signal.entry}</span>
                 <span className="ml-1 text-gray-500 dark:text-gray-400 text-sm md:text-base">
                   {marketScale}
                 </span>
               </div>
-              <div className="flex items-center">
+              <div className={`flex items-center ${isBookmarkPage && "text-sm"}`}>
                 <span className="font-semibold mr-2">Stoploss:</span>
                 <span>{signal.stoploss}</span>
                 <span className="ml-1 text-gray-500 dark:text-gray-400 text-sm md:text-base">

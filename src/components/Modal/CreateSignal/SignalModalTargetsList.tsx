@@ -21,35 +21,69 @@ export const SignalModalTargetsList = ({
 }: SignalModalTargetsListProps) => {
   const [error, setError] = useState("")
   const [touched, setTouched] = useState(false)
+  const [inputValue, setInputValue] = useState(target.value === 0 ? "" : target.value.toString())
 
   useEffect(() => {
     let newError = ""
+    const numValue = target.value
 
-    if (target.value <= 0) {
+    if (numValue <= 0) {
       newError = `Target ${index + 1} must be greater than 0`
-    } else if (target.value <= entryValue) {
+    } else if (numValue <= entryValue) {
       newError = `Target ${index + 1} must be greater than entry (${entryValue})`
-    } else if (previousTargetValue && target.value <= previousTargetValue) {
+    } else if (previousTargetValue && numValue <= previousTargetValue) {
       newError = `Target ${index + 1} must be greater than previous target (${previousTargetValue})`
     }
 
     setError(newError)
   }, [target.value, entryValue, previousTargetValue, index])
 
+  useEffect(() => {
+    // Update local input when parent state changes
+    setInputValue(target.value === 0 ? "" : target.value.toString())
+  }, [target.value])
+
   const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
     if (e.target.value === "0") {
       e.target.value = ""
+      setInputValue("")
     }
   }
 
-  const handleBlur = () => {
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
     setTouched(true)
+
+    // If empty, set to 0 or minimum allowable value
+    if (e.target.value === "") {
+      const minValue = Math.max(0, entryValue > 0 ? entryValue + 0.00001 : 0)
+      setInputValue(minValue.toString())
+
+      // Create synthetic event to update parent
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: minValue.toString()
+        }
+      } as ChangeEvent<HTMLInputElement>
+
+      handleTargetValueChange(syntheticEvent, target.id)
+    }
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // Prevent invalid inputs
-    const value = parseFloat(e.target.value)
-    if (!isNaN(value)) {
+    const rawValue = e.target.value
+
+    // Allow empty string for clearing the input
+    if (rawValue === "") {
+      setInputValue("")
+      return
+    }
+
+    // Only accept valid number inputs
+    const numValue = parseFloat(rawValue)
+    if (!isNaN(numValue)) {
+      setInputValue(rawValue)
       handleTargetValueChange(e, target.id)
     }
   }
@@ -66,9 +100,9 @@ export const SignalModalTargetsList = ({
             onFocus={handleFocus}
             onBlur={handleBlur}
             onChange={handleChange}
-            value={target.value}
+            value={inputValue}
             min={entryValue + 0.00001}
-            step="0.00001"
+            step="any"
             className={`signal-market-selector w-full ${touched && error ? "border-red-500" : ""}`}
             type="number"
           />

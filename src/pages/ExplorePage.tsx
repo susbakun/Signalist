@@ -1,10 +1,11 @@
-import { CreatePostButton, CreatePostModal, ExploreTopBar, UserPreview } from "@/components"
+import { CreatePostButton, CreatePostModal, ExploreTopBar, Loader, UserPreview } from "@/components"
 import { useAppSelector } from "@/features/User/usersSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { editPostRouteRegExp } from "@/shared/constants"
-import { getCurrentUsername } from "@/utils"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { EmptyPage } from "./EmptyPage"
 
 export const ExplorePage = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
@@ -56,9 +57,8 @@ const ExplorePosts = () => {
 }
 
 export const RightSideBar = () => {
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
+  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
+  const { currentUser: myAccount } = useCurrentUser()
   const { isUserBlocked } = useIsUserBlocked(myAccount)
   let selectedUsers = [
     ...users.filter(
@@ -69,17 +69,27 @@ export const RightSideBar = () => {
 
   return (
     <aside className="w-full h-screen flex flex-col pt-8 px-4 md:px-8 sticky top-0">
-      <div
-        className="border border-gray-600/20 dark:border-white/20
+      {usersLoading ? (
+        <Loader className="h-[80%]" />
+      ) : (
+        <div
+          className="border border-gray-600/20 dark:border-white/20
         rounded-xl gap-4 p-3 flex flex-col"
-      >
-        <h2 className="text-xl font-bold">Who to follow</h2>
-        <div className="flex flex-col gap-4">
-          {selectedUsers.map((user) => (
-            <UserPreview follower={myAccount || undefined} key={user.username} {...user} />
-          ))}
+        >
+          <h2 className="text-xl font-bold">Who to follow</h2>
+          {selectedUsers.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              {selectedUsers.map((user) => (
+                <UserPreview follower={myAccount || undefined} key={user.username} {...user} />
+              ))}
+            </div>
+          ) : (
+            <EmptyPage className="text-center mt-8 pb-8 md:pb-16 w-full">
+              <h3 className="font-normal">No users to follow</h3>
+            </EmptyPage>
+          )}
         </div>
-      </div>
+      )}
     </aside>
   )
 }

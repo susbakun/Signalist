@@ -1,7 +1,8 @@
 import { SharePostModal, ToastContainer, UserUnfollowModal } from "@/components"
 import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
+import { AppDispatch } from "@/app/store"
 import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
-import { followUser, unfollowUser } from "@/features/User/usersSlice"
+import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
@@ -23,6 +24,7 @@ type OthersBottomBarProps = {
 export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
   const [openShareModal, setOpenShareModal] = useState(false)
+  const [isActionLoading, setIsActionLoading] = useState(false)
 
   const currentUsername = getCurrentUsername()
   const messages = useAppSelector((state) => state.messages)[currentUsername || ""]
@@ -31,7 +33,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
     [myAccount, userAccount]
   )
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom()
@@ -56,29 +58,47 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
     }
   }
 
-  const handleFollowUser = () => {
+  const handleFollowUser = async () => {
+    if (!myAccount?.username || isActionLoading) return
+
     if (!isFollowed) {
-      handleShowToast(`You followed user @${userAccount.username}`, "follow")
-      dispatch(
-        followUser({
-          followerUsername: myAccount?.username,
-          followingUsername: userAccount.username
-        })
-      )
+      setIsActionLoading(true)
+      try {
+        await dispatch(
+          followUserAsync({
+            followerUsername: myAccount.username,
+            followingUsername: userAccount.username
+          })
+        ).unwrap()
+        handleShowToast(`You followed user @${userAccount.username}`, "follow")
+      } catch (error) {
+        handleShowToast("Failed to follow user", "error")
+      } finally {
+        setIsActionLoading(false)
+      }
     } else {
       setOpenUnfollowModal(true)
     }
   }
 
-  const handleAcceptUnfollowModal = () => {
-    handleShowToast(`You unfollowed user @${userAccount.username}`, "unfollow")
-    dispatch(
-      unfollowUser({
-        followerUsername: myAccount?.username,
-        followingUsername: userAccount.username
-      })
-    )
-    setOpenUnfollowModal(false)
+  const handleAcceptUnfollowModal = async () => {
+    if (!myAccount?.username || isActionLoading) return
+
+    setIsActionLoading(true)
+    try {
+      await dispatch(
+        unfollowUserAsync({
+          followerUsername: myAccount.username,
+          followingUsername: userAccount.username
+        })
+      ).unwrap()
+      handleShowToast(`You unfollowed user @${userAccount.username}`, "unfollow")
+      setOpenUnfollowModal(false)
+    } catch (error) {
+      handleShowToast("Failed to unfollow user", "error")
+    } finally {
+      setIsActionLoading(false)
+    }
   }
 
   const handleCloseModal = () => {
@@ -94,17 +114,17 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   }
 
   const handleShareEmail = () => {
-    const title = `See the user @${myAccount?.username}`
-    const body = `See the user @${myAccount?.username}:https://www.signalists/${myAccount?.username}`
+    const title = `See the user @${userAccount.username}`
+    const body = `See the user @${userAccount.username}:https://www.signalists/${userAccount.username}`
     const shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
     handleCloseShareModal()
     window.open(shareUrl)
   }
 
   const handleCopyLink = async () => {
-    const link = `https://www.signalists/${myAccount?.username}`
+    const link = `https://www.signalists/${userAccount.username}`
     await navigator.clipboard.writeText(link)
-    handleShowToast("Post link is copied", "copy_link")
+    handleShowToast("Profile link is copied", "copy_link")
     handleCloseShareModal()
   }
 
@@ -115,11 +135,12 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
           <div>
             <button
               onClick={handleFollowUser}
+              disabled={isActionLoading}
               className="px-3 py-1 bg-primary-link-button
                 dark:bg-dark-link-button rounded-md action-button
-                text-white"
+                text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isFollowed ? "followed" : "follow"}
+              {isActionLoading ? "Loading..." : isFollowed ? "followed" : "follow"}
             </button>
           </div>
           <div>

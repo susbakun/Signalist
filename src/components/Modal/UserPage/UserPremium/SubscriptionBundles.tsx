@@ -1,8 +1,8 @@
-import { AccountModel } from '@/shared/models'
-import { SubscriptionBundle } from './SubscriptionBundle'
+import { AccountModel } from "@/shared/models"
+import { SubscriptionBundle } from "./SubscriptionBundle"
 
 type SubscriptionBundlesProps = {
-  subscriptionPlan: AccountModel['susbscriptionPlan']
+  subscriptionPlan: AccountModel["subscriptionPlan"]
 }
 
 export const SubscriptionBundles = ({ subscriptionPlan }: SubscriptionBundlesProps) => {

@@ -1,25 +1,19 @@
 import { EditPostModal, PostBody, PostFooter, PostTopBar } from "@/components"
-import { useAppSelector } from "@/features/Message/messagesSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { PostModel } from "@/shared/models"
-import { getCurrentUsername } from "@/utils"
+import { AccountModel, PostModel } from "@/shared/models"
 import { ComponentProps, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 type PostProps = {
   post: PostModel
+  myAccount: AccountModel
 } & ComponentProps<"div">
 
-export const Post = ({ post, className }: PostProps) => {
+export const Post = ({ post, myAccount, className }: PostProps) => {
   const { publisher } = post
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
-  const currentUsername = getCurrentUsername()
-
-  const myAccount = useAppSelector((state) => state.users).find(
-    (user) => user.username === currentUsername
-  )
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
@@ -55,7 +49,7 @@ export const Post = ({ post, className }: PostProps) => {
           content={post.content}
           publisherUsername={post.publisher.username}
           isPremium={post.isPremium}
-          postImageId={post.postImageId}
+          postImageHref={post.postImageHref}
           amISubscribed={amISubscribed}
         />
         <PostFooter
@@ -64,6 +58,7 @@ export const Post = ({ post, className }: PostProps) => {
           simplified={false}
           amISubscribed={amISubscribed}
           handleOpenEditPostModal={handleOpenEditPostModal}
+          myAccount={myAccount}
         />
       </div>
       {isEditPostModalOpen && (

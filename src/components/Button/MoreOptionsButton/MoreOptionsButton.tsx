@@ -3,10 +3,9 @@ import {
   MoreOptionsButtonForCommentContent,
   ToastContainer
 } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel, CommentModel, PostModel, SignalModel } from "@/shared/models"
-import { getCurrentUsername } from "@/utils"
 import { Popover } from "flowbite-react"
 import { useState } from "react"
 import { MdOutlineModeEditOutline } from "react-icons/md"
@@ -33,9 +32,7 @@ export const MoreOptionsButton = ({
   const [open, setIsOpen] = useState(false)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
-  const users = useAppSelector((state) => state.users)
-  const currentUsername = getCurrentUsername()
-  const myAccount = users.find((user) => user.username === currentUsername)
+  const { currentUser: myAccount, loading } = useCurrentUser()
 
   const handleCloseCreatePostModal = () => {
     setIsOpen(false)
@@ -50,7 +47,7 @@ export const MoreOptionsButton = ({
         open={open}
         onOpenChange={setIsOpen}
       >
-        <button className="action-button">
+        <button className="action-button" disabled={loading}>
           <TfiMore className="w-6 h-6" />
         </button>
       </Popover>

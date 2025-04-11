@@ -105,12 +105,15 @@ export const isDevmode = () => {
 export const getCurrentUser = () => {
   const userStr = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
   if (!userStr) return null
-  return JSON.parse(userStr)
+  const user = JSON.parse(userStr)
+
+  if (user?.user) return user.user
+  return user
 }
 
 export const getCurrentUsername = () => {
   const user = getCurrentUser()
-  return user?.username || null
+  return user.username || null
 }
 
 export const isMobile = () => {

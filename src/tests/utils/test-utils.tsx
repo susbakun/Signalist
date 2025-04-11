@@ -73,7 +73,8 @@ export const mockPost: PostModel = {
     username: "publisher",
     name: "Publisher",
     imageUrl: "publisher-image.jpg"
-  }
+  },
+  postImageHref: ""
 }
 
 // Create a mock store

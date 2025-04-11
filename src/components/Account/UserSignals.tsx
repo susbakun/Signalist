@@ -1,23 +1,31 @@
-import { CreateSignalModal, Signal } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
+import { AppDispatch } from "@/app/store"
+import { CreateSignalModal, Loader, Signal } from "@/components"
+import { fetchSignals, useAppSelector } from "@/features/Signal/signalsSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
 import { getCurrentUsername } from "@/utils"
 import Tippy from "@tippyjs/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { HiMiniSignal } from "react-icons/hi2"
+import { useDispatch } from "react-redux"
 import { useParams } from "react-router-dom"
 import { roundArrow } from "tippy.js"
 
 export const UserSignals = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
+  const dispatch = useDispatch<AppDispatch>()
 
-  const { username: userUsername } = useParams()
-  const userAccount = useAppSelector((store) => store.users).find(
-    (user) => user.username === userUsername
-  )
-  const mySignals = useAppSelector((state) => state.signals)
+  const { signals, loading } = useAppSelector((state) => state.signals)
+  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
+  const { username } = useParams()
+  const { currentUser: myAccount } = useCurrentUser()
+
+  const userAccount = users.find((user) => user.username === username)
+
+  const userSignals = signals
     .filter((signal) => signal.publisher.username === userAccount?.username)
     .sort((a, b) => b.date - a.date)
+
   const currentUsername = getCurrentUsername()
   const isItmyAccount = userAccount?.username === currentUsername
 
@@ -29,19 +37,33 @@ export const UserSignals = () => {
     setOpenCreateSignalModal(true)
   }
 
-  if (mySignals.length === 0)
+  useEffect(() => {
+    dispatch(fetchSignals())
+  }, [dispatch])
+
+  if (loading || usersLoading) {
+    return (
+      <EmptyPage className="flex justify-center items-center h-[80vh]">
+        <Loader className="h-[350px]" />
+      </EmptyPage>
+    )
+  }
+
+  if (userSignals.length === 0)
     return (
       <EmptyPage className="text-center mt-8 pb-16">
         <h3 className="font-normal">No signals found</h3>
       </EmptyPage>
     )
 
+  if (!myAccount) return
+
   return (
     <>
       <div className="pb-4 w-full overflow-hidden relative flex flex-col justify-center md:px-16 md:pb-0">
         <div className="w-full overflow-hidden border-x mx-0 dark:border-x-white/20 border-x-gray-600/20 px-0 inset-0">
-          {mySignals.map((signal) => (
-            <Signal key={signal.id} signal={signal} />
+          {userSignals.map((signal) => (
+            <Signal key={signal.id} signal={signal} myAccount={myAccount} />
           ))}
         </div>
         {isItmyAccount && (

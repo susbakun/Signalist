@@ -1,63 +1,80 @@
-import { signalsMock } from "@/assets/mocks"
 import { SignalModel } from "@/shared/models"
-import { CoinType, SimplifiedAccountType } from "@/shared/types"
-import { createSlice } from "@reduxjs/toolkit"
-import { v4 } from "uuid"
+import { CoinType, RootState, SignalAccountType, SimplifiedAccountType } from "@/shared/types"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { TypedUseSelectorHook, useSelector } from "react-redux"
+import * as signalsApi from "@/services/signalsApi"
 
-const initialState = signalsMock
+// Define async thunks for API operations
+export const fetchSignals = createAsyncThunk("signals/fetchSignals", async () => {
+  return await signalsApi.fetchSignals()
+})
+
+export const createSignalAsync = createAsyncThunk(
+  "signals/createSignal",
+  async (signalData: {
+    market: SignalModel["market"]
+    entry: number
+    stoploss: number
+    targets: SignalModel["targets"]
+    openTime: number
+    closeTime: number
+    status: SignalModel["status"]
+    isPremium: boolean
+    description?: string
+    chartImageHref?: string
+    publisher: SignalAccountType
+  }) => {
+    return await signalsApi.createSignal(signalData)
+  }
+)
+
+export const updateSignalStatusAsync = createAsyncThunk(
+  "signals/updateStatus",
+  async (data: { signalId: string; cryptoData: CoinType[] }) => {
+    return await signalsApi.updateSignalStatus(data.signalId, data.cryptoData)
+  }
+)
+
+export const likeSignalAsync = createAsyncThunk(
+  "signals/likeSignal",
+  async (data: { signalId: string; user: SimplifiedAccountType }) => {
+    return await signalsApi.likeSignal(data.signalId, data.user)
+  }
+)
+
+export const dislikeSignalAsync = createAsyncThunk(
+  "signals/dislikeSignal",
+  async (data: { signalId: string; user: SimplifiedAccountType }) => {
+    return await signalsApi.dislikeSignal(data.signalId, data.user)
+  }
+)
+
+export const removeSignalAsync = createAsyncThunk("signals/removeSignal", async (id: string) => {
+  await signalsApi.removeSignal(id)
+  return id
+})
+
+// Define the state type
+interface SignalsState {
+  signals: SignalModel[]
+  loading: boolean
+  error: string | null
+}
+
+// Initial state now includes loading and error states
+const initialState: SignalsState = {
+  signals: [],
+  loading: false,
+  error: null
+}
 
 const signalsSlice = createSlice({
   name: "signals",
   initialState,
   reducers: {
-    createSignal: (state, action) => {
-      const newSignal: SignalModel = {
-        id: v4(),
-        date: new Date().getTime(),
-        openTime: action.payload.openTime,
-        closeTime: action.payload.closeTime,
-        publisher: action.payload.publisher,
-        status: action.payload.status,
-        isPremium: action.payload.isPremium,
-        likes: [],
-        market: action.payload.market,
-        entry: action.payload.entry,
-        stoploss: action.payload.stoploss,
-        targets: action.payload.targets,
-        description: action.payload.description
-      }
-      if (action.payload.chartImageId) {
-        newSignal.chartImageId = action.payload.chartImageId
-      }
-      state.push(newSignal)
-    },
-    likeSignal: (state, action) => {
-      return state.map((signal) => {
-        if (signal.id === action.payload.signalId) {
-          if (signal.likes.every((user) => user.username !== action.payload.user.username)) {
-            const newLikesList: SimplifiedAccountType[] = [...signal.likes, action.payload.user]
-            return { ...signal, likes: newLikesList }
-          }
-        }
-        return signal
-      })
-    },
-    dislikeSignal: (state, action) => {
-      return state.map((signal) => {
-        if (signal.id === action.payload.signalId) {
-          if (signal.likes.some((user) => user.username === action.payload.user.username)) {
-            const newLikesList: SimplifiedAccountType[] = signal.likes.filter(
-              (user) => user.username !== action.payload.user.username
-            )
-            return { ...signal, likes: newLikesList }
-          }
-        }
-        return signal
-      })
-    },
     updateSignalsState: (state, action) => {
       const currentTime = new Date().getTime()
-      return state.map((signal) => {
+      state.signals = state.signals.map((signal) => {
         const marketName = signal.market.name.split("/")[0]
         if (signal.status === "open" && currentTime - signal.closeTime >= -1000) {
           const currentPrice = action.payload.coins.find(
@@ -87,8 +104,59 @@ const signalsSlice = createSlice({
         return signal
       })
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch signals
+      .addCase(fetchSignals.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchSignals.fulfilled, (state, action) => {
+        state.loading = false
+        state.signals = action.payload
+      })
+      .addCase(fetchSignals.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || "Failed to fetch signals"
+      })
+
+      // Create signal
+      .addCase(createSignalAsync.fulfilled, (state, action) => {
+        state.signals.push(action.payload)
+      })
+
+      // Update signal status
+      .addCase(updateSignalStatusAsync.fulfilled, (state, action) => {
+        const index = state.signals.findIndex((signal) => signal.id === action.payload.id)
+        if (index !== -1) {
+          state.signals[index] = action.payload
+        }
+      })
+
+      // Like signal
+      .addCase(likeSignalAsync.fulfilled, (state, action) => {
+        const index = state.signals.findIndex((signal) => signal.id === action.payload.id)
+        if (index !== -1) {
+          state.signals[index] = action.payload
+        }
+      })
+
+      // Dislike signal
+      .addCase(dislikeSignalAsync.fulfilled, (state, action) => {
+        const index = state.signals.findIndex((signal) => signal.id === action.payload.id)
+        if (index !== -1) {
+          state.signals[index] = action.payload
+        }
+      })
+
+      // Remove signal
+      .addCase(removeSignalAsync.fulfilled, (state, action) => {
+        state.signals = state.signals.filter((signal) => signal.id !== action.payload)
+      })
   }
 })
 
-export const { createSignal, likeSignal, dislikeSignal, updateSignalsState } = signalsSlice.actions
+export const { updateSignalsState } = signalsSlice.actions
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default signalsSlice.reducer
