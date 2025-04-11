@@ -14,10 +14,29 @@ export const BookmarkedSignals = () => {
 
   useEffect(() => {
     if (myAccount && allSignals.length > 0) {
-      // Get the latest signal data for each bookmarked signal ID
-      const signals = myAccount.bookmarks.signals
-        .map((signalId) => allSignals.find((signal) => signal.id === signalId))
-        .filter((signal): signal is SignalModel => signal !== undefined)
+      // Handle both old format (full objects) and new format (just IDs)
+      let signals: SignalModel[] = []
+
+      // Check if the bookmarks are strings (IDs) or objects
+      const bookmarksSignals = myAccount.bookmarks.signals
+      const isIdFormat = bookmarksSignals.length > 0 && typeof bookmarksSignals[0] === "string"
+
+      if (isIdFormat) {
+        // New format: array of IDs
+        const signalIds = bookmarksSignals as unknown as string[]
+        signals = signalIds
+          .map((signalId) => allSignals.find((signal) => signal.id === signalId))
+          .filter((signal): signal is SignalModel => signal !== undefined)
+      } else {
+        // Old format: array of full signal objects
+        const oldSignals = bookmarksSignals as unknown as SignalModel[]
+        // First get the IDs from the stored objects
+        const signalIds = oldSignals.map((signal) => signal.id)
+        // Then find the latest versions in allSignals
+        signals = signalIds
+          .map((signalId) => allSignals.find((signal) => signal.id === signalId))
+          .filter((signal): signal is SignalModel => signal !== undefined)
+      }
 
       setBookmarkedSignals(signals)
       setLoading(false)
