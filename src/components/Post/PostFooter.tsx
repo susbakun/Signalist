@@ -82,15 +82,11 @@ export const PostFooter = ({
       const updatedBookmarks = { ...myAccount.bookmarks }
 
       if (!wasBookmarked) {
-        // Add post to bookmarks with necessary type casting
-        const postToAdd = {
-          ...post,
-          comments: comments || []
-        }
-        updatedBookmarks.posts = [...updatedBookmarks.posts, postToAdd]
+        // Add post ID to bookmarks
+        updatedBookmarks.posts = [...updatedBookmarks.posts, post.id]
       } else {
-        // Remove post from bookmarks
-        updatedBookmarks.posts = updatedBookmarks.posts.filter((p) => p.id !== post.id)
+        // Remove post ID from bookmarks
+        updatedBookmarks.posts = updatedBookmarks.posts.filter((id) => id !== post.id)
       }
 
       await dispatch(
@@ -142,9 +138,7 @@ export const PostFooter = ({
 
   useEffect(() => {
     if (myAccount) {
-      const isPostBookmarked = myAccount.bookmarks.posts.some(
-        (bookmarkedPost) => bookmarkedPost.id === post.id
-      )
+      const isPostBookmarked = myAccount.bookmarks.posts.includes(post.id)
       setIsBookmarked(isPostBookmarked)
     }
   }, [myAccount, post.id])

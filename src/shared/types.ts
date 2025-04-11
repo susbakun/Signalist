@@ -1,5 +1,5 @@
 import RootStore from "@/app/store"
-import { AccountModel, CryptoResponseType, PostModel, SignalModel } from "./models"
+import { AccountModel, CryptoResponseType } from "./models"
 
 export type RootState = ReturnType<typeof RootStore.getState>
 export type CoinType = CryptoResponseType["data"]["coins"][0] & {
@@ -39,7 +39,10 @@ export type GroupRoom = {
   userInfo: null
   isGroup: true
 }
-export type BookmarkType = { signals: SignalModel[]; posts: PostModel[] }
+export type BookmarkType = {
+  signals: string[] // Just signal IDs
+  posts: string[] // Just post IDs
+}
 export type ThemeModeType = "Os Default" | "Dark" | "Light"
 export type OptionType = {
   value: string

@@ -68,11 +68,11 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
       const updatedBookmarks = { ...myAccount.bookmarks }
 
       if (!wasBookmarked) {
-        // Add signal to bookmarks
-        updatedBookmarks.signals = [...updatedBookmarks.signals, signal]
+        // Add signal ID to bookmarks
+        updatedBookmarks.signals = [...updatedBookmarks.signals, signal.id]
       } else {
-        // Remove signal from bookmarks
-        updatedBookmarks.signals = updatedBookmarks.signals.filter((s) => s.id !== signal.id)
+        // Remove signal ID from bookmarks
+        updatedBookmarks.signals = updatedBookmarks.signals.filter((id) => id !== signal.id)
       }
 
       await dispatch(
@@ -116,9 +116,7 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
 
   useEffect(() => {
     if (myAccount) {
-      const isSignalBookmarked = myAccount.bookmarks.signals.some(
-        (bookmarkedSignal) => bookmarkedSignal.id === signal.id
-      )
+      const isSignalBookmarked = myAccount.bookmarks.signals.includes(signal.id)
       setIsBookmarked(isSignalBookmarked)
     }
   }, [myAccount, signal.id])

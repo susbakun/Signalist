@@ -20,6 +20,9 @@ export const PostCommentModal = ({
 }: PostCommentMoalProps) => {
   const { currentUser: me } = useCurrentUser()
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
+
+  if (!me) return null
+
   return (
     <Modal size="3xl" show={openModal} onClose={handleCloseCommentsModal}>
       <Modal.Header className="border-none pb-0" />
@@ -43,7 +46,7 @@ export const PostCommentModal = ({
             publisherUsername={post.publisher.username}
             content={post.content}
           />
-          <PostFooter simplified={true} post={post} />
+          <PostFooter myAccount={me} simplified={true} post={post} />
         </div>
         <div className="w-full md:w-[50%] flex flex-col gap-4 relative border-t md:border-t-0 border-t-gray-600/20 dark:border-t-white/20 pt-4 md:pt-0">
           {sortedComments &&

@@ -2,13 +2,34 @@ import { Post } from "@/components/Post/Post"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
 import { cn, isEmpty } from "@/utils"
+import { useEffect, useState } from "react"
+import { useAppSelector } from "@/features/Signal/signalsSlice"
+import { PostModel } from "@/shared/models"
+import { Loader } from "@/components"
 
 export const BookmarkedPosts = () => {
   const { currentUser: myAccount } = useCurrentUser()
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<PostModel[]>([])
+  const [loading, setLoading] = useState(true)
+  const { posts: allPosts } = useAppSelector((state) => state.posts)
+
+  useEffect(() => {
+    if (myAccount && allPosts.length > 0) {
+      // Get the latest post data for each bookmarked post ID
+      const posts = myAccount.bookmarks.posts
+        .map((postId) => allPosts.find((post) => post.id === postId))
+        .filter((post): post is PostModel => post !== undefined)
+
+      setBookmarkedPosts(posts)
+      setLoading(false)
+    }
+  }, [myAccount, allPosts])
 
   if (!myAccount) return null
 
-  const bookmarkedPosts = myAccount.bookmarks.posts
+  if (loading) {
+    return <Loader className="h-[350px]" />
+  }
 
   if (isEmpty(bookmarkedPosts)) {
     return (
