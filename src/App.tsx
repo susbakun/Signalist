@@ -7,7 +7,7 @@ import {
   RootLayout
 } from "@/components"
 import { AppDispatch } from "@/app/store"
-import { fetchUsersAsync, getUserByUsernameAsync } from "@/features/User/usersSlice"
+import { fetchUsersAsync } from "@/features/User/usersSlice"
 import { LoginPage, SignUpPage } from "@/pages"
 import { UserPage } from "@/pages/UserPage"
 import { STORAGE_KEYS } from "@/shared/constants"
@@ -24,22 +24,17 @@ function App() {
     const themeMode = localStorage.getItem(STORAGE_KEYS.THEME_MODE) || "Os Default"
     toggleThemeMode(themeMode)
 
-    // Initialize session management
-    if (localStorage.getItem(STORAGE_KEYS.AUTH) === "true") {
+    const getAllUsers = async () => {
       initializeSession()
       setupActivityListeners()
 
       // Fetch users when the app initializes and user is authenticated
-      dispatch(fetchUsersAsync())
+      await dispatch(fetchUsersAsync())
+    }
 
-      // Also fetch the current user specifically to ensure it's in the Redux store
-      const currentUsername = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
-        ? JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || "{}").username
-        : null
-
-      if (currentUsername) {
-        dispatch(getUserByUsernameAsync(currentUsername))
-      }
+    // Initialize session management
+    if (localStorage.getItem(STORAGE_KEYS.AUTH) === "true") {
+      getAllUsers()
     }
   }, [dispatch])
 

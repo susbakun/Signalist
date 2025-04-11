@@ -38,7 +38,6 @@ export const MarketSelectionDrawer = ({
             coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())) &&
           coin.quoteAsset !== "TMN"
       )
-      console.log(filteredData)
       setDrawerCoins(filteredData)
     }
   }, [wallexData, searchTerm])

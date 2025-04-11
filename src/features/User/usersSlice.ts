@@ -35,7 +35,30 @@ export const registerUserAsync = createAsyncThunk(
   async (
     user: Omit<AccountModel, "followers" | "followings" | "bookmarks" | "blockedAccounts" | "score">
   ) => {
-    return await usersApi.createUser(user)
+    // Define the response type that may include token
+    interface RegisterResponse {
+      user?: AccountModel
+      token?: string
+    }
+
+    const response = await usersApi.createUser(user)
+
+    // Check if response has user and token properties
+    const fullResponse = response as AccountModel | RegisterResponse
+
+    if (
+      "token" in fullResponse &&
+      "user" in fullResponse &&
+      fullResponse.token &&
+      fullResponse.user
+    ) {
+      // It's a response with both token and user
+      localStorage.setItem("token", fullResponse.token)
+      return fullResponse.user
+    }
+
+    // It's just the user
+    return response as AccountModel
   }
 )
 

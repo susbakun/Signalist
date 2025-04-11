@@ -15,10 +15,21 @@ const handleResponse = async (response: Response) => {
 }
 
 // Get all posts
-export const fetchPosts = async (): Promise<PostModel[]> => {
-  const response = await fetch(POSTS_ENDPOINT)
+export const fetchPosts = async (
+  page = 1,
+  limit = 10
+): Promise<{
+  data: PostModel[]
+  totalCount: number
+  hasMore: boolean
+}> => {
+  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}`)
   const data = await handleResponse(response)
-  return data.data
+  return {
+    data: data.data,
+    totalCount: data.totalCount || data.data.length,
+    hasMore: data.hasMore || data.data.length >= limit
+  }
 }
 
 // Get a single post by ID

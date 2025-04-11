@@ -30,6 +30,7 @@ export const ExploreTopBar = () => {
   }
 
   const handleSearchUsers = useCallback(() => {
+    if (!users) return []
     return users.filter(
       (user) =>
         (user.username.toLowerCase().includes(searched.toLowerCase()) ||

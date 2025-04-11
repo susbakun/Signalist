@@ -1,11 +1,13 @@
 import { CreatePostButton, CreatePostModal, ExploreTopBar, Loader, UserPreview } from "@/components"
-import { useAppSelector } from "@/features/User/usersSlice"
+import { fetchUsersAsync, useAppSelector } from "@/features/User/usersSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { editPostRouteRegExp } from "@/shared/constants"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { EmptyPage } from "./EmptyPage"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/app/store"
 
 export const ExplorePage = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
@@ -57,14 +59,27 @@ const ExplorePosts = () => {
 }
 
 export const RightSideBar = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const { currentUser: myAccount } = useCurrentUser()
   const { isUserBlocked } = useIsUserBlocked(myAccount)
-  let selectedUsers = [
-    ...users.filter(
-      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
-    )
-  ]
+
+  // Fetch users if they're not loaded yet
+  useEffect(() => {
+    if (users.length === 0 && !usersLoading) {
+      dispatch(fetchUsersAsync())
+    }
+  }, [users, usersLoading, dispatch])
+
+  let selectedUsers =
+    users.length > 0
+      ? [
+          ...users.filter(
+            (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+          )
+        ]
+      : []
+
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
 
   return (

@@ -107,7 +107,6 @@ export const getCurrentUser = () => {
   if (!userStr) return null
   const user = JSON.parse(userStr)
 
-  if (user?.user) return user.user
   return user
 }
 

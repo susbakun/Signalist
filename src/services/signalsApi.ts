@@ -15,10 +15,21 @@ const handleResponse = async (response: Response) => {
 }
 
 // Get all signals
-export const fetchSignals = async (): Promise<SignalModel[]> => {
-  const response = await fetch(SIGNALS_ENDPOINT)
+export const fetchSignals = async (
+  page = 1,
+  limit = 10
+): Promise<{
+  data: SignalModel[]
+  totalCount: number
+  hasMore: boolean
+}> => {
+  const response = await fetch(`${SIGNALS_ENDPOINT}?page=${page}&limit=${limit}`)
   const data = await handleResponse(response)
-  return data.data
+  return {
+    data: data.data,
+    totalCount: data.totalCount || data.data.length,
+    hasMore: data.hasMore || data.data.length >= limit
+  }
 }
 
 // Get a single signal by ID

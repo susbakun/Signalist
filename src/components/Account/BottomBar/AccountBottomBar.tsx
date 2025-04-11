@@ -1,6 +1,6 @@
-import { AccountModel } from '@/shared/models'
-import { MyBottomBar } from './MyBottomBar'
-import { OthersBottomBar } from './OthersBottomBar'
+import { AccountModel } from "@/shared/models"
+import { MyBottomBar } from "./MyBottomBar"
+import { OthersBottomBar } from "./OthersBottomBar"
 
 type AccountBottomBarProps = {
   isItMyAccount: boolean

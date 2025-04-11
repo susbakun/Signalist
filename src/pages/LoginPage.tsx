@@ -8,7 +8,7 @@ import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store"
-import { loginUserAsync } from "@/features/User/usersSlice"
+import { fetchUsersAsync, loginUserAsync } from "@/features/User/usersSlice"
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("")
@@ -74,6 +74,9 @@ export const LoginPage = () => {
         // Initialize session management
         initializeSession()
         setupActivityListeners()
+
+        // Fetch all users to populate the Redux store before navigating
+        await dispatch(fetchUsersAsync())
 
         navigate("/", { replace: true })
       } else {

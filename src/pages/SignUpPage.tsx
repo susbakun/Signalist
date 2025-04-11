@@ -1,6 +1,6 @@
 import { AppDispatch } from "@/app/store"
 import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
-import { registerUserAsync } from "@/features/User/usersSlice"
+import { fetchUsersAsync, registerUserAsync } from "@/features/User/usersSlice"
 import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
@@ -92,13 +92,8 @@ export const SignUpPage = () => {
       const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
 
       if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-        const missingRequirements = []
-        if (!hasUpperCase) missingRequirements.push("uppercase letter")
-        if (!hasLowerCase) missingRequirements.push("lowercase letter")
-        if (!hasNumbers) missingRequirements.push("number")
-        if (!hasSpecialChar) missingRequirements.push("special character")
-
-        newErrors.password = `Password must include at least one ${missingRequirements.join(", ")}`
+        newErrors.password =
+          "Password must include uppercase, lowercase, number, and special character"
       }
     }
 
@@ -198,6 +193,9 @@ export const SignUpPage = () => {
         initializeSession()
         setupActivityListeners()
 
+        // Fetch all users to populate the Redux store before navigating
+        await dispatch(fetchUsersAsync())
+
         navigate("/", { replace: true })
       } else {
         // Registration failed
@@ -253,70 +251,89 @@ export const SignUpPage = () => {
             />
 
             <div className="space-y-4">
-              {/* Name field */}
-              <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Full Name"
-                  className={cn(
-                    "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600",
-                    errors.name && "border-red-500 dark:border-red-500"
-                  )}
-                />
+              {/* Full Name field */}
+              <div className="relative mb-6">
+                <div className="flex items-center">
+                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
+                    <FaUser className="text-gray-400 text-lg" />
+                  </div>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full Name"
+                    className={cn(
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      errors.name && "border-red-500 dark:border-red-500"
+                    )}
+                  />
+                </div>
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
 
               {/* Username field */}
-              <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username"
-                  className={cn(
-                    "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600",
-                    errors.username && "border-red-500 dark:border-red-500"
-                  )}
-                />
+              <div className="relative mb-6">
+                <div className="flex items-center">
+                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
+                    <FaUser className="text-gray-400 text-lg" />
+                  </div>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                    className={cn(
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      errors.username && "border-red-500 dark:border-red-500"
+                    )}
+                  />
+                </div>
                 {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
               </div>
 
               {/* Email field */}
-              <div className="relative">
-                <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  className={cn(
-                    "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600",
-                    errors.email && "border-red-500 dark:border-red-500"
-                  )}
-                />
+              <div className="relative mb-6">
+                <div className="flex items-center">
+                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
+                    <MdEmail className="text-gray-400 text-lg" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    className={cn(
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      errors.email && "border-red-500 dark:border-red-500"
+                    )}
+                  />
+                </div>
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
               {/* Password field */}
-              <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className={cn(
-                    "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600",
-                    errors.password && "border-red-500 dark:border-red-500"
-                  )}
-                />
-                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                {!errors.password && (
-                  <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+              <div className="relative mb-6">
+                <div className="flex items-center">
+                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
+                    <FaLock className="text-gray-400 text-lg" />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    className={cn(
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      errors.password && "border-red-500 dark:border-red-500"
+                    )}
+                  />
+                </div>
+                {errors.password ? (
+                  <p className="text-red-500 text-xs mt-1 bg-red-50 dark:bg-red-900/10 p-1 rounded">
+                    {errors.password}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 bg-gray-50 dark:bg-gray-700/30 p-1 rounded">
                     Password must be at least 8 characters and include uppercase, lowercase, number,
                     and special character.
                   </p>
@@ -324,18 +341,22 @@ export const SignUpPage = () => {
               </div>
 
               {/* Confirm Password field */}
-              <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm Password"
-                  className={cn(
-                    "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600",
-                    errors.confirmPassword && "border-red-500 dark:border-red-500"
-                  )}
-                />
+              <div className="relative mb-6">
+                <div className="flex items-center">
+                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
+                    <FaLock className="text-gray-400 text-lg" />
+                  </div>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
+                    className={cn(
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      errors.confirmPassword && "border-red-500 dark:border-red-500"
+                    )}
+                  />
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
                 )}
@@ -360,10 +381,12 @@ export const SignUpPage = () => {
                     errors.bio && "border-red-500 dark:border-red-500"
                   )}
                 />
-                {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio}</p>}
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {bio.length}/150 characters
-                </p>
+                <div className="min-h-[1.5rem] flex justify-between">
+                  {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio}</p>}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {bio.length}/150 characters
+                  </p>
+                </div>
               </div>
             </div>
 

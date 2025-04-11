@@ -1,11 +1,12 @@
 import { AppDispatch } from "@/app/store"
 import { CreateSignalButton, CreateSignalModal, Loader, Signal, StreamingUser } from "@/components"
-import { fetchSignals, useAppSelector } from "@/features/Signal/signalsSlice"
-import { useEffect, useState } from "react"
+import { fetchSignals, updatePage, useAppSelector } from "@/features/Signal/signalsSlice"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useDispatch } from "react-redux"
 import { EmptyPage } from "./EmptyPage"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
+import { fetchUsersAsync } from "@/features/User/usersSlice"
 
 export const SignalsPage = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
@@ -33,17 +34,83 @@ export const SignalsPage = () => {
 
 const ExploreSignals = () => {
   const dispatch = useDispatch<AppDispatch>()
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
 
   const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
 
-  const { signals, loading } = useAppSelector((state) => state.signals)
-  const sortedSignals = [...signals].sort((a, b) => b.date - a.date)
+  const { signals, loading, hasMore, page } = useAppSelector((state) => state.signals)
 
+  // Use useMemo to sort the signals - this ensures we always display all signals in the correct order
+  const sortedSignalsList = useMemo(() => {
+    return [...signals].sort((a, b) => b.date - a.date)
+  }, [signals])
+
+  // Ref for intersection observer
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  // Initial fetch
   useEffect(() => {
-    dispatch(fetchSignals())
+    // Clear any previous signals and start fresh with page 1
+    dispatch(fetchSignals({ page: 1, limit: 10 })).then(() => {
+      setInitialLoadComplete(true)
+    })
   }, [dispatch])
 
-  if (loading || userLoading) {
+  // Setup intersection observer for infinite scrolling
+  useEffect(() => {
+    if (loading || !hasMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Only trigger loading if we have more signals to load, we're not already loading,
+        // and the loadMore element is intersecting
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+          loadMoreSignals()
+        }
+      },
+      // Use a moderate threshold to detect earlier but not too early
+      { threshold: 0.05, rootMargin: "200px 0px" }
+    )
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current)
+    }
+
+    observerRef.current = observer
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [loading, hasMore, loadingMore])
+
+  // Function to load more signals
+  const loadMoreSignals = async () => {
+    if (!hasMore || loading || loadingMore) return
+
+    setLoadingMore(true)
+
+    try {
+      // Pass the current page + 1 to fetch the next set of signals
+      const nextPage = page + 1
+
+      // Dispatch and wait for completion
+      await dispatch(fetchSignals({ page: nextPage, limit: 10 })).unwrap()
+
+      // Update page in the state
+      dispatch(updatePage(nextPage))
+    } catch (error) {
+      console.error("Failed to load more signals:", error)
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  // Show loading state only on initial load
+  if ((!initialLoadComplete && loading) || userLoading) {
     return (
       <EmptyPage
         className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r 
@@ -54,7 +121,7 @@ const ExploreSignals = () => {
     )
   }
 
-  if (!sortedSignals.length)
+  if (!sortedSignalsList.length)
     return (
       <EmptyPage
         className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r
@@ -73,23 +140,47 @@ const ExploreSignals = () => {
     >
       <h2 className="text-2xl px-4 pt-4 md:pt-11 pb-2 font-bold">Signals</h2>
       <div className="flex flex-col justify-center">
-        {sortedSignals.map((signal) => (
+        {sortedSignalsList.map((signal) => (
           <Signal myAccount={myAccount} key={signal.id} signal={signal} />
         ))}
+
+        {/* Loading indicator and intersection observer target */}
+        {hasMore && (
+          <div ref={loadMoreRef} className="flex justify-center py-6 mt-2">
+            {loadingMore ? (
+              <Loader className="h-16 w-16" />
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400">Scroll for more</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
 const RightSidebar = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const { currentUser: myAccount } = useCurrentUser()
   const { isUserBlocked } = useIsUserBlocked(myAccount)
-  let selectedUsers = [
-    ...users.filter(
-      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
-    )
-  ]
+
+  // Fetch users if they're not loaded yet
+  useEffect(() => {
+    if (users.length === 0 && !usersLoading) {
+      dispatch(fetchUsersAsync())
+    }
+  }, [users, usersLoading, dispatch])
+
+  let selectedUsers =
+    users.length > 0
+      ? [
+          ...users.filter(
+            (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+          )
+        ]
+      : []
+
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
 
   if (!myAccount) return null
@@ -123,15 +214,27 @@ const RightSidebar = () => {
 }
 
 const MobileTopBar = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const { currentUser: myAccount } = useCurrentUser()
   const { isUserBlocked } = useIsUserBlocked(myAccount)
 
-  let selectedUsers = [
-    ...users.filter(
-      (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
-    )
-  ]
+  // Fetch users if they're not loaded yet
+  useEffect(() => {
+    if (users.length === 0 && !usersLoading) {
+      dispatch(fetchUsersAsync())
+    }
+  }, [users, usersLoading, dispatch])
+
+  let selectedUsers =
+    users.length > 0
+      ? [
+          ...users.filter(
+            (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+          )
+        ]
+      : []
+
   selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
 
   if (!myAccount) return null
@@ -144,8 +247,8 @@ const MobileTopBar = () => {
           <Loader className="w-full" />
         ) : selectedUsers.length > 0 ? (
           selectedUsers.map((user) => (
-            <div className="flex flex-col items-center">
-              <StreamingUser myAccount={myAccount} key={user.username} {...user} />
+            <div className="flex flex-col items-center" key={user.username}>
+              <StreamingUser myAccount={myAccount} {...user} />
               <span className="text-xs mt-1 truncate max-w-[64px] text-center">
                 {user.username}
               </span>

@@ -5,9 +5,12 @@ import { TypedUseSelectorHook, useSelector } from "react-redux"
 import * as postsApi from "@/services/postsApi"
 
 // Define async thunks for API operations
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-  return await postsApi.fetchPosts()
-})
+export const fetchPosts = createAsyncThunk(
+  "posts/fetchPosts",
+  async ({ page = 1, limit = 10 }: { page?: number; limit?: number } = {}) => {
+    return await postsApi.fetchPosts(page, limit)
+  }
+)
 
 export const createPostAsync = createAsyncThunk(
   "posts/createPost",
@@ -96,13 +99,19 @@ interface PostsState {
   posts: PostModel[]
   loading: boolean
   error: string | null
+  page: number
+  hasMore: boolean
+  totalCount: number
 }
 
 // Initial state now includes loading and error states
 const initialState: PostsState = {
   posts: [],
   loading: false,
-  error: null
+  error: null,
+  page: 1,
+  hasMore: true,
+  totalCount: 0
 }
 
 const postsSlice = createSlice({
@@ -110,6 +119,9 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     // Keep empty reducers object for potential synchronous actions in the future
+    updatePage: (state, action) => {
+      state.page = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -120,7 +132,24 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.loading = false
-        state.posts = action.payload
+        if (state.page === 1) {
+          state.posts = action.payload.data
+        } else {
+          // Check for duplicates before adding new posts
+          const existingPostIds = new Set(state.posts.map((post) => post.id))
+          const newPosts = action.payload.data.filter((post) => !existingPostIds.has(post.id))
+
+          // Only add posts that don't already exist
+          state.posts = [...state.posts, ...newPosts]
+
+          // If we got no new posts, we've reached the end
+          if (newPosts.length === 0) {
+            state.hasMore = false
+          } else {
+            state.hasMore = action.payload.hasMore
+          }
+        }
+        state.totalCount = action.payload.totalCount
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = false
@@ -216,3 +245,6 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 // Export the reducer as the default export
 export default postsSlice.reducer
+
+// Export actions
+export const { updatePage } = postsSlice.actions

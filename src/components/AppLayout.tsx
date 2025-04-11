@@ -9,7 +9,10 @@ import {
   UserPosts,
   UserReplies,
   UserSettings,
-  UserSignals
+  UserSignals,
+  UserFollowersModal,
+  UserFollowingsModal,
+  UserPremiumModal
 } from "@/components"
 import {
   DetailedNewsPage,
@@ -26,9 +29,6 @@ import { messagesRouteRegExp } from "@/shared/constants"
 import { cn } from "@/utils"
 import { ComponentProps } from "react"
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
-import { UserFollowersModal } from "./Modal/UserPage/UserFollowersModal"
-import { UserFollowingsModal } from "./Modal/UserPage/UserFollowingsModal"
-import { UserPremiumModal } from "./Modal/UserPage/UserPremium/UserPremiumModal"
 
 export const RootLayout = ({ children, ...props }: ComponentProps<"main">) => {
   return <main {...props}>{children}</main>
