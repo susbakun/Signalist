@@ -4,6 +4,7 @@ import { ChangeEvent, FocusEvent, useCallback, useEffect, useMemo, useState } fr
 type SignalModalTopInputsProps = {
   entryValue: SignalModel["entry"]
   stoplossValue: SignalModel["stoploss"]
+  quoteAsset?: string
   handleEntryValueChange: (e: ChangeEvent<HTMLInputElement>) => void
   handleStoplossValueChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
@@ -22,7 +23,8 @@ export const SignalModalTopInputs = ({
   entryValue,
   stoplossValue,
   handleEntryValueChange,
-  handleStoplossValueChange
+  handleStoplossValueChange,
+  quoteAsset = "USD"
 }: SignalModalTopInputsProps) => {
   const isFirstFocus = useMemo(() => ({ entry: true, stoploss: true }), [])
   const [errors, setErrors] = useState({ entry: "", stoploss: "" })
@@ -147,7 +149,7 @@ export const SignalModalTopInputs = ({
                 type="number"
               />
               <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base shrink-0">
-                USD
+                {quoteAsset}
               </span>
             </div>
           </div>
@@ -173,7 +175,7 @@ export const SignalModalTopInputs = ({
                 type="number"
               />
               <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base shrink-0">
-                USD
+                {quoteAsset}
               </span>
             </div>
           </div>

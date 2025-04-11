@@ -9,6 +9,65 @@ import {
   SubscriptionPlanType
 } from "./types"
 
+// Wallex API Response Type
+export type WallexCryptoResponseType = {
+  result: {
+    symbols: {
+      [key: string]: WallexCoinType
+    }
+  }
+  message: string
+  success: boolean
+}
+
+export type WallexCoinType = {
+  symbol: string
+  baseAsset: string
+  baseAsset_png_icon: string
+  baseAsset_svg_icon: string
+  baseAssetPrecision: number
+  quoteAsset: string
+  quoteAsset_png_icon: string
+  quoteAsset_svg_icon: string
+  quotePrecision: number
+  faName: string
+  enName: string
+  faBaseAsset: string
+  enBaseAsset: string
+  faQuoteAsset: string
+  enQuoteAsset: string
+  stepSize: number
+  tickSize: number
+  minQty: number
+  minNotional: number
+  stats: {
+    bidPrice: string
+    askPrice: string
+    "24h_ch": number | string
+    "7d_ch": number | string
+    "24h_volume": string
+    "7d_volume": string
+    "24h_quoteVolume": string
+    "24h_highPrice": string
+    "24h_lowPrice": string
+    lastPrice: string
+    lastQty: string
+    lastTradeSide: string
+    bidVolume: string
+    askVolume: string
+    bidCount: number | string
+    askCount: number | string
+    direction: {
+      SELL: number
+      BUY: number
+    }
+    "24h_tmnVolume": string
+  }
+  createdAt: string
+  isNew: boolean
+  isZeroFee: boolean
+}
+
 export type CryptoResponseType = {
   status: string
   data: {
@@ -154,6 +213,7 @@ export type SignalModel = {
   market: {
     name: string
     uuid: string
+    quoteAsset?: string
   }
   entry: number
   stoploss: number

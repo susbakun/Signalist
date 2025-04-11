@@ -19,6 +19,7 @@ export const CryptoPreview = ({
   symbol,
   iconUrl,
   removeMarket,
+  quoteAsset,
 
   "24hVolume": volume
 }: CryptoPreviewProps) => {
@@ -44,7 +45,7 @@ export const CryptoPreview = ({
           <img className="w-6 h-6 inline-block" src={iconUrl} alt={name} />{" "}
           <div className="flex gap-[2px]">
             <span>{symbol}</span>
-            <span className="detail-text">/USD</span>
+            <span className="detail-text">/{quoteAsset || "USD"}</span>
           </div>
         </div>
       </TableCell>

@@ -29,9 +29,14 @@ export const createSignalAsync = createAsyncThunk(
 )
 
 export const updateSignalStatusAsync = createAsyncThunk(
-  "signals/updateStatus",
-  async (data: { signalId: string; cryptoData: CoinType[] }) => {
-    return await signalsApi.updateSignalStatus(data.signalId, data.cryptoData)
+  "signals/updateSignalStatus",
+  async ({ signalId }: { signalId: string }, { rejectWithValue }) => {
+    try {
+      const updatedSignal = await signalsApi.updateSignalStatus(signalId)
+      return updatedSignal
+    } catch (error: unknown) {
+      return rejectWithValue(error instanceof Error ? error.toString() : String(error))
+    }
   }
 )
 

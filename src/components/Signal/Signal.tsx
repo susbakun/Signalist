@@ -1,9 +1,9 @@
 import { AppDispatch } from "@/app/store"
 import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { updateSignalStatusAsync } from "@/features/Signal/signalsSlice"
+import { updateUserScoreAsync } from "@/features/User/usersSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
-import { useGetCryptosQuery } from "@/services/cryptoApi"
 import { AccountModel, SignalModel } from "@/shared/models"
 import { ComponentProps, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -20,7 +20,6 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
-  const { data: cryptosList } = useGetCryptosQuery(5)
   const dispatch = useDispatch<AppDispatch>()
 
   const { publisher } = signal
@@ -30,9 +29,7 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
 
   const updateSignalStatus = () => {
     setCurrentTime(new Date().getTime())
-    if (cryptosList?.data) {
-      dispatch(updateSignalStatusAsync({ signalId: signal.id, cryptoData: cryptosList.data.coins }))
-    }
+    dispatch(updateSignalStatusAsync({ signalId: signal.id }))
   }
 
   useEffect(() => {
@@ -42,7 +39,11 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
     }, 60000)
 
     return () => clearInterval(intervalId)
-  }, [cryptosList])
+  }, [])
+
+  useEffect(() => {
+    dispatch(updateUserScoreAsync({ signal }))
+  }, [signal, dispatch])
 
   useEffect(() => {
     if (myAccount) {

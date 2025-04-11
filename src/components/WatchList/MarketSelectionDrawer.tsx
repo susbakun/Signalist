@@ -1,15 +1,15 @@
 import { SelectionTable } from "@/components"
 import { EmptyPage } from "@/pages"
-import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { CryptoResponseType } from "@/shared/models"
+import { useGetWallexMarketsQuery } from "@/services/cryptoApi"
 import { CoinType } from "@/shared/types"
+import { transformWallexData } from "@/utils"
 import { Drawer } from "flowbite-react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { FaChartLine } from "react-icons/fa"
 
 type MarketSelectionDrawerProps = {
   isOpen: boolean
-  selectedCryptos: CryptoResponseType["data"]["coins"]
+  selectedCryptos: CoinType[]
   closeDrawer: () => void
   selectMarket: (coin: CoinType) => void
 }
@@ -20,33 +20,36 @@ export const MarketSelectionDrawer = ({
   closeDrawer,
   selectMarket
 }: MarketSelectionDrawerProps) => {
-  const [drawerCoins, setDrawerCoins] = useState<CryptoResponseType["data"]["coins"]>([])
+  const [drawerCoins, setDrawerCoins] = useState<CoinType[]>([])
   const [searchTerm, setSearchTerm] = useState("")
 
-  const { data: cryptosList } = useGetCryptosQuery(50)
+  const { data: wallexData } = useGetWallexMarketsQuery()
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
   }
 
   useEffect(() => {
-    if (cryptosList?.data.coins) {
-      const filteredData = cryptosList?.data?.coins.filter((coin) =>
-        coin.name.toLowerCase().includes(searchTerm.toLowerCase())
+    if (wallexData) {
+      const transformedCoins = transformWallexData(wallexData)
+      const filteredData = transformedCoins.filter(
+        (coin) =>
+          (coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())) &&
+          coin.quoteAsset !== "TMN"
       )
+      console.log(filteredData)
       setDrawerCoins(filteredData)
     }
-  }, [cryptosList, searchTerm])
+  }, [wallexData, searchTerm])
 
   const notSelectedMarkets = drawerCoins.filter((drawerCoin) => {
-    if (selectedCryptos.every((selectedCoin) => selectedCoin.name !== drawerCoin.name)) {
-      return drawerCoin
-    }
+    return selectedCryptos.every((selectedCoin) => selectedCoin.uuid !== drawerCoin.uuid)
   })
 
   return (
     <Drawer
-      className="w-full sm:w-[400px] custom-drawer"
+      className="w-full sm:w-[420px] custom-drawer"
       open={isOpen}
       onClose={closeDrawer}
       position="right"
@@ -67,7 +70,7 @@ export const MarketSelectionDrawer = ({
             <h3 className="font-normal text-sm sm:text-base">No markets found!</h3>
           </EmptyPage>
         ) : (
-          <div className="px-2 sm:px-0">
+          <div className="md:px-2 px-0">
             <SelectionTable selectMarket={selectMarket} notSelectedMarkets={notSelectedMarkets} />
           </div>
         )}

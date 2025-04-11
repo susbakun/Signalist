@@ -1,9 +1,8 @@
-import { CryptoResponseType } from "@/shared/models"
 import { CoinType } from "@/shared/types"
 import { Table } from "flowbite-react"
 
 type SelctionTableProps = {
-  notSelectedMarkets: CryptoResponseType["data"]["coins"]
+  notSelectedMarkets: CoinType[]
   selectMarket: (coin: CoinType) => void
 }
 
@@ -22,7 +21,7 @@ export const SelectionTable = ({ notSelectedMarkets, selectMarket }: SelctionTab
       <Table.Body className="divide-y">
         {notSelectedMarkets.map((crypto, index) => (
           <Table.Row key={crypto.uuid} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-            <Table.Cell className="py-2 sm:py-4 text-sm sm:text-base">{index + 1}</Table.Cell>
+            <Table.Cell className="py-2 sm:py-4 text-sm sm:text-base px-3">{index + 1}</Table.Cell>
             <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white py-2 sm:py-4">
               <div className="flex items-center gap-[4px] sm:gap-[6px]">
                 <img
@@ -30,16 +29,19 @@ export const SelectionTable = ({ notSelectedMarkets, selectMarket }: SelctionTab
                   src={crypto.iconUrl}
                   alt={crypto.name}
                 />
-                <div className="flex gap-[2px] text-sm sm:text-base">
+                <div
+                  className="flex gap-[2px] text-sm items-center
+                  sm:text-base"
+                >
                   <span>{crypto.symbol}</span>
-                  <span className="detail-text">/USD</span>
+                  <span className="detail-text pt-1">/{crypto.quoteAsset || "USD"}</span>
                 </div>
               </div>
             </Table.Cell>
             <Table.Cell className="whitespace-nowrap font-medium text-slate-700 dark:text-white py-2 sm:py-4">
               <button
-                className="text-white transition-all duration-150 ease-out hover:opacity-60 rounded-lg 
-                px-2 py-1 text-sm sm:text-base bg-dark-link-button
+                className="text-white transition-all duration-150 ease-out hover:opacity-60 rounded-lg px-1
+                md:px-2 py-1 text-sm sm:text-base bg-dark-link-button
                 dark:bg-dark-link-button"
                 onClick={() => selectMarket(crypto)}
               >

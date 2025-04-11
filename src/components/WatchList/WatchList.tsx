@@ -1,10 +1,9 @@
 import { CryptoPreview, Loader, MarketSelectionDrawer } from "@/components"
 import { EmptyPage } from "@/pages"
-import { useGetCryptosQuery } from "@/services/cryptoApi"
+import { useGetWallexMarketsQuery } from "@/services/cryptoApi"
 import { nobitexMarketChart, STORAGE_KEYS } from "@/shared/constants"
-import { CryptoResponseType } from "@/shared/models"
 import { CoinType } from "@/shared/types"
-import { getCurrentUsername } from "@/utils"
+import { getCurrentUsername, transformWallexData } from "@/utils"
 import { Table } from "flowbite-react"
 import { isEmpty } from "lodash"
 import { millify } from "millify"
@@ -12,10 +11,21 @@ import { useEffect, useState } from "react"
 import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 
 export const WatchList = () => {
-  const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
-  const [cryptos, setCryptos] = useState<CryptoResponseType["data"]["coins"]>([])
+  // Use the new Wallex API instead of the CoinRanking API
+  // const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
+  const { data: wallexData, isLoading } = useGetWallexMarketsQuery()
+  const [cryptos, setCryptos] = useState<CoinType[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const username = getCurrentUsername()
+
+  // Transform Wallex data to the format expected by components
+  const cryptosList = wallexData
+    ? {
+        data: {
+          coins: transformWallexData(wallexData)
+        }
+      }
+    : null
 
   const saveWatchlist = (username: string, watchlist: string[]) => {
     const key = `${STORAGE_KEYS.WATCHLIST}_${username}`
@@ -59,9 +69,13 @@ export const WatchList = () => {
         )
       )
     } else if (cryptosList?.data?.coins) {
-      // If no saved watchlist, use default from API
-      setCryptos([])
-      saveWatchlist(username, [])
+      // If no saved watchlist, use default from API (filter to only USDT pairs if desired)
+      const usdtPairs = cryptosList.data.coins.filter((coin) => coin.quoteAsset === "USDT")
+      setCryptos(usdtPairs.slice(0, 5)) // Start with top 5 USDT pairs
+      saveWatchlist(
+        username,
+        usdtPairs.slice(0, 5).map((c) => c.uuid)
+      )
     }
   }, [cryptosList, username])
 
@@ -123,7 +137,9 @@ export const WatchList = () => {
                 <div className="flex justify-between items-center px-1">
                   <div className="flex items-center gap-2">
                     <img className="w-6 h-6" src={crypto.iconUrl} alt={crypto.name} />
-                    <span className="text-sm truncate max-w-[80px]">{crypto.symbol}/USD</span>
+                    <span className="text-sm truncate max-w-[80px]">
+                      {crypto.symbol}/{crypto.quoteAsset || "USD"}
+                    </span>
                   </div>
                   <button onClick={() => handleRemoveFromWatchList(crypto.uuid)} className="ml-2">
                     <IoTrashOutline className="w-5 h-5 text-red-500" />

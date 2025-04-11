@@ -1,5 +1,5 @@
 import { SignalModel } from "@/shared/models"
-import { CoinType, SignalAccountType, SimplifiedAccountType } from "@/shared/types"
+import { SignalAccountType, SimplifiedAccountType } from "@/shared/types"
 
 const API_URL = "https://signalist-backend.liara.run/api"
 
@@ -54,16 +54,12 @@ export const createSignal = async (signalData: {
 }
 
 // Update signal status
-export const updateSignalStatus = async (
-  signalId: string,
-  cryptoData: CoinType[]
-): Promise<SignalModel> => {
+export const updateSignalStatus = async (signalId: string): Promise<SignalModel> => {
   const response = await fetch(`${SIGNALS_ENDPOINT}/${signalId}/status`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ cryptoData })
+    }
   })
   const data = await handleResponse(response)
   return data.data

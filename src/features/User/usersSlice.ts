@@ -1,4 +1,4 @@
-import { AccountModel } from "@/shared/models"
+import { AccountModel, SignalModel } from "@/shared/models"
 import { RootState } from "@/shared/types"
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
@@ -84,6 +84,17 @@ export const updateProfileAsync = createAsyncThunk(
     updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl">>
   }) => {
     return await usersApi.updateProfile(data.username, data.updates)
+  }
+)
+
+export const updateUserScoreAsync = createAsyncThunk(
+  "users/updateUserScore",
+  async (data: { signal: SignalModel }, { rejectWithValue }) => {
+    try {
+      return await usersApi.updateUserScore(data.signal)
+    } catch (error: unknown) {
+      return rejectWithValue(error instanceof Error ? error.toString() : String(error))
+    }
   }
 )
 
@@ -255,6 +266,23 @@ const usersSlice = createSlice({
       .addCase(updateProfileAsync.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || "Failed to update profile"
+      })
+
+      // Handle update user score cases
+      .addCase(updateUserScoreAsync.pending, (state) => {
+        // Don't set global loading state to true for score updates
+        // This prevents unnecessary UI refreshes
+        state.error = null
+      })
+      .addCase(updateUserScoreAsync.fulfilled, (state, action) => {
+        // Update only the specific user that changed
+        state.users = state.users.map((user) =>
+          user.username === action.payload.username ? action.payload : user
+        )
+      })
+      .addCase(updateUserScoreAsync.rejected, (state, action) => {
+        // Don't set loading to false here since we didn't set it to true in pending
+        state.error = action.error.message || "Failed to update user score"
       })
   }
 })

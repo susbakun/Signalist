@@ -7,6 +7,7 @@ type SignalModalTargetsListProps = {
   target: SignalModel["targets"][0]
   entryValue: number
   previousTargetValue?: number
+  quoteAsset?: string
   handleRemoveTarget: (removedTargetId: string) => void
   handleTargetValueChange: (e: ChangeEvent<HTMLInputElement>, targetId: string) => void
 }
@@ -17,7 +18,8 @@ export const SignalModalTargetsList = ({
   entryValue,
   previousTargetValue,
   handleRemoveTarget,
-  handleTargetValueChange
+  handleTargetValueChange,
+  quoteAsset = "USD"
 }: SignalModalTargetsListProps) => {
   const [error, setError] = useState("")
   const [touched, setTouched] = useState(false)
@@ -107,7 +109,7 @@ export const SignalModalTargetsList = ({
             type="number"
           />
           <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm md:text-base shrink-0">
-            USD
+            {quoteAsset}
           </span>
         </div>
         <button

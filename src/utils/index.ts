@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from "@/shared/constants"
-import { SignalModel } from "@/shared/models"
+import { SignalModel, WallexCoinType, WallexCryptoResponseType } from "@/shared/models"
 import clsx, { ClassValue } from "clsx"
 import moment from "jalali-moment"
 import { twMerge } from "tailwind-merge"
@@ -118,4 +118,32 @@ export const getCurrentUsername = () => {
 
 export const isMobile = () => {
   return window.matchMedia && window.matchMedia("(max-width: 639px)").matches
+}
+
+// Function to transform Wallex API data into CoinType format
+export const transformWallexData = (wallexData: WallexCryptoResponseType | undefined) => {
+  if (!wallexData || !wallexData.result || !wallexData.result.symbols) {
+    return []
+  }
+
+  return Object.values(wallexData.result.symbols).map((coin: WallexCoinType) => {
+    // Convert any numeric changes to strings for consistency with CoinType
+    const changeValue =
+      typeof coin.stats["24h_ch"] === "number"
+        ? coin.stats["24h_ch"].toString()
+        : coin.stats["24h_ch"] || "0"
+
+    return {
+      uuid: coin.symbol, // Using symbol as the unique identifier
+      symbol: coin.baseAsset,
+      name: coin.enBaseAsset,
+      iconUrl: coin.baseAsset_png_icon,
+      price: coin.stats.lastPrice,
+      change: changeValue,
+      "24hVolume": coin.stats["24h_volume"] || "0",
+      marketCap: "0", // Wallex doesn't provide market cap
+      rank: 0, // Wallex doesn't provide rank
+      quoteAsset: coin.quoteAsset // New field to store the quote asset (USDT, TMN, etc.)
+    }
+  })
 }

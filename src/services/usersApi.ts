@@ -1,4 +1,4 @@
-import { AccountModel } from "@/shared/models"
+import { AccountModel, SignalModel } from "@/shared/models"
 import { BookmarkType } from "@/shared/types"
 
 const API_URL = "https://signalist-backend.liara.run/api/users"
@@ -203,6 +203,30 @@ export const updateProfile = async (
     return await response.json()
   } catch (error) {
     console.error("Error updating profile:", error)
+    throw error
+  }
+}
+
+export const updateUserScore = async (signal: SignalModel): Promise<AccountModel> => {
+  try {
+    // Using the publisher's username from the signal
+    const username = signal.publisher.username
+
+    const response = await fetch(`${API_URL}/${username}/score`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ signal })
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to update user score")
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("Error updating user score:", error)
     throw error
   }
 }

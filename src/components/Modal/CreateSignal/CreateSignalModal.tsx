@@ -12,9 +12,10 @@ import {
 } from "@/components"
 import { createSignalAsync } from "@/features/Signal/signalsSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { useGetCryptosQuery } from "@/services/cryptoApi"
-import { CryptoResponseType, SignalModel } from "@/shared/models"
+import { useGetWallexMarketsQuery } from "@/services/cryptoApi"
+import { SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
+import { transformWallexData } from "@/utils"
 import { Label, Modal } from "flowbite-react"
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -27,10 +28,11 @@ type CreateSignalModalProps = {
 
 export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalModalProps) => {
   const [targetList, setTargetList] = useState<SignalModel["targets"]>([])
-  const [dropdownMarkets, setDropDownMarkets] = useState<CryptoResponseType["data"]["coins"]>([])
+  const [dropdownMarkets, setDropDownMarkets] = useState<CoinType[]>([])
   const [selectedMarket, setSelectedMarket] = useState<SignalModel["market"]>({
     name: "BTC",
-    uuid: "Qwsogvtv82FCd"
+    uuid: "BTCUSDT",
+    quoteAsset: "USDT"
   })
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [showChart, setShowChart] = useState(false)
@@ -57,7 +59,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   })
   const [formTouched, setFormTouched] = useState(false)
 
-  const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
+  const { data: wallexData, isLoading } = useGetWallexMarketsQuery()
   const dispatch = useDispatch<AppDispatch>()
   const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
 
@@ -131,7 +133,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
     setDescriptionText("")
     setShowChart(false)
     setPostButtonDisabled(false)
-    setSelectedMarket({ name: "BTC", uuid: "Qwsogvtv82FCd" })
+    setSelectedMarket({ name: "BTC", uuid: "BTCUSDT", quoteAsset: "USDT" })
     setValidationErrors({
       entry: "",
       stoploss: "",
@@ -171,7 +173,10 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
         openTime: openTime.getTime(),
         closeTime: closeTime.getTime(),
         chartImageHref,
-        market: { ...selectedMarket, name: `${selectedMarket.name}/USD` },
+        market: {
+          ...selectedMarket,
+          name: `${selectedMarket.name}/${selectedMarket.quoteAsset || "USD"}`
+        },
         entry: entryValue,
         stoploss: stoplossValue,
         targets: targetList,
@@ -246,10 +251,14 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   )!
 
   useEffect(() => {
-    if (cryptosList?.data.coins) {
-      setDropDownMarkets(cryptosList.data.coins)
+    if (wallexData) {
+      // Transform Wallex data to the format expected by components
+      const transformedData = transformWallexData(wallexData)
+      // Filter to only include USDT pairs for simplicity
+      const usdtPairs = transformedData.filter((coin) => coin.quoteAsset === "USDT")
+      setDropDownMarkets(usdtPairs)
     }
-  }, [cryptosList])
+  }, [wallexData])
 
   const validateSignalData = useCallback(() => {
     const newErrors = {
@@ -340,6 +349,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                   stoplossValue={stoplossValue}
                   handleStoplossValueChange={handleStoplossValueChange}
                   handleEntryValueChange={handleEntryValueChange}
+                  quoteAsset={selectedMarket.quoteAsset}
                 />
                 <div className="flex flex-col gap-4">
                   {targetList.map((target, index) => (
@@ -351,6 +361,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
                       previousTargetValue={index > 0 ? targetList[index - 1].value : undefined}
                       handleRemoveTarget={handleRemoveTarget}
                       handleTargetValueChange={handleTargetValueChange}
+                      quoteAsset={selectedMarket.quoteAsset}
                     />
                   ))}
                   <SignalModalDatePickers

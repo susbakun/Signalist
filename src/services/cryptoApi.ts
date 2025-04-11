@@ -1,7 +1,8 @@
 import {
   CoinHistoryResponseType,
   CryptoDetailsResponseType,
-  CryptoResponseType
+  CryptoResponseType,
+  WallexCryptoResponseType
 } from "@/shared/models"
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
@@ -14,6 +15,7 @@ const baseUrl = "https://coinranking1.p.rapidapi.com"
 
 const createRequest = (url: string) => ({ url, headers: cryptoApiHeaders })
 
+// Original Coinranking API
 export const cryptoApi = createApi({
   reducerPath: "cryptoApi",
   // refetchOnFocus: true,
@@ -35,4 +37,16 @@ export const cryptoApi = createApi({
   })
 })
 
+// New Wallex API
+export const wallexApi = createApi({
+  reducerPath: "wallexApi",
+  baseQuery: fetchBaseQuery({ baseUrl: "https://api.wallex.ir" }),
+  endpoints: (builder) => ({
+    getWallexMarkets: builder.query<WallexCryptoResponseType, void>({
+      query: () => "/v1/markets"
+    })
+  })
+})
+
 export const { useGetCryptosQuery, useGetCryptoDetailsQuery, useGetCryptoHistoryQuery } = cryptoApi
+export const { useGetWallexMarketsQuery } = wallexApi

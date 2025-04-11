@@ -2,7 +2,9 @@ import RootStore from "@/app/store"
 import { AccountModel, CryptoResponseType, PostModel, SignalModel } from "./models"
 
 export type RootState = ReturnType<typeof RootStore.getState>
-export type CoinType = CryptoResponseType["data"]["coins"][0]
+export type CoinType = CryptoResponseType["data"]["coins"][0] & {
+  quoteAsset?: string // Optional field to store the quote asset (USDT, TMN, etc.)
+}
 export type StatusType = "closed" | "open" | "not_opened"
 export type SimplifiedAccountType = Pick<AccountModel, "name" | "username" | "imageUrl">
 export type GroupInfoType = {
@@ -40,5 +42,6 @@ export type GroupRoom = {
 export type BookmarkType = { signals: SignalModel[]; posts: PostModel[] }
 export type ThemeModeType = "Os Default" | "Dark" | "Light"
 export type OptionType = {
-  value: string, label: string
+  value: string
+  label: string
 }

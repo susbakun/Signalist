@@ -1,10 +1,10 @@
-import { CryptoResponseType, SignalModel } from "@/shared/models"
+import { SignalModel } from "@/shared/models"
 import { CoinType } from "@/shared/types"
 import { ChangeEvent, useState } from "react"
 import { MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp } from "react-icons/md"
 
 type CustomDropdownProps = {
-  markets: CryptoResponseType["data"]["coins"]
+  markets: CoinType[]
   selectedMarket: CoinType | undefined
   isLoading: boolean
   isDropDownOpen: boolean
@@ -46,7 +46,9 @@ export const CustomDropdown = ({
                 src={selectedMarket.iconUrl}
                 alt={selectedMarket.name}
               />
-              <span>{selectedMarket.symbol}USD</span>
+              <span>
+                {selectedMarket.symbol}/{selectedMarket.quoteAsset || "USD"}
+              </span>
             </>
           )}
         </div>
@@ -84,10 +86,18 @@ export const CustomDropdown = ({
             >
               <div className="flex items-center gap-2">
                 <img className="w-6 h-6 inline-block" src={market.iconUrl} alt={market.name} />
-                <span>{market.symbol}USD</span>
+                <span>
+                  {market.symbol}/{market.quoteAsset || "USD"}
+                </span>
               </div>
               <button
-                onClick={() => handleSelectMarket({ name: market.symbol, uuid: market.uuid })}
+                onClick={() =>
+                  handleSelectMarket({
+                    name: market.symbol,
+                    uuid: market.uuid,
+                    quoteAsset: market.quoteAsset || "USD"
+                  })
+                }
                 className="text-white transition-all duration-150
                 ease-out hover:opacity-60 rounded-lg px-2 py-1
               bg-dark-link-button dark:bg-dark-link-button"
