@@ -13,7 +13,10 @@ export const STORAGE_KEYS = {
   LAST_ACTIVITY: "lastActivityTime",
   AUTH: "isAuthenticated",
   CURRENT_USER: "currentUser",
-  THEME_MODE: "themeMode"
+  THEME_MODE: "themeMode",
+  REMEMBERED_EMAIL: "rememberedEmail",
+  REMEMBERED_AUTH: "rememberedAuth",
+  EXTENDED_SESSION: "extendedSession"
 } as const
 
 export const cryptoNewsCategories = [

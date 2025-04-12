@@ -2,7 +2,7 @@ import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
 import { FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
@@ -16,11 +16,29 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
 
   const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
+
+  // Check for remembered credentials on component mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem(STORAGE_KEYS.REMEMBERED_EMAIL)
+    const rememberedAuth = localStorage.getItem(STORAGE_KEYS.REMEMBERED_AUTH) === "true"
+
+    if (rememberedEmail) {
+      setEmail(rememberedEmail)
+      setRememberMe(true)
+    }
+
+    // If user has selected remember me and has valid auth stored, login automatically
+    if (rememberedAuth && rememberedEmail) {
+      // We don't automatically log in here, just pre-fill the email
+      // The user still needs to enter password for security
+    }
+  }, [])
 
   // Handle reCAPTCHA change
   const handleCaptchaChange = (token: string | null) => {
@@ -70,6 +88,22 @@ export const LoginPage = () => {
           STORAGE_KEYS.CURRENT_USER,
           JSON.stringify(user) // Store the complete user object
         )
+
+        // Handle remember me functionality
+        if (rememberMe) {
+          // Store email and auth status for persistent login
+          localStorage.setItem(STORAGE_KEYS.REMEMBERED_EMAIL, email)
+          localStorage.setItem(STORAGE_KEYS.REMEMBERED_AUTH, "true")
+
+          // Create a longer session timeout when "Remember Me" is checked
+          // This is set via a flag that the session management will check
+          localStorage.setItem(STORAGE_KEYS.EXTENDED_SESSION, "true")
+        } else {
+          // Clear remembered credentials if not checked
+          localStorage.removeItem(STORAGE_KEYS.REMEMBERED_EMAIL)
+          localStorage.removeItem(STORAGE_KEYS.REMEMBERED_AUTH)
+          localStorage.removeItem(STORAGE_KEYS.EXTENDED_SESSION)
+        }
 
         // Initialize session management
         initializeSession()
@@ -147,6 +181,8 @@ export const LoginPage = () => {
               <label className="flex items-center space-x-2 text-sm">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="form-checkbox text-primary-link-button dark:text-dark-link-button rounded"
                 />
                 <span className="text-gray-600 dark:text-gray-300">Remember me</span>

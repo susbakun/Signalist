@@ -1,6 +1,7 @@
 import { STORAGE_KEYS } from "@/shared/constants"
 
-const SESSION_TIMEOUT = 60 * 60 * 1000 // 60 minutes
+const STANDARD_SESSION_TIMEOUT = 60 * 60 * 1000 // 60 minutes
+const EXTENDED_SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export const initializeSession = () => {
   updateLastActivity()
@@ -14,8 +15,12 @@ export const updateLastActivity = () => {
 export const checkSession = () => {
   const lastActivity = Number(localStorage.getItem(STORAGE_KEYS.LAST_ACTIVITY))
   const currentTime = Date.now()
+  const isExtendedSession = localStorage.getItem(STORAGE_KEYS.EXTENDED_SESSION) === "true"
 
-  if (currentTime - lastActivity > SESSION_TIMEOUT) {
+  // Choose timeout based on whether "Remember Me" was selected
+  const sessionTimeout = isExtendedSession ? EXTENDED_SESSION_TIMEOUT : STANDARD_SESSION_TIMEOUT
+
+  if (currentTime - lastActivity > sessionTimeout) {
     logout()
     return false
   }
@@ -32,9 +37,19 @@ export const startSessionTimer = () => {
 }
 
 export const logout = () => {
+  // Clear all auth data but preserve rememberedEmail for user convenience
+  const wasRemembered = localStorage.getItem(STORAGE_KEYS.REMEMBERED_AUTH) === "true"
+
   localStorage.removeItem(STORAGE_KEYS.AUTH)
   localStorage.removeItem(STORAGE_KEYS.CURRENT_USER)
   localStorage.removeItem(STORAGE_KEYS.LAST_ACTIVITY)
+  localStorage.removeItem(STORAGE_KEYS.EXTENDED_SESSION)
+
+  // If not explicitly remembered, remove those credentials too
+  if (!wasRemembered) {
+    localStorage.removeItem(STORAGE_KEYS.REMEMBERED_EMAIL)
+    localStorage.removeItem(STORAGE_KEYS.REMEMBERED_AUTH)
+  }
 }
 
 // Event listeners for user activity
