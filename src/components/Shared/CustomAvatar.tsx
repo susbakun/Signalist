@@ -1,4 +1,4 @@
-import { AvatarProps } from "flowbite-react"
+import { Avatar, AvatarProps } from "flowbite-react"
 import { twMerge } from "tailwind-merge"
 
 type CustomAvatarProps = Omit<AvatarProps, "img"> & {
@@ -15,11 +15,11 @@ export const CustomAvatar = ({ wrapperClassName, className, img, ...props }: Cus
             <img src={img} alt="Avatar" className="w-full h-full object-cover" />
           </div>
           <div className="invisible">
-            <CustomAvatar img={img} className={className} {...props} />
+            <Avatar img={img} className={className} {...props} />
           </div>
         </>
       ) : (
-        <CustomAvatar className={className} {...props} />
+        <Avatar className={className} {...props} />
       )}
     </div>
   )

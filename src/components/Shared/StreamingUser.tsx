@@ -1,7 +1,7 @@
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { AccountModel } from "@/shared/models"
-import { cn, getAvatarPlaceholder, isDarkMode, isMobile } from "@/utils"
-import { CustomAvatar } from "@/components"
+import { getAvatarPlaceholder, isMobile } from "@/utils"
+import { StreamingUserAvatar } from "./StreamingUserAvatar"
 import { ComponentProps, useEffect, useState } from "react"
 import { TbExternalLink } from "react-icons/tb"
 import { Link } from "react-router-dom"
@@ -37,27 +37,9 @@ export const StreamingUser = ({
       <div className={twMerge("flex jusfity-between", className)}>
         <div className="flex gap-2 items-center flex-1">
           {isMobile() ? (
-            <div className="w-16 h-16 gradient-border rounded-full flex items-center justify-center p-1 overflow-hidden">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={`${placeholder}'s avatar`}
-                  className="mr-3 w-15 h-15 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full flex items-center justify-center bg-gray-500 text-white font-bold text-xl">
-                  {placeholder}
-                </div>
-              )}
-            </div>
+            <StreamingUserAvatar placeholderInitials={placeholder} imageUrl={imageUrl} size="lg" />
           ) : (
-            <CustomAvatar
-              className={cn("gradient-border p-[1px] rounded-full", { dark: isDarkMode() })}
-              placeholderInitials={placeholder}
-              size="md"
-              img={imageUrl}
-              rounded
-            />
+            <StreamingUserAvatar placeholderInitials={placeholder} imageUrl={imageUrl} size="md" />
           )}
           <Link to={`/${username}`} className="flex-col justify-center hidden md:flex">
             <p>{name.toLowerCase()}</p>
