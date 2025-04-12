@@ -1,5 +1,5 @@
-import { AccountModel } from '@/shared/models'
-import { Avatar } from 'flowbite-react'
+import { CustomAvatar } from "@/components/Shared/CustomAvatar"
+import { AccountModel } from "@/shared/models"
 
 type UserPremiumModalUserInfoProps = {
   userAccount: AccountModel
@@ -8,7 +8,7 @@ type UserPremiumModalUserInfoProps = {
 export const UserPremiumModalUserInfo = ({ userAccount }: UserPremiumModalUserInfoProps) => {
   return (
     <>
-      <Avatar placeholderInitials="AA" size="xl" img={userAccount.imageUrl} rounded />
+      <CustomAvatar placeholderInitials="AA" size="xl" img={userAccount.imageUrl} rounded />
       <div
         className="space-y-1 font-medium dark:text-white                            
             text-slate-700 flex flex-col justify-center text-center"

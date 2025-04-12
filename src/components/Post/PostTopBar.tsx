@@ -1,7 +1,6 @@
-import { MoreOptionsButton, SubscriberSign } from "@/components"
+import { CustomAvatar, MoreOptionsButton, SubscriberSign } from "@/components"
 import { PostModel } from "@/shared/models"
 import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
-import { Avatar } from "flowbite-react"
 import moment from "jalali-moment"
 import { Link } from "react-router-dom"
 
@@ -27,7 +26,7 @@ export const PostTopBar = ({
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
-        <Avatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
+        <CustomAvatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
         <Link to={`/${username}`} className="flex flex-col justify-center">
           <p>{name.toLowerCase()}</p>
           <div className="flex gap-2">

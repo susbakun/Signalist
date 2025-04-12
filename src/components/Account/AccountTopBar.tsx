@@ -8,7 +8,7 @@ import {
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { AccountModel } from "@/shared/models"
 import { getAvatarPlaceholder } from "@/utils"
-import { Avatar } from "flowbite-react"
+import { CustomAvatar } from "@/components"
 import { useState } from "react"
 import { UserNumericInfo } from "./UserNumericInfo"
 
@@ -36,7 +36,7 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
     <div className="flex flex-col sm:flex-row w-full">
       <div className="flex items-center mb-4 sm:mb-0 relative w-full">
         <div className="flex items-center w-fit md:w-full gap-[25%]">
-          <Avatar
+          <CustomAvatar
             bordered
             placeholderInitials={placeholder}
             size="xl"

@@ -1,5 +1,5 @@
 import Tippy from "@tippyjs/react"
-import { Avatar } from "flowbite-react"
+import { CustomAvatar } from "@/components"
 import { roundArrow } from "tippy.js"
 
 type ImagePreview = {
@@ -14,7 +14,7 @@ export const ImagePreview = ({ imagePreview, rounded, handleResetInput }: ImageP
       <div className="flex items-center gap-2 my-2">
         <div className="w-full h-full flex items-center relative">
           {rounded ? (
-            <Avatar img={imagePreview} alt="image preview" size="lg" color="gray" rounded />
+            <CustomAvatar img={imagePreview} alt="image preview" size="lg" color="gray" rounded />
           ) : (
             <img
               src={imagePreview}

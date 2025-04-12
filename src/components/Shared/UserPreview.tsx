@@ -1,10 +1,9 @@
 import { AppDispatch } from "@/app/store"
-import { ToastContainer, UserUnfollowModal } from "@/components"
+import { CustomAvatar, ToastContainer, UserUnfollowModal } from "@/components"
 import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel } from "@/shared/models"
 import { cn, getAvatarPlaceholder } from "@/utils"
-import { Avatar } from "flowbite-react"
 import { ComponentProps, useMemo, useState } from "react"
 import { TbMessage } from "react-icons/tb"
 import { useDispatch } from "react-redux"
@@ -115,7 +114,7 @@ export const UserPreview = ({
     <>
       <div className={twMerge("flex jusfity-between", className)}>
         <div className="flex gap-2 items-center flex-1">
-          <Avatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
+          <CustomAvatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
           {isForMessageRoom ? (
             <div className="flex flex-col justify-center">
               <p>{name.toLowerCase()}</p>

@@ -1,4 +1,4 @@
-import { Avatar } from "flowbite-react"
+import { CustomAvatar } from "@/components"
 import millify from "millify"
 import { Link } from "react-router-dom"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
@@ -12,7 +12,7 @@ export const AccountPreview = () => {
 
   return (
     <div className="flex flex-col justify-center space-y-4 mb-4">
-      <Avatar
+      <CustomAvatar
         placeholderInitials={userSimplified?.name
           .split(" ")
           .map((n: string) => n[0])

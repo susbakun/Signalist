@@ -1,6 +1,6 @@
+import { CustomAvatar } from "@/components"
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
-import { Avatar } from "flowbite-react"
 
 export const useUserMessageRoom = () => {
   const checkIfExistsRoom = (
@@ -66,7 +66,7 @@ export const useUserMessageRoom = () => {
         className="p-2 rounded-full w-fit h-fit mr-3
       bg-gray-100 dark:bg-gray-600 flex justify-center"
       >
-        <Avatar
+        <CustomAvatar
           img={imageUrl}
           alt={`${imageAlt}'s avatar`}
           placeholderInitials={placeholder}

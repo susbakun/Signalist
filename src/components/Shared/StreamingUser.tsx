@@ -1,7 +1,7 @@
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { AccountModel } from "@/shared/models"
 import { cn, getAvatarPlaceholder, isDarkMode, isMobile } from "@/utils"
-import { Avatar } from "flowbite-react"
+import { CustomAvatar } from "@/components"
 import { ComponentProps, useEffect, useState } from "react"
 import { TbExternalLink } from "react-icons/tb"
 import { Link } from "react-router-dom"
@@ -51,7 +51,7 @@ export const StreamingUser = ({
               )}
             </div>
           ) : (
-            <Avatar
+            <CustomAvatar
               className={cn("gradient-border p-[1px] rounded-full", { dark: isDarkMode() })}
               placeholderInitials={placeholder}
               size="md"

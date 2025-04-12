@@ -1,7 +1,6 @@
-import { MoreOptionsButton, SubscriberSign } from "@/components"
+import { CustomAvatar, MoreOptionsButton, SubscriberSign } from "@/components"
 import { SignalModel } from "@/shared/models"
 import { getAvatarPlaceholder } from "@/utils"
-import { Avatar } from "flowbite-react"
 import moment from "jalali-moment"
 import { Link } from "react-router-dom"
 
@@ -17,7 +16,12 @@ export const SignalTopBar = ({ date, publisher, signalId, subscribed }: SignalTo
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
-        <Avatar placeholderInitials={placeholder} size="md" img={publisher.imageUrl} rounded />
+        <CustomAvatar
+          placeholderInitials={placeholder}
+          size="md"
+          img={publisher.imageUrl}
+          rounded
+        />
         <Link to={`/${publisher.username}`} className="flex flex-col justify-center">
           <p className="text-sm md:text-base">{publisher.name.toLowerCase()}</p>
           <div className="flex flex-col md:flex-row md:gap-2">

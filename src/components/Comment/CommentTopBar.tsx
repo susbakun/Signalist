@@ -1,9 +1,8 @@
 import { AppDispatch } from "@/app/store"
-import { MoreOptionsButton } from "@/components"
+import { CustomAvatar, MoreOptionsButton } from "@/components"
 import { deleteCommentAsync } from "@/features/Post/postsSlice"
 import { CommentModel, PostModel } from "@/shared/models"
 import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
-import { Avatar } from "flowbite-react"
 import moment from "jalali-moment"
 import { useState } from "react"
 import { useDispatch } from "react-redux"
@@ -38,7 +37,7 @@ export const CommentTopBar = ({ user, date, commentId, postId }: CommentTopBarPr
   return (
     <div className="flex justify-between items-start">
       <div className="flex gap-1 md:gap-2 items-center">
-        <Avatar
+        <CustomAvatar
           placeholderInitials={placeholder}
           size="sm"
           className="md:h-10 md:w-10"
