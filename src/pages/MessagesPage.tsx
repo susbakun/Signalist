@@ -2,13 +2,16 @@ import { MessageRooms } from "@/components"
 import { AppDispatch } from "@/app/store"
 import { fetchUserConversations, useAppSelector } from "@/features/Message/messagesSlice"
 import { getCurrentUsername } from "@/utils"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useDispatch } from "react-redux"
 import { Outlet, useParams } from "react-router-dom"
+import io from "socket.io-client"
+import { Socket } from "socket.io-client"
 
 export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | string>(null)
   const [initialLoading, setInitialLoading] = useState(true)
+  const socketRef = useRef<Socket | null>(null)
 
   const dispatch = useDispatch<AppDispatch>()
   const currentUsername = getCurrentUsername()
@@ -51,6 +54,7 @@ export const MessagesPage = () => {
     fetchConversations()
 
     // And set up an interval to refresh conversations every 30 seconds
+    // This is just a fallback in case socket connection fails
     const intervalId = setInterval(fetchConversations, 30000)
 
     // Clean up on unmount
@@ -58,6 +62,61 @@ export const MessagesPage = () => {
       clearInterval(intervalId)
     }
   }, [dispatch, currentUsername])
+
+  // Setup socket connection for real-time updates
+  useEffect(() => {
+    if (!currentUsername) return
+
+    // Get backend URL from environment or use default
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://signalist-backend.liara.run"
+    let socketUrl = backendUrl
+    if (socketUrl.endsWith("/api")) {
+      socketUrl = socketUrl.replace(/\/api$/, "")
+    }
+
+    console.log(`Connecting to main socket at: ${socketUrl}`)
+
+    // Create socket connection
+    const newSocket = io(socketUrl, {
+      withCredentials: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      transports: ["websocket", "polling"]
+    })
+
+    // Socket connection events
+    newSocket.on("connect", () => {
+      console.log("Main socket connected with ID:", newSocket.id)
+
+      // Authenticate with username
+      newSocket.emit("authenticate", currentUsername)
+    })
+
+    newSocket.on("connect_error", (error) => {
+      console.error("Main socket connection error:", error)
+    })
+
+    newSocket.on("disconnect", (reason) => {
+      console.log("Main socket disconnected:", reason)
+    })
+
+    // Try to connect
+    newSocket.connect()
+
+    // Handle new messages at the page level
+    newSocket.on("newMessage", () => {
+      // Refresh conversations when any new message arrives
+      dispatch(fetchUserConversations(currentUsername))
+    })
+
+    socketRef.current = newSocket
+
+    // Cleanup on unmount
+    return () => {
+      newSocket.disconnect()
+      socketRef.current = null
+    }
+  }, [currentUsername, dispatch])
 
   useEffect(() => {
     if (id) {

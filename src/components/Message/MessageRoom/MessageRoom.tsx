@@ -250,8 +250,8 @@ export const MessageRoom = () => {
         <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
       </div>
 
-      {/* Messages container */}
-      <div className="flex-1 overflow-y-auto pb-28 md:pb-24">
+      {/* Messages container - increased padding for mobile */}
+      <div className="flex-1 overflow-y-auto pb-36 md:pb-24">
         <MessageRoomMessages
           isGroup={myMessages.isGroup}
           messages={myMessages.messages}
