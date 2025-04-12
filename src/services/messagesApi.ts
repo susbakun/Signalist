@@ -85,18 +85,10 @@ export const uploadMessageImage = async (file: File) => {
   formData.append("file", file)
 
   try {
-    const response = await fetch(`${backendUrl}/upload/messages`, {
+    const response = await fetch("https://signalist-backend.liara.run/api/upload/messages", {
       method: "POST",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`
-      },
       body: formData
     })
-
-    if (!response.ok) {
-      throw new Error(`Upload failed with status: ${response.status}`)
-    }
 
     const data = await response.json()
     return {
