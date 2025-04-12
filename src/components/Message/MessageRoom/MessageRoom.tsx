@@ -153,7 +153,7 @@ export const MessageRoom = () => {
       console.log("Received message:", data)
       if (data.roomId === roomId) {
         // Skip if this is our own message reflected back from the server
-        if (data.message.own === true) {
+        if (data.message.sender.username === myAccount.username) {
           console.log("Skipping own message from server")
           return
         }
@@ -174,7 +174,7 @@ export const MessageRoom = () => {
           (msg) =>
             msg.sender.username === data.message.sender.username &&
             msg.text === data.message.text &&
-            Math.abs(msg.date - data.message.date) < 30000 // Within 30 seconds
+            Math.abs(new Date(msg.date).getTime() - new Date(data.message.date).getTime()) < 30000 // Within 30 seconds
         )
 
         if (hasSimilarRecentMessage) {
@@ -293,6 +293,12 @@ export const MessageRoom = () => {
     // Create a unique message ID for this message
     const tempMessageId = Date.now().toString()
     const messageDate = Date.now()
+
+    // Add to processed messages immediately to prevent duplication
+    processedMessagesRef.current.add(tempMessageId)
+    processedMessagesRef.current.add(
+      `${messageDate}-${myAccount.username}-${currentText.substring(0, 10)}`
+    )
 
     let messageImageHref: string | undefined = undefined
 
