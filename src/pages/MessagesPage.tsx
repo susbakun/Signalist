@@ -53,9 +53,9 @@ export const MessagesPage = () => {
     // Fetch conversations immediately on page load
     fetchConversations()
 
-    // And set up an interval to refresh conversations every 30 seconds
-    // This is just a fallback in case socket connection fails
-    const intervalId = setInterval(fetchConversations, 30000)
+    // And set up an interval to refresh conversations more frequently
+    // This helps catch up on missed messages due to socket issues
+    const intervalId = setInterval(fetchConversations, 15000) // 15 seconds instead of 30
 
     // Clean up on unmount
     return () => {

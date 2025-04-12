@@ -29,6 +29,7 @@ export const MessageRoom = () => {
   const [socketConnected, setSocketConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const processedMessagesRef = useRef<Set<string>>(new Set()) // Track processed message IDs
+  const socketDisconnectTimeRef = useRef<number | null>(null) // Track last disconnect time
 
   const { currentUser: myAccount } = useCurrentUser()
 
@@ -97,10 +98,28 @@ export const MessageRoom = () => {
         newSocket.emit("joinRoom", roomId)
       }
 
-      // Request any missed messages
+      // Request any missed messages with client-side message IDs to help server with deduplication
       if (roomId && myMessages.messages.length > 0) {
         const lastMessageTimestamp = myMessages.messages[myMessages.messages.length - 1].date
-        newSocket.emit("syncMessages", { roomId, since: lastMessageTimestamp })
+        // Collect existing message IDs to help server exclude them from sync
+        const existingMessageIds = Array.from(processedMessagesRef.current)
+
+        // Don't sync messages if we just temporarily disconnected (within last 30 seconds)
+        // This prevents unnecessary syncs on brief disconnections
+        const lastDisconnectTime = socketDisconnectTimeRef.current
+        const now = Date.now()
+        const shouldSync = !lastDisconnectTime || now - lastDisconnectTime > 30000
+
+        if (shouldSync) {
+          console.log("Syncing messages since:", new Date(lastMessageTimestamp))
+          newSocket.emit("syncMessages", {
+            roomId,
+            since: lastMessageTimestamp,
+            existingIds: existingMessageIds
+          })
+        } else {
+          console.log("Skipping sync due to recent disconnection")
+        }
       }
     })
 
@@ -114,6 +133,8 @@ export const MessageRoom = () => {
     newSocket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason)
       setSocketConnected(false)
+      // Record the disconnect time
+      socketDisconnectTimeRef.current = Date.now()
 
       // Attempt to reconnect for any reason
       setTimeout(() => {
