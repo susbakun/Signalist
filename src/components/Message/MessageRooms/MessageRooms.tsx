@@ -63,8 +63,6 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
     return { placeholder, text }
   }
 
-  console.info(myMessages)
-
   return (
     <>
       <div

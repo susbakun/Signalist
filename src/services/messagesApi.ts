@@ -82,15 +82,31 @@ export const createGroupConversation = async (
  */
 export const uploadMessageImage = async (file: File) => {
   const formData = new FormData()
-  formData.append("image", file)
+  formData.append("file", file)
 
-  const response = await axios.post(`${API_MESSAGES_URL}/upload`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data"
+  try {
+    const response = await fetch(`${backendUrl}/upload/messages`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status: ${response.status}`)
     }
-  })
 
-  return response.data
+    const data = await response.json()
+    return {
+      url: data.url,
+      messageImageHref: data.url
+    }
+  } catch (error) {
+    console.error("Failed to upload image:", error)
+    throw error
+  }
 }
 
 /**

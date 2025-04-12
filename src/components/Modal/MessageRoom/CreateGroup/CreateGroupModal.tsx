@@ -115,7 +115,7 @@ export const CreateGroupModal = ({
         // Upload image to backend and get the image id
         const response = await messagesApi.uploadMessageImage(selectedFile)
         console.log("Group image uploaded successfully:", response)
-        return response.messageImageHref
+        return response.url || response.messageImageHref
       } catch (error) {
         console.error("Failed to upload group image:", error)
         setError("Failed to upload group image")

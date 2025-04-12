@@ -2,9 +2,7 @@ import { backendUrl } from "@/shared/constants"
 import { CommentModel, PostModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 
-const API_URL = `${backendUrl}/posts`
-
-const POSTS_ENDPOINT = `${API_URL}/posts`
+const POSTS_ENDPOINT = `${backendUrl}/posts`
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {

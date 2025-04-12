@@ -2,9 +2,7 @@ import { backendUrl } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { SignalAccountType, SimplifiedAccountType } from "@/shared/types"
 
-const API_URL = `${backendUrl}/signals`
-
-const SIGNALS_ENDPOINT = `${API_URL}/signals`
+const SIGNALS_ENDPOINT = `${backendUrl}/signals`
 
 // Helper function to handle API responses
 const handleResponse = async (response: Response) => {

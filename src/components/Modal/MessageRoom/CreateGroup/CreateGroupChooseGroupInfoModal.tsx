@@ -2,7 +2,7 @@ import { ImagePreview } from "@/components/Shared/ImagePreview"
 import { Modal, Spinner } from "flowbite-react"
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 import { MdOutlineFileUpload } from "react-icons/md"
-import { RiErrorWarningLine } from "react-icons/ri"
+import { FaUser } from "react-icons/fa"
 
 type CreateGroupChooseGroupInfoModalProps = {
   openModal: boolean
@@ -21,7 +21,6 @@ type CreateGroupChooseGroupInfoModalProps = {
 export const CreateGroupChooseGroupInfoModal = ({
   openModal,
   groupName,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   selectedImage,
   isGroupImageSending,
   createGroupButtonDisabled,
@@ -50,90 +49,92 @@ export const CreateGroupChooseGroupInfoModal = ({
     }
   }
 
+  // Process the selected file to get image preview
   useEffect(() => {
-    if (inputRef.current && inputRef.current.files) {
+    if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
       }
-      if (file) reader.readAsDataURL(file)
+      reader.readAsDataURL(file)
+    } else if (selectedImage) {
+      // If there's a selectedImage prop but no file in the input, use selectedImage
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(selectedImage)
     }
-  }, [file])
+  }, [file, selectedImage])
 
   return (
     <Modal size="lg" show={openModal} onClose={handleCloseModal}>
       <Modal.Header className="border-none pr-1 py-2">
-        <h3 className="text-lg font-semibold">Group Information</h3>
+        <h3 className="text-2xl font-semibold text-center w-full">Group Information</h3>
       </Modal.Header>
       <Modal.Body
         className="flex overflow-y-auto
-        flex-col gap-2 py-0 mb-0 px-4 custom-modal"
+        flex-col gap-4 py-4 px-6 custom-modal"
       >
         {error && (
           <div className="text-red-500 text-sm bg-red-100 dark:bg-red-900/20 p-2 rounded mb-2">
             {error}
           </div>
         )}
-        <div className="flex flex-col items-center py-8 gap-4">
-          <div className="flex flex-col gap-2 w-full">
-            <label className="pl-1">Group Name:</label>
-            <input
-              value={groupName}
-              onKeyDown={handleKeyDown}
-              onChange={handleChangeGroupName}
-              className="custom-input w-full pl-4 inline-block"
-              placeholder="Enter a name for your group"
-            />
-          </div>
-          <div className="flex w-full items-center justify-between px-2 pt-12">
-            <div
-              className="text-md flex items-center font-normal gap-1 text-black-20
-            dark:text-white/50"
-            >
-              <div className="flex gap-3 md:gap-2 items-center">
-                <RiErrorWarningLine className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
-                <p className="pt-2 md:pt-0">Choose group image profile</p>
-              </div>
+        <div className="flex flex-col items-center py-4 gap-6">
+          <div className="w-full">
+            <div className="relative mb-4">
+              <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                value={groupName}
+                onKeyDown={handleKeyDown}
+                onChange={handleChangeGroupName}
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600"
+                placeholder="Enter group name"
+              />
             </div>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleChangeImage}
+          </div>
+
+          <div className="flex w-full flex-col items-center gap-4">
+            <div className="text-lg font-medium text-gray-700 dark:text-gray-300 w-full">
+              Group Profile Image
+            </div>
+
+            <ImagePreview
+              rounded
+              handleResetInput={handleResetFileInput}
+              imagePreview={imagePreview}
             />
-            <div className="flex items-center">
+
+            <div className="flex items-center justify-center w-full">
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleChangeImage}
+              />
               <button
-                className="px-2 py-2 text-sm action-button text-white rounded-lg
-              dark:bg-dark-link-button flex items-center text-nowrap
-              bg-primary-link-button font-bold"
+                className="px-4 py-2 text-sm bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
                 onClick={() => inputRef.current?.click()}
+                type="button"
               >
-                <MdOutlineFileUpload className="w-4 h-4 mr-2" />
+                <MdOutlineFileUpload className="w-5 h-5" />
                 <span>Upload Image</span>
               </button>
             </div>
           </div>
-          <ImagePreview
-            rounded
-            handleResetInput={handleResetFileInput}
-            imagePreview={imagePreview}
-          />
         </div>
       </Modal.Body>
-      <Modal.Footer className="py-3 px-2">
-        <div className="flex items-center justify-end w-full">
-          <button
-            disabled={createGroupButtonDisabled}
-            onClick={handleChooseGroupInfo}
-            className="action-button disabled:opacity-30
-            dark:bg-dark-link-button flex items-center gap-2
-            bg-primary-link-button rounded-md px-2 py-1"
-          >
-            {isGroupImageSending && <Spinner color="success" size="md" />}
-            Create Group
-          </button>
-        </div>
+      <Modal.Footer className="py-4 px-6 flex justify-center">
+        <button
+          disabled={createGroupButtonDisabled}
+          onClick={handleChooseGroupInfo}
+          className="w-full py-2.5 px-4 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isGroupImageSending && <Spinner color="success" size="sm" />}
+          Create Group
+        </button>
       </Modal.Footer>
     </Modal>
   )
