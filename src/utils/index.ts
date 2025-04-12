@@ -19,7 +19,7 @@ export const cn = (...args: ClassValue[]) => {
 export const getAvatarPlaceholder = (name: string) => {
   const words = name.toUpperCase().split(" ")
   let avatarPlaceholder = ""
-  if (words.length > 1) {
+  if (words.length > 1 && words[1] !== "") {
     for (const word of words) {
       avatarPlaceholder += word[0]
     }
