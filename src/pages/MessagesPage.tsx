@@ -24,7 +24,19 @@ export const MessagesPage = () => {
     const fetchConversations = async () => {
       if (currentUsername) {
         try {
-          await dispatch(fetchUserConversations(currentUsername))
+          // Clear any loading state
+          setInitialLoading(true)
+
+          // Fetch the user conversations from the backend
+          const result = await dispatch(fetchUserConversations(currentUsername))
+
+          // Check if we got any data
+          if (
+            fetchUserConversations.fulfilled.match(result) &&
+            Object.keys(result.payload || {}).length === 0
+          ) {
+            console.log("No conversations found for user")
+          }
         } catch (error) {
           console.error("Failed to fetch conversations:", error)
         } finally {
@@ -35,7 +47,16 @@ export const MessagesPage = () => {
       }
     }
 
+    // Fetch conversations immediately on page load
     fetchConversations()
+
+    // And set up an interval to refresh conversations every 30 seconds
+    const intervalId = setInterval(fetchConversations, 30000)
+
+    // Clean up on unmount
+    return () => {
+      clearInterval(intervalId)
+    }
   }, [dispatch, currentUsername])
 
   useEffect(() => {

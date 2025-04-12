@@ -38,22 +38,51 @@ export const MessageRoom = () => {
   useEffect(() => {
     if (!myAccount?.username) return
 
-    const newSocket = io(backendUrl.replace("/api", ""), {
+    // Fix the socket URL to always connect to the correct backend
+    // Remove the trailing '/api' if it exists
+    let socketUrl = backendUrl
+    if (socketUrl.endsWith("/api")) {
+      socketUrl = socketUrl.replace(/\/api$/, "")
+    }
+
+    console.log(`Connecting to socket at: ${socketUrl}`)
+
+    const newSocket = io(socketUrl, {
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
+      autoConnect: true,
+      transports: ["websocket", "polling"] // Try WebSocket first, fall back to polling
     })
 
     newSocket.on("connect", () => {
-      console.log("Socket connected")
+      console.log("Socket connected with ID:", newSocket.id)
       setSocketConnected(true)
       // Authenticate with username
       newSocket.emit("authenticate", myAccount.username)
+
+      // When connected, join the room if it's a group chat
+      if (myMessages.isGroup && roomId) {
+        newSocket.emit("joinRoom", roomId)
+      }
     })
 
-    newSocket.on("disconnect", () => {
-      console.log("Socket disconnected")
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error)
       setSocketConnected(false)
+    })
+
+    newSocket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason)
+      setSocketConnected(false)
+
+      // Attempt to reconnect if disconnection wasn't intentional
+      if (reason === "io server disconnect") {
+        // the disconnection was initiated by the server, try to reconnect
+        newSocket.connect()
+      }
     })
 
     newSocket.on("authenticated", (data) => {

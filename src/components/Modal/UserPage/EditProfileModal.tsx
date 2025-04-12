@@ -1,7 +1,7 @@
 import { AppDispatch } from "@/app/store"
 import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
 import { ToastContainer } from "@/components/Shared/ToastContainer"
-import { updateProfileAsync } from "@/features/User/usersSlice"
+import { fetchUsersAsync, updateProfileAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { AccountModel } from "@/shared/models"
 import { cn } from "@/utils"
@@ -10,6 +10,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { FaUser } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
 import { useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
 
 type EditProfileModalProps = {
   openModal: boolean
@@ -29,7 +30,7 @@ export const EditProfileModal = ({
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
@@ -164,9 +165,11 @@ export const EditProfileModal = ({
       if (result) {
         handleShowToast("Profile updated successfully", "success")
         localStorage.setItem("currentUser", JSON.stringify(result))
+        await dispatch(fetchUsersAsync())
         setTimeout(() => {
           handleCloseModal()
-        }, 1500)
+        }, 3000)
+        navigate(`/${result.username}`, { replace: true })
       }
     } catch (error) {
       console.error("Error updating profile:", error)
