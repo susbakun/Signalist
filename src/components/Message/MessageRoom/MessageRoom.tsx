@@ -12,7 +12,7 @@ import { MessageModel } from "@/shared/models"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useOutletContext, useParams } from "react-router-dom"
-import { Socket } from "socket.io-client"
+import { Socket, ManagerOptions, SocketOptions } from "socket.io-client"
 import io from "socket.io-client"
 
 type MessageRoomOutletType = {
@@ -49,13 +49,22 @@ export const MessageRoom = () => {
 
     const newSocket = io(socketUrl, {
       reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: 20000,
+      reconnectionAttempts: Infinity, // Never stop trying to reconnect
+      reconnectionDelay: 500, // Start with a shorter delay
+      reconnectionDelayMax: 2000, // Maximum delay between reconnections
+      timeout: 5000, // Shorter timeout
       autoConnect: true,
-      transports: ["websocket", "polling"] // Try WebSocket first, fall back to polling
-    })
+      transports: ["websocket"], // Only use websocket for faster connections
+      forceNew: false, // Reuse existing connection if possible
+      upgrade: false // Don't try to upgrade to websocket if already connected
+    } as Partial<ManagerOptions & SocketOptions>) // Properly type the socket options
+
+    // Use a heartbeat to keep connection active
+    const heartbeatInterval = setInterval(() => {
+      if (newSocket.connected) {
+        newSocket.emit("heartbeat", { username: myAccount.username })
+      }
+    }, 8000)
 
     newSocket.on("connect", () => {
       console.log("Socket connected with ID:", newSocket.id)
@@ -67,22 +76,30 @@ export const MessageRoom = () => {
       if (myMessages.isGroup && roomId) {
         newSocket.emit("joinRoom", roomId)
       }
+
+      // Request any missed messages
+      if (roomId && myMessages.messages.length > 0) {
+        const lastMessageTimestamp = myMessages.messages[myMessages.messages.length - 1].date
+        newSocket.emit("syncMessages", { roomId, since: lastMessageTimestamp })
+      }
     })
 
     newSocket.on("connect_error", (error) => {
       console.error("Socket connection error:", error)
       setSocketConnected(false)
+      // Try to reconnect immediately once
+      setTimeout(() => newSocket.connect(), 500)
     })
 
     newSocket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason)
       setSocketConnected(false)
 
-      // Attempt to reconnect if disconnection wasn't intentional
-      if (reason === "io server disconnect") {
-        // the disconnection was initiated by the server, try to reconnect
+      // Attempt to reconnect for any reason
+      setTimeout(() => {
+        console.log("Attempting to reconnect...")
         newSocket.connect()
-      }
+      }, 500)
     })
 
     newSocket.on("authenticated", (data) => {
@@ -96,6 +113,7 @@ export const MessageRoom = () => {
         // Only update UI if the message is from someone else
         // This prevents duplicate messages when we send a message ourselves
         if (data.message.sender.username !== myAccount?.username) {
+          // Use optimistic update pattern
           dispatch(
             sendMessage({
               sender: data.message.sender,
@@ -104,7 +122,24 @@ export const MessageRoom = () => {
               messageImageHref: data.message.messageImageHref
             })
           )
+
+          // Scroll to bottom on new message
+          setTimeout(() => {
+            const messagesContainer = document.querySelector(".overflow-y-auto")
+            if (messagesContainer) {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight
+            }
+          }, 50)
         }
+      }
+    })
+
+    // Handle message updates (like image uploads completing)
+    newSocket.on("messageUpdated", (data) => {
+      console.log("Message updated:", data)
+      if (data.roomId === roomId && roomId) {
+        // Refresh all messages to update the modified message
+        dispatch(fetchConversationMessages(roomId))
       }
     })
 
@@ -122,6 +157,7 @@ export const MessageRoom = () => {
 
     // Cleanup
     return () => {
+      clearInterval(heartbeatInterval)
       if (myMessages.isGroup && roomId) {
         newSocket.emit("leaveRoom", roomId)
       }
@@ -134,70 +170,114 @@ export const MessageRoom = () => {
     if (!messageText.trim() && !selectedImage) return
     if (!myAccount || !roomId) return
 
+    // Store current values to avoid race conditions
+    const currentText = messageText.trim()
+    const currentImage = selectedImage
+
+    // Clear input immediately for better UX
+    setMessageText("")
+    setSelectedImage(undefined)
+    setIsEmojiPickerOpen(false)
+
+    // Create a unique message ID for this message
+    const tempMessageId = Date.now().toString()
+    const messageDate = Date.now()
+
     setIsMessageSending(true)
     let messageImageHref: string | undefined = undefined
 
+    // First update local state so the message appears immediately
+    dispatch(
+      sendMessage({
+        sender: myAccount,
+        text: currentText,
+        roomId,
+        messageImageHref: undefined // We'll update this later if we have an image
+      })
+    )
+
+    // Scroll to bottom immediately after adding the message
+    setTimeout(() => {
+      const messagesContainer = document.querySelector(".overflow-y-auto")
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      }
+    }, 50)
+
     try {
-      // Handle image upload if present
-      if (selectedImage) {
+      // Send via socket first for real-time delivery (before image upload)
+      if (socketRef.current && socketConnected) {
+        socketRef.current.emit("sendMessage", {
+          roomId,
+          message: {
+            sender: myAccount,
+            text: currentText,
+            messageImageHref: undefined, // No image yet
+            date: messageDate,
+            id: tempMessageId,
+            pending: true // Flag that this message might be updated
+          },
+          isGroup: myMessages.isGroup
+        })
+      }
+
+      // Handle image upload in parallel
+      if (currentImage) {
         try {
           // Upload image to backend
-          const response = await messagesApi.uploadMessageImage(selectedImage)
+          const response = await messagesApi.uploadMessageImage(currentImage)
           messageImageHref = response.url || response.messageImageHref
+
+          // Update the message with the image URL
+          if (messageImageHref) {
+            dispatch(
+              sendMessage({
+                sender: myAccount,
+                text: currentText,
+                roomId,
+                messageImageHref
+              })
+            )
+
+            // Update via socket that image is now available
+            if (socketRef.current && socketConnected) {
+              socketRef.current.emit("updateMessage", {
+                roomId,
+                messageId: tempMessageId,
+                updates: {
+                  messageImageHref,
+                  pending: false
+                }
+              })
+            }
+          }
         } catch (error) {
           console.error("Failed to upload image:", error)
-          // Continue sending the message without the image
         }
       }
 
-      // Create message object
+      // Create message object for API
       const messageData = {
         sender: myAccount,
-        text: messageText,
+        text: currentText,
         roomId,
-        messageImageHref
+        messageImageHref,
+        date: messageDate
       }
 
-      // First update local state so the message appears immediately
-      dispatch(
-        sendMessage({
-          sender: myAccount,
-          text: messageText,
-          roomId,
-          messageImageHref
-        })
-      )
+      // Send to API for persistence (can happen in parallel)
+      dispatch(sendMessageAsync(messageData)).catch((error) => {
+        console.error("Failed to persist message:", error)
 
-      // Send to API for persistence
-      const resultAction = await dispatch(sendMessageAsync(messageData))
-
-      if (sendMessageAsync.fulfilled.match(resultAction)) {
-        console.log("Message saved to database successfully")
-
-        // Emit through socket for real-time delivery to other users,
-        // flagging that this message has already been handled by the API
-        if (socketRef.current && socketConnected) {
-          console.log("Emitting message via socket with API flag:", messageData)
-          socketRef.current.emit("sendMessage", {
-            roomId,
-            message: {
-              sender: myAccount,
-              text: messageText,
-              messageImageHref,
-              date: new Date().getTime()
-            },
-            isGroup: myMessages.isGroup,
-            fromAPI: true // Flag to indicate this message came through the API
+        // Retry once after a delay if API call fails
+        setTimeout(() => {
+          dispatch(sendMessageAsync(messageData)).catch((error) => {
+            console.error("Failed to persist message after retry:", error)
           })
-        }
-      }
-
-      setMessageText("")
-      setSelectedImage(undefined)
-      setIsEmojiPickerOpen(false)
+        }, 3000)
+      })
     } catch (error) {
       console.error("Failed to send message:", error)
-      // No need for fallback since we already updated state at the beginning
     } finally {
       setIsMessageSending(false)
     }
@@ -251,7 +331,7 @@ export const MessageRoom = () => {
       </div>
 
       {/* Messages container - increased padding for mobile */}
-      <div className="flex-1 overflow-y-auto pb-36 md:pb-24">
+      <div className="flex-1 overflow-y-auto pb-48 md:pb-24">
         <MessageRoomMessages
           isGroup={myMessages.isGroup}
           messages={myMessages.messages}
