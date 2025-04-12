@@ -3,21 +3,6 @@ import { DMRoom, GroupRoom } from "@/shared/types"
 import { renderHook } from "@testing-library/react"
 import { vi } from "vitest"
 
-// Mock the appwrite client
-vi.mock("appwrite", () => ({
-  Client: vi.fn().mockImplementation(() => ({
-    setEndpoint: vi.fn().mockReturnThis(),
-    setProject: vi.fn().mockReturnThis()
-  })),
-  Storage: vi.fn().mockImplementation(() => ({
-    getFilePreview: vi.fn().mockReturnValue({
-      href: "mocked-image-url.jpg"
-    })
-  })),
-  ImageFormat: { Png: "png" },
-  ImageGravity: { Center: "center" }
-}))
-
 // Mock the Avatar component from flowbite-react
 vi.mock("flowbite-react", () => ({
   Avatar: ({ placeholderInitials }: { placeholderInitials: string }) => (
@@ -44,7 +29,7 @@ describe("useUserMessageRoom hook", () => {
       userInfo: null,
       groupInfo: {
         groupName: "Test Group",
-        groupImageId: "group-image.jpg"
+        groupImageHref: "group-image-url.jpg"
       },
       usersInfo: [
         {
@@ -167,11 +152,32 @@ describe("useUserMessageRoom hook", () => {
     // Get avatar for group
     const groupAvatar = result.current.getProperAvatar("TG", undefined, {
       groupName: "Test Group",
-      groupImageId: "group-image.jpg"
+      groupImageHref: "group-image-url.jpg"
     })
 
     // Since we're returning JSX, we can't directly test the output
     // But we can verify that the function returns something
     expect(groupAvatar).toBeDefined()
+  })
+
+  test("hasValidGroupImage correctly identifies valid group images", () => {
+    const { result } = renderHook(() => useUserMessageRoom())
+
+    // Group with image
+    const hasImage = result.current.hasValidGroupImage({
+      groupName: "Test Group",
+      groupImageHref: "group-image-url.jpg"
+    })
+    expect(hasImage).toBe(true)
+
+    // Group without image
+    const noImage = result.current.hasValidGroupImage({
+      groupName: "Test Group"
+    })
+    expect(noImage).toBe(false)
+
+    // No group info
+    const noGroupInfo = result.current.hasValidGroupImage(undefined)
+    expect(noGroupInfo).toBe(false)
   })
 })

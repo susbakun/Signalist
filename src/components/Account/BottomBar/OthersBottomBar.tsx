@@ -27,7 +27,9 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const [isActionLoading, setIsActionLoading] = useState(false)
 
   const currentUsername = getCurrentUsername()
-  const messages = useAppSelector((state) => state.messages)[currentUsername || ""]
+  const messages = useAppSelector((state) =>
+    currentUsername ? state.messages.conversations[currentUsername] : {}
+  )
 
   const isFollowed = useMemo(
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
