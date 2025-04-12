@@ -15,18 +15,22 @@ type CreateGroupChooseGroupInfoModalProps = {
   handleChooseGroupInfo: () => void
   handleChangeGroupName: (e: ChangeEvent<HTMLInputElement>) => void
   handleChangeImage: (e: ChangeEvent<HTMLInputElement>) => void
+  error: string | null
 }
 
 export const CreateGroupChooseGroupInfoModal = ({
   openModal,
   groupName,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  selectedImage,
   isGroupImageSending,
   createGroupButtonDisabled,
   handleCloseModal,
   handleCancelSelectImage,
   handleChooseGroupInfo,
   handleChangeGroupName,
-  handleChangeImage
+  handleChangeImage,
+  error
 }: CreateGroupChooseGroupInfoModalProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -58,11 +62,18 @@ export const CreateGroupChooseGroupInfoModal = ({
 
   return (
     <Modal size="lg" show={openModal} onClose={handleCloseModal}>
-      <Modal.Header className="border-none pr-1 py-2" />
+      <Modal.Header className="border-none pr-1 py-2">
+        <h3 className="text-lg font-semibold">Group Information</h3>
+      </Modal.Header>
       <Modal.Body
         className="flex overflow-y-auto
         flex-col gap-2 py-0 mb-0 px-4 custom-modal"
       >
+        {error && (
+          <div className="text-red-500 text-sm bg-red-100 dark:bg-red-900/20 p-2 rounded mb-2">
+            {error}
+          </div>
+        )}
         <div className="flex flex-col items-center py-8 gap-4">
           <div className="flex flex-col gap-2 w-full">
             <label className="pl-1">Group Name:</label>
@@ -71,6 +82,7 @@ export const CreateGroupChooseGroupInfoModal = ({
               onKeyDown={handleKeyDown}
               onChange={handleChangeGroupName}
               className="custom-input w-full pl-4 inline-block"
+              placeholder="Enter a name for your group"
             />
           </div>
           <div className="flex w-full items-center justify-between px-2 pt-12">

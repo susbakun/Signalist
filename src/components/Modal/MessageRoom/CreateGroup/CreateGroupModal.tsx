@@ -1,15 +1,15 @@
 import { CreateGroupChooseGroupInfoModal, CreateGroupPickUsersModal } from "@/components"
-import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
+import { AppDispatch } from "@/app/store"
+import { createGroupConversationAsync, useAppSelector } from "@/features/Message/messagesSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import * as messagesApi from "@/services/messagesApi"
 import { AccountModel, MessageModel } from "@/shared/models"
-import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
+import { SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import { v4 } from "uuid"
 
 type CreateGroupModalProps = {
   openModal: boolean
@@ -29,9 +29,10 @@ export const CreateGroupModal = ({
   const [isGroupImageSending, setIsGroupImageSending] = useState(false)
   const [createGroupButtonDisabled, setCreateGroupButtonDisabled] = useState(false)
   const [exceptMeUsers, setExceptMeUsers] = useState<AccountModel[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
 
   const { currentUser: myAccount } = useCurrentUser()
@@ -45,6 +46,11 @@ export const CreateGroupModal = ({
   }
 
   const handlePickUsersList = () => {
+    if (selectedUsers.length === 0) {
+      setError("Please select at least one user for the group")
+      return
+    }
+    setError(null)
     closePickUsersModal()
     handleOpenChooseGroupInfo()
   }
@@ -59,6 +65,11 @@ export const CreateGroupModal = ({
   }
 
   const handleChooseGroupInfo = () => {
+    if (groupName.trim() === "") {
+      setError("Please enter a group name")
+      return
+    }
+    setError(null)
     handleCreateGroup()
   }
 
@@ -107,8 +118,10 @@ export const CreateGroupModal = ({
         return response.messageImageHref
       } catch (error) {
         console.error("Failed to upload group image:", error)
+        setError("Failed to upload group image")
       }
     }
+    return undefined
   }
 
   const isUserSelected = (username: SimplifiedAccountType["username"]) => {
@@ -121,31 +134,73 @@ export const CreateGroupModal = ({
     setSelectedUsers([])
     setIsGroupImageSending(false)
     setCreateGroupButtonDisabled(false)
+    setError(null)
   }
 
   const handleCreateGroup = async () => {
-    if (groupName.trim() === "") return
-    if (!myAccount) return
-
-    setIsGroupImageSending(true)
-    setCreateGroupButtonDisabled(true)
-    const groupImageHref = await handleSendImage(selectedImage)
-    const roomId = v4()
-    const groupInfo: GroupInfoType = {
-      groupName,
-      groupImageHref
+    if (groupName.trim() === "") {
+      setError("Please enter a group name")
+      return
     }
-    dispatch(
-      createGroup({ myUsername: myAccount?.username, roomId, userInfos: selectedUsers, groupInfo })
-    )
-    closePickUsersModal()
-    navigate(roomId)
-    handleResetForm()
-    handleCloseChooseGroupInfo()
+    if (!myAccount) {
+      setError("You must be logged in to create a group")
+      return
+    }
+    if (selectedUsers.length === 0) {
+      setError("Please select at least one user for the group")
+      return
+    }
+
+    try {
+      setIsGroupImageSending(true)
+      setCreateGroupButtonDisabled(true)
+      setError(null)
+
+      // Upload group image if selected - currently not used in API but store for future
+      await handleSendImage(selectedImage)
+
+      // Create simplified creator object
+      const createdBy: SimplifiedAccountType = {
+        name: myAccount.name,
+        username: myAccount.username,
+        imageUrl: myAccount.imageUrl
+      }
+
+      // Include the current user in the members list
+      const allMembers = [...selectedUsers]
+      if (!allMembers.find((member) => member.username === myAccount.username)) {
+        allMembers.push(createdBy)
+      }
+
+      // Create the group via API with the correct parameters
+      const resultAction = await dispatch(
+        createGroupConversationAsync({
+          groupName,
+          members: allMembers,
+          createdBy
+        })
+      )
+
+      if (createGroupConversationAsync.fulfilled.match(resultAction)) {
+        const roomId = resultAction.payload.roomId
+        closePickUsersModal()
+        handleCloseChooseGroupInfo()
+        handleResetForm()
+        navigate(roomId)
+      } else if (resultAction.error) {
+        throw new Error(resultAction.error.message || "Failed to create group")
+      }
+    } catch (error) {
+      console.error("Error creating group:", error)
+      setError(error instanceof Error ? error.message : "Failed to create group")
+    } finally {
+      setIsGroupImageSending(false)
+      setCreateGroupButtonDisabled(false)
+    }
   }
 
   useEffect(() => {
-    if (selectedUsers.length > 0) {
+    if (users.length > 0) {
       setExceptMeUsers(users.filter((user) => user.username !== currentUsername))
     }
   }, [users, currentUsername])
@@ -162,6 +217,8 @@ export const CreateGroupModal = ({
         openModal={openPickUsersModal}
         searched={searched}
         usersLoading={usersLoading}
+        error={error}
+        selectedUsersCount={selectedUsers.length}
       />
       <CreateGroupChooseGroupInfoModal
         openModal={chooseGroupInfoModalOpen}
@@ -174,6 +231,7 @@ export const CreateGroupModal = ({
         handleChooseGroupInfo={handleChooseGroupInfo}
         handleChangeGroupName={handleGroupNameChange}
         handleChangeImage={handleChangeImage}
+        error={error}
       />
     </>
   )

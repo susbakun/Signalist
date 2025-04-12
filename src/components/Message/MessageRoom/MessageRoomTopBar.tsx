@@ -81,7 +81,7 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
               : getProperAvatar(placeholder, myMessages.userInfo, undefined)}
           </div>
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate max-w-[150px] sm:max-w-[200px] md:max-w-none">
-            {isGroup ? myMessages.groupInfo.groupName : myMessages.userInfo.name}
+            {isGroup ? myMessages.groupInfo.groupName : myMessages.userInfo.username}
           </h2>
         </div>
         <div className="flex items-center gap-4 md:gap-10">

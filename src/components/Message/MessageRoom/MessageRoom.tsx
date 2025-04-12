@@ -93,15 +93,18 @@ export const MessageRoom = () => {
     newSocket.on("newMessage", (data) => {
       console.log("Received message:", data)
       if (data.roomId === roomId) {
-        // Update the UI with the new message
-        dispatch(
-          sendMessage({
-            sender: data.message.sender,
-            text: data.message.text,
-            roomId: data.roomId,
-            messageImageHref: data.message.messageImageHref
-          })
-        )
+        // Only update UI if the message is from someone else
+        // This prevents duplicate messages when we send a message ourselves
+        if (data.message.sender.username !== myAccount?.username) {
+          dispatch(
+            sendMessage({
+              sender: data.message.sender,
+              text: data.message.text,
+              roomId: data.roomId,
+              messageImageHref: data.message.messageImageHref
+            })
+          )
+        }
       }
     })
 
@@ -155,30 +158,7 @@ export const MessageRoom = () => {
         messageImageHref
       }
 
-      // Send message via API first
-      await dispatch(sendMessageAsync(messageData)).unwrap()
-
-      // Emit message via socket for real-time delivery
-      if (socketRef.current && socketConnected) {
-        socketRef.current.emit("sendMessage", {
-          roomId,
-          message: {
-            sender: myAccount,
-            text: messageText,
-            messageImageHref,
-            date: new Date().getTime()
-          },
-          isGroup: myMessages.isGroup
-        })
-      }
-
-      setMessageText("")
-      setSelectedImage(undefined)
-      setIsEmojiPickerOpen(false)
-    } catch (error) {
-      console.error("Failed to send message:", error)
-
-      // Fallback to local state update only
+      // First update local state so the message appears immediately
       dispatch(
         sendMessage({
           sender: myAccount,
@@ -187,6 +167,37 @@ export const MessageRoom = () => {
           messageImageHref
         })
       )
+
+      // Send to API for persistence
+      const resultAction = await dispatch(sendMessageAsync(messageData))
+
+      if (sendMessageAsync.fulfilled.match(resultAction)) {
+        console.log("Message saved to database successfully")
+
+        // Emit through socket for real-time delivery to other users,
+        // flagging that this message has already been handled by the API
+        if (socketRef.current && socketConnected) {
+          console.log("Emitting message via socket with API flag:", messageData)
+          socketRef.current.emit("sendMessage", {
+            roomId,
+            message: {
+              sender: myAccount,
+              text: messageText,
+              messageImageHref,
+              date: new Date().getTime()
+            },
+            isGroup: myMessages.isGroup,
+            fromAPI: true // Flag to indicate this message came through the API
+          })
+        }
+      }
+
+      setMessageText("")
+      setSelectedImage(undefined)
+      setIsEmojiPickerOpen(false)
+    } catch (error) {
+      console.error("Failed to send message:", error)
+      // No need for fallback since we already updated state at the beginning
     } finally {
       setIsMessageSending(false)
     }
