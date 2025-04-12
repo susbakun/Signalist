@@ -58,7 +58,6 @@ export const MarketSelectionDrawer = ({
         <div className="px-2 sm:px-4 mb-4">
           <input
             value={searchTerm}
-            autoFocus
             onChange={handleSearch}
             className="custom-input w-full pl-2 sm:pl-4 inline-block text-sm sm:text-base py-2"
             placeholder="Search"

@@ -8,13 +8,13 @@ import { Outlet, useParams } from "react-router-dom"
 
 export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | string>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   const dispatch = useDispatch<AppDispatch>()
   const currentUsername = getCurrentUsername()
 
   // Get the conversations from the updated messagesSlice structure
-  const { conversations, loading: reduxLoading, error } = useAppSelector((state) => state.messages)
+  const { conversations, error } = useAppSelector((state) => state.messages)
   const myMessages = conversations[currentUsername] || {}
 
   const { id } = useParams()
@@ -23,14 +23,15 @@ export const MessagesPage = () => {
   useEffect(() => {
     const fetchConversations = async () => {
       if (currentUsername) {
-        setIsLoading(true)
         try {
           await dispatch(fetchUserConversations(currentUsername))
         } catch (error) {
           console.error("Failed to fetch conversations:", error)
         } finally {
-          setIsLoading(false)
+          setInitialLoading(false)
         }
+      } else {
+        setInitialLoading(false)
       }
     }
 
@@ -43,15 +44,15 @@ export const MessagesPage = () => {
     }
   }, [id])
 
-  // Use either local loading state or Redux loading state
-  const isLoadingConversations = isLoading || reduxLoading
+  // Only show loading on initial load, not during updates or message sending
+  const isLoading = initialLoading && Object.keys(myMessages).length === 0
 
   return (
     <div className="flex h-screen bg-primary-main dark:bg-[#101827] text-gray-600 dark:text-gray-100">
       <div
         className={`${selectedChat ? "hidden md:block" : "block"} md:w-[35%] lg:w-[30%] xl:w-[25%] w-full h-full overflow-y-auto border-r border-gray-200 dark:border-gray-700`}
       >
-        {isLoadingConversations ? (
+        {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-gray-400">Loading conversations...</p>
           </div>

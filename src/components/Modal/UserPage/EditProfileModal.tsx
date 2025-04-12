@@ -163,6 +163,7 @@ export const EditProfileModal = ({
 
       if (result) {
         handleShowToast("Profile updated successfully", "success")
+        localStorage.setItem("currentUser", JSON.stringify(result))
         setTimeout(() => {
           handleCloseModal()
         }, 1500)

@@ -1,11 +1,15 @@
 import { MessageRoomInput, MessageRoomMessages, MessageRoomTopBar } from "@/components"
 import { AppDispatch } from "@/app/store"
-import { sendMessage, sendMessageAsync } from "@/features/Message/messagesSlice"
+import {
+  fetchConversationMessages,
+  sendMessage,
+  sendMessageAsync
+} from "@/features/Message/messagesSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import * as messagesApi from "@/services/messagesApi"
 import { backendUrl } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useOutletContext, useParams } from "react-router-dom"
 import { Socket } from "socket.io-client"
@@ -21,7 +25,8 @@ export const MessageRoom = () => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined)
   const [isMessageSending, setIsMessageSending] = useState(false)
-  const [socket, setSocket] = useState<Socket | null>(null)
+  const [socketConnected, setSocketConnected] = useState(false)
+  const socketRef = useRef<Socket | null>(null)
 
   const { currentUser: myAccount } = useCurrentUser()
 
@@ -31,14 +36,24 @@ export const MessageRoom = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io(backendUrl.replace("/api", ""))
+    if (!myAccount?.username) return
+
+    const newSocket = io(backendUrl.replace("/api", ""), {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    })
 
     newSocket.on("connect", () => {
       console.log("Socket connected")
+      setSocketConnected(true)
       // Authenticate with username
-      if (myAccount?.username) {
-        newSocket.emit("authenticate", myAccount.username)
-      }
+      newSocket.emit("authenticate", myAccount.username)
+    })
+
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected")
+      setSocketConnected(false)
     })
 
     newSocket.on("authenticated", (data) => {
@@ -47,10 +62,9 @@ export const MessageRoom = () => {
 
     // Handle incoming messages
     newSocket.on("newMessage", (data) => {
+      console.log("Received message:", data)
       if (data.roomId === roomId) {
         // Update the UI with the new message
-        // We can also dispatch to Redux but that would cause a double update
-        // since the message is already stored in the backend
         dispatch(
           sendMessage({
             sender: data.message.sender,
@@ -67,7 +81,12 @@ export const MessageRoom = () => {
       newSocket.emit("joinRoom", roomId)
     }
 
-    setSocket(newSocket)
+    socketRef.current = newSocket
+
+    // Load conversation messages from database to ensure we have all messages
+    if (roomId) {
+      dispatch(fetchConversationMessages(roomId))
+    }
 
     // Cleanup
     return () => {
@@ -75,61 +94,62 @@ export const MessageRoom = () => {
         newSocket.emit("leaveRoom", roomId)
       }
       newSocket.disconnect()
+      socketRef.current = null
     }
   }, [roomId, myAccount?.username, myMessages.isGroup, dispatch])
 
   const handleSendMessage = async () => {
     if (!messageText.trim() && !selectedImage) return
+    if (!myAccount || !roomId) return
 
     setIsMessageSending(true)
     let messageImageHref: string | undefined = undefined
 
-    // Handle image upload if present
-    if (selectedImage) {
-      try {
-        // Upload image to backend
-        const response = await messagesApi.uploadMessageImage(selectedImage)
-        messageImageHref = response.messageImageHref
-      } catch (error) {
-        console.error("Failed to upload image:", error)
-        setIsMessageSending(false)
-        return // If image upload fails, abort the message send
-      }
-    }
-
-    // Send the message through API and Redux
     try {
-      if (roomId && myAccount) {
-        // Send message via API first
-        await dispatch(
-          sendMessageAsync({
-            sender: myAccount,
-            text: messageText,
-            roomId,
-            messageImageHref
-          })
-        ).unwrap()
-
-        // Emit message via socket as well for real-time
-        if (socket && socket.connected) {
-          socket.emit("sendMessage", {
-            roomId,
-            message: {
-              sender: myAccount,
-              text: messageText,
-              messageImageHref,
-              date: new Date().getTime()
-            },
-            isGroup: myMessages.isGroup
-          })
+      // Handle image upload if present
+      if (selectedImage) {
+        try {
+          // Upload image to backend
+          const response = await messagesApi.uploadMessageImage(selectedImage)
+          messageImageHref = response.url || response.messageImageHref
+        } catch (error) {
+          console.error("Failed to upload image:", error)
+          // Continue sending the message without the image
         }
       }
+
+      // Create message object
+      const messageData = {
+        sender: myAccount,
+        text: messageText,
+        roomId,
+        messageImageHref
+      }
+
+      // Send message via API first
+      await dispatch(sendMessageAsync(messageData)).unwrap()
+
+      // Emit message via socket for real-time delivery
+      if (socketRef.current && socketConnected) {
+        socketRef.current.emit("sendMessage", {
+          roomId,
+          message: {
+            sender: myAccount,
+            text: messageText,
+            messageImageHref,
+            date: new Date().getTime()
+          },
+          isGroup: myMessages.isGroup
+        })
+      }
+
+      setMessageText("")
+      setSelectedImage(undefined)
+      setIsEmojiPickerOpen(false)
     } catch (error) {
-      console.error("Failed to send message via API, falling back to Redux only", error)
+      console.error("Failed to send message:", error)
 
-      if (!myAccount || !roomId) return
-
-      // Fallback to local Redux state only
+      // Fallback to local state update only
       dispatch(
         sendMessage({
           sender: myAccount,
@@ -138,12 +158,9 @@ export const MessageRoom = () => {
           messageImageHref
         })
       )
+    } finally {
+      setIsMessageSending(false)
     }
-
-    setMessageText("")
-    setSelectedImage(undefined)
-    setIsMessageSending(false)
-    setIsEmojiPickerOpen(false)
   }
 
   const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -156,18 +173,20 @@ export const MessageRoom = () => {
     setMessageText(event.target.value)
 
     // Emit typing indicator via socket
-    if (socket && socket.connected && roomId) {
-      socket.emit("typing", {
+    if (socketRef.current && socketConnected && roomId) {
+      socketRef.current.emit("typing", {
         roomId,
         isTyping: true
       })
 
       // Clear typing indicator after 2 seconds of inactivity
       setTimeout(() => {
-        socket.emit("typing", {
-          roomId,
-          isTyping: false
-        })
+        if (socketRef.current && socketConnected) {
+          socketRef.current.emit("typing", {
+            roomId,
+            isTyping: false
+          })
+        }
       }, 2000)
     }
   }
