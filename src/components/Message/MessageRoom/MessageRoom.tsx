@@ -9,6 +9,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser"
 import * as messagesApi from "@/services/messagesApi"
 import { backendUrl } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
+import { ChatType } from "@/shared/types"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useOutletContext, useParams } from "react-router-dom"
@@ -27,12 +28,31 @@ export const MessageRoom = () => {
   const [isMessageSending, setIsMessageSending] = useState(false)
   const [socketConnected, setSocketConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
+  const processedMessagesRef = useRef<Set<string>>(new Set()) // Track processed message IDs
 
   const { currentUser: myAccount } = useCurrentUser()
 
   const { myMessages, onBack } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch<AppDispatch>()
   const { id: roomId } = useParams()
+
+  // Update the processed messages set when messages change
+  useEffect(() => {
+    // When messages update from Redux, update our processed IDs set
+    if (myMessages?.messages) {
+      const currentIds = new Set(processedMessagesRef.current)
+      myMessages.messages.forEach((msg) => {
+        if (msg.id) {
+          currentIds.add(msg.id)
+        } else if (msg.date) {
+          // If no ID exists, use date + sender + text as a unique key
+          const uniqueKey = `${msg.date}-${msg.sender.username}-${msg.text.substring(0, 10)}`
+          currentIds.add(uniqueKey)
+        }
+      })
+      processedMessagesRef.current = currentIds
+    }
+  }, [myMessages?.messages])
 
   // Initialize socket connection
   useEffect(() => {
@@ -117,6 +137,18 @@ export const MessageRoom = () => {
           return
         }
 
+        // Check if we've already processed this message by ID
+        const messageId =
+          data.message.id ||
+          `${data.message.date}-${data.message.sender.username}-${data.message.text.substring(0, 10)}`
+        if (processedMessagesRef.current.has(messageId)) {
+          console.log(`Skipping already processed message: ${messageId}`)
+          return
+        }
+
+        // Mark message as processed
+        processedMessagesRef.current.add(messageId)
+
         const isSelfMessage = data.message.sender.username === myAccount?.username
         // Only process self messages if they're not duplicates of ones we already added
         if (!isSelfMessage || (isSelfMessage && !data.message.pending)) {
@@ -141,11 +173,44 @@ export const MessageRoom = () => {
       }
     })
 
+    // Handle synced messages to catch up on missed messages
+    newSocket.on("syncedMessages", (data) => {
+      console.log("Received synced messages:", data)
+      if (data.roomId === roomId && data.messages && data.messages.length > 0) {
+        // Process each message, but avoid duplicates
+        data.messages.forEach((message: ChatType & { id?: string }) => {
+          // Create a unique ID for the message if it doesn't have one
+          const messageId =
+            message.id ||
+            `${message.date}-${message.sender.username}-${message.text.substring(0, 10)}`
+
+          // Skip if we've already processed this message
+          if (processedMessagesRef.current.has(messageId)) {
+            console.log(`Skipping synced message: ${messageId}`)
+            return
+          }
+
+          // Mark as processed and add to Redux
+          processedMessagesRef.current.add(messageId)
+
+          dispatch(
+            sendMessage({
+              sender: message.sender,
+              text: message.text,
+              roomId: data.roomId,
+              messageImageHref: message.messageImageHref
+            })
+          )
+        })
+      }
+    })
+
     // Handle message updates (like image uploads completing)
     newSocket.on("messageUpdated", (data) => {
       console.log("Message updated:", data)
       if (data.roomId === roomId && roomId) {
-        // Refresh all messages to update the modified message
+        // Instead of refreshing all messages, we could optimize this later
+        // to just update the specific message in the Redux store
         dispatch(fetchConversationMessages(roomId))
       }
     })
@@ -170,6 +235,8 @@ export const MessageRoom = () => {
       }
       newSocket.disconnect()
       socketRef.current = null
+      // Clear processed message tracking on unmount
+      processedMessagesRef.current.clear()
     }
   }, [roomId, myAccount?.username, myMessages.isGroup, dispatch])
 
