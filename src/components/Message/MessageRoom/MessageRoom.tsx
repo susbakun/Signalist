@@ -3,7 +3,8 @@ import { AppDispatch } from "@/app/store"
 import {
   fetchConversationMessages,
   sendMessage,
-  sendMessageAsync
+  sendMessageAsync,
+  SendMessagePayload
 } from "@/features/Message/messagesSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import * as messagesApi from "@/services/messagesApi"
@@ -152,45 +153,56 @@ export const MessageRoom = () => {
       console.log("Received message:", data)
       if (data.roomId === roomId) {
         // Skip if this is our own message reflected back from the server
-        // This prevents duplicate messages when we send a message ourselves
         if (data.message.own === true) {
           console.log("Skipping own message from server")
           return
         }
 
-        // Check if we've already processed this message by ID
+        // Check if we've already processed this message by ID or content
         const messageId =
           data.message.id ||
           `${data.message.date}-${data.message.sender.username}-${data.message.text.substring(0, 10)}`
+
         if (processedMessagesRef.current.has(messageId)) {
           console.log(`Skipping already processed message: ${messageId}`)
+          return
+        }
+
+        // Check for similar messages within the last 30 seconds
+        const existingMessages = myMessages.messages || []
+        const hasSimilarRecentMessage = existingMessages.some(
+          (msg) =>
+            msg.sender.username === data.message.sender.username &&
+            msg.text === data.message.text &&
+            Math.abs(msg.date - data.message.date) < 30000 // Within 30 seconds
+        )
+
+        if (hasSimilarRecentMessage) {
+          console.log(`Skipping duplicate message based on content and time`)
           return
         }
 
         // Mark message as processed
         processedMessagesRef.current.add(messageId)
 
-        const isSelfMessage = data.message.sender.username === myAccount?.username
-        // Only process self messages if they're not duplicates of ones we already added
-        if (!isSelfMessage || (isSelfMessage && !data.message.pending)) {
-          // Use optimistic update pattern
-          dispatch(
-            sendMessage({
-              sender: data.message.sender,
-              text: data.message.text,
-              roomId: data.roomId,
-              messageImageHref: data.message.messageImageHref
-            })
-          )
+        // Only process if not a duplicate
+        dispatch(
+          sendMessage({
+            sender: data.message.sender,
+            text: data.message.text,
+            roomId: data.roomId,
+            messageImageHref: data.message.messageImageHref,
+            date: data.message.date
+          } as SendMessagePayload)
+        )
 
-          // Scroll to bottom on new message
-          setTimeout(() => {
-            const messagesContainer = document.querySelector(".overflow-y-auto")
-            if (messagesContainer) {
-              messagesContainer.scrollTop = messagesContainer.scrollHeight
-            }
-          }, 50)
-        }
+        // Scroll to bottom on new message
+        setTimeout(() => {
+          const messagesContainer = document.querySelector(".overflow-y-auto")
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+          }
+        }, 50)
       }
     })
 

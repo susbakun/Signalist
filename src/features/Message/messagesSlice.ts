@@ -98,7 +98,7 @@ interface CreateGroupPayload {
   }
 }
 
-interface SendMessagePayload {
+export interface SendMessagePayload {
   sender: SimplifiedAccountType
   roomId: string
   text: string
