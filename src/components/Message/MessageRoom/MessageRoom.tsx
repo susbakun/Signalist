@@ -110,9 +110,16 @@ export const MessageRoom = () => {
     newSocket.on("newMessage", (data) => {
       console.log("Received message:", data)
       if (data.roomId === roomId) {
-        // Only update UI if the message is from someone else
+        // Skip if this is our own message reflected back from the server
         // This prevents duplicate messages when we send a message ourselves
-        if (data.message.sender.username !== myAccount?.username) {
+        if (data.message.own === true) {
+          console.log("Skipping own message from server")
+          return
+        }
+
+        const isSelfMessage = data.message.sender.username === myAccount?.username
+        // Only process self messages if they're not duplicates of ones we already added
+        if (!isSelfMessage || (isSelfMessage && !data.message.pending)) {
           // Use optimistic update pattern
           dispatch(
             sendMessage({
@@ -174,6 +181,10 @@ export const MessageRoom = () => {
     const currentText = messageText.trim()
     const currentImage = selectedImage
 
+    // Prevent duplicate sends by disabling sending state
+    if (isMessageSending) return
+    setIsMessageSending(true)
+
     // Clear input immediately for better UX
     setMessageText("")
     setSelectedImage(undefined)
@@ -183,28 +194,27 @@ export const MessageRoom = () => {
     const tempMessageId = Date.now().toString()
     const messageDate = Date.now()
 
-    setIsMessageSending(true)
     let messageImageHref: string | undefined = undefined
 
-    // First update local state so the message appears immediately
-    dispatch(
-      sendMessage({
-        sender: myAccount,
-        text: currentText,
-        roomId,
-        messageImageHref: undefined // We'll update this later if we have an image
-      })
-    )
-
-    // Scroll to bottom immediately after adding the message
-    setTimeout(() => {
-      const messagesContainer = document.querySelector(".overflow-y-auto")
-      if (messagesContainer) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight
-      }
-    }, 50)
-
     try {
+      // First update local state so the message appears immediately - with pending flag
+      dispatch(
+        sendMessage({
+          sender: myAccount,
+          text: currentText,
+          roomId,
+          messageImageHref: undefined // We'll update this later if we have an image
+        })
+      )
+
+      // Scroll to bottom immediately after adding the message
+      setTimeout(() => {
+        const messagesContainer = document.querySelector(".overflow-y-auto")
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight
+        }
+      }, 50)
+
       // Send via socket first for real-time delivery (before image upload)
       if (socketRef.current && socketConnected) {
         socketRef.current.emit("sendMessage", {
@@ -254,6 +264,19 @@ export const MessageRoom = () => {
         } catch (error) {
           console.error("Failed to upload image:", error)
         }
+      } else {
+        // If no image, mark as not pending after a short delay
+        setTimeout(() => {
+          if (socketRef.current && socketConnected) {
+            socketRef.current.emit("updateMessage", {
+              roomId,
+              messageId: tempMessageId,
+              updates: {
+                pending: false
+              }
+            })
+          }
+        }, 300)
       }
 
       // Create message object for API
@@ -261,8 +284,7 @@ export const MessageRoom = () => {
         sender: myAccount,
         text: currentText,
         roomId,
-        messageImageHref,
-        date: messageDate
+        messageImageHref
       }
 
       // Send to API for persistence (can happen in parallel)
