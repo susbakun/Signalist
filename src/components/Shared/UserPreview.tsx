@@ -34,7 +34,6 @@ export const UserPreview = ({
 }: UserPreviewProps) => {
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
   const [isActionLoading, setIsActionLoading] = useState(false)
-  // Add local state to track follow status for optimistic updates
   const [localIsFollowed, setLocalIsFollowed] = useState(false)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
