@@ -1,14 +1,33 @@
+import { EditProfileModal } from "@/components/Modal/UserPage/EditProfileModal"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import Tippy from "@tippyjs/react"
+import { useState } from "react"
 import { IoPersonAddOutline } from "react-icons/io5"
 import { Link } from "react-router-dom"
 import { roundArrow } from "tippy.js"
 
 export const MyBottomBar = () => {
+  const [openEditModal, setOpenEditModal] = useState(false)
+  const { currentUser: myAccount } = useCurrentUser()
+
+  const handleOpenEditModal = () => {
+    setOpenEditModal(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false)
+  }
+
+  if (!myAccount) return null
+
   return (
     <div className="flex items-center justify-between flex-wrap gap-2">
       <div className="flex gap-2 sm:gap-4 flex-wrap">
         <div>
-          <button className="px-2 py-1 bg-primary-link-button dark:bg-dark-link-button rounded-md action-button text-white text-sm sm:text-base">
+          <button
+            onClick={handleOpenEditModal}
+            className="px-2 py-1 bg-primary-link-button dark:bg-dark-link-button rounded-md action-button text-white text-sm sm:text-base"
+          >
             Edit Profile
           </button>
         </div>
@@ -37,6 +56,15 @@ export const MyBottomBar = () => {
           </button>
         </Tippy>
       </div>
+
+      {/* Edit Profile Modal */}
+      {openEditModal && (
+        <EditProfileModal
+          openModal={openEditModal}
+          handleCloseModal={handleCloseEditModal}
+          userAccount={myAccount}
+        />
+      )}
     </div>
   )
 }

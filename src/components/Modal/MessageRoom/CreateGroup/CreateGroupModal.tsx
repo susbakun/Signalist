@@ -2,11 +2,10 @@ import { CreateGroupChooseGroupInfoModal, CreateGroupPickUsersModal } from "@/co
 import { createGroup, useAppSelector } from "@/features/Message/messagesSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
-import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
+import * as messagesApi from "@/services/messagesApi"
 import { AccountModel, MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
-import { Client, ID, Storage } from "appwrite"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
@@ -37,10 +36,6 @@ export const CreateGroupModal = ({
 
   const { currentUser: myAccount } = useCurrentUser()
   const currentUsername = getCurrentUsername()
-
-  const client = new Client().setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
-
-  const storage = new Storage(client)
 
   const { isUserBlocked } = useIsUserBlocked(myAccount)
 
@@ -105,13 +100,13 @@ export const CreateGroupModal = ({
 
   const handleSendImage = async (selectedFile: File | undefined) => {
     if (selectedFile) {
-      const file = new File([selectedFile], "screenshot.png", { type: "image/png" })
       try {
-        const response = await storage.createFile(appwriteMessagesBucketId, ID.unique(), file)
-        console.log("Image uploaded successfully:", response)
-        return response.$id
+        // Upload image to backend and get the image id
+        const response = await messagesApi.uploadMessageImage(selectedFile)
+        console.log("Group image uploaded successfully:", response)
+        return response.messageImageHref
       } catch (error) {
-        console.error("Failed to upload image:", error)
+        console.error("Failed to upload group image:", error)
       }
     }
   }
@@ -134,11 +129,11 @@ export const CreateGroupModal = ({
 
     setIsGroupImageSending(true)
     setCreateGroupButtonDisabled(true)
-    const groupImageId = await handleSendImage(selectedImage)
+    const groupImageHref = await handleSendImage(selectedImage)
     const roomId = v4()
     const groupInfo: GroupInfoType = {
       groupName,
-      groupImageId
+      groupImageHref
     }
     dispatch(
       createGroup({ myUsername: myAccount?.username, roomId, userInfos: selectedUsers, groupInfo })

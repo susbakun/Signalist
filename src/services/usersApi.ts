@@ -1,7 +1,8 @@
+import { backendUrl } from "@/shared/constants"
 import { AccountModel, SignalModel } from "@/shared/models"
 import { BookmarkType } from "@/shared/types"
 
-const API_URL = "https://signalist-backend.liara.run/api/users"
+const API_URL = `${backendUrl}/users`
 
 export const getUsers = async (): Promise<AccountModel[]> => {
   try {
@@ -187,7 +188,7 @@ export const updateBookmarks = async (
 
 export const updateProfile = async (
   username: string,
-  updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl">>
+  updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl" | "username" | "email">>
 ): Promise<AccountModel> => {
   try {
     const response = await fetch(`${API_URL}/${username}`, {

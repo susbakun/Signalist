@@ -1,7 +1,5 @@
-import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { GroupInfoType, SimplifiedAccountType } from "@/shared/types"
-import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import { Avatar } from "flowbite-react"
 
 export const useUserMessageRoom = () => {
@@ -31,6 +29,15 @@ export const useUserMessageRoom = () => {
     })
   }
 
+  /**
+   * Check if a group has a valid image ID
+   * @param groupInfo - The group info object
+   * @returns true if the group has a valid image ID, false otherwise
+   */
+  const hasValidGroupImage = (groupInfo?: GroupInfoType) => {
+    return !!groupInfo && !!groupInfo.groupImageHref
+  }
+
   const getProperAvatar = (
     placeholder: string,
     userInfo?: SimplifiedAccountType,
@@ -39,31 +46,12 @@ export const useUserMessageRoom = () => {
     let imageUrl
     let imageAlt
 
-    const client = new Client()
-    client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
-    const storage = new Storage(client)
-
     if (userInfo) {
       imageUrl = userInfo.imageUrl
       imageAlt = userInfo.name
     } else if (groupInfo) {
-      if (groupInfo.groupImageId) {
-        const result = storage.getFilePreview(
-          appwriteMessagesBucketId,
-          groupInfo.groupImageId,
-          0,
-          0,
-          ImageGravity.Center,
-          100,
-          0,
-          "fff",
-          0,
-          1,
-          0,
-          "fff",
-          ImageFormat.Png
-        )
-        imageUrl = result.href
+      if (hasValidGroupImage(groupInfo)) {
+        imageUrl = groupInfo.groupImageHref
       }
       imageAlt = groupInfo.groupName
     }
@@ -93,5 +81,5 @@ export const useUserMessageRoom = () => {
     return messages.groupInfo && messages.usersInfo && messages.isGroup
   }
 
-  return { checkIfExistsRoom, findExistingRoomId, getProperAvatar, isGroupRoom }
+  return { checkIfExistsRoom, findExistingRoomId, getProperAvatar, isGroupRoom, hasValidGroupImage }
 }

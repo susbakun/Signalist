@@ -1,6 +1,7 @@
 import signalsReducer, {
   createSignalAsync,
   dislikeSignalAsync,
+  fetchSignals,
   likeSignalAsync,
   updateSignalStatusAsync,
   updatePage
@@ -67,6 +68,67 @@ describe("signalsSlice", () => {
       hasMore: true,
       totalCount: 0
     })
+  })
+
+  test("should handle fetchSignals.fulfilled", () => {
+    const newSignals = [
+      {
+        id: "2",
+        market: {
+          name: "ETH/USD",
+          uuid: "ethereum-uuid"
+        },
+        entry: 3000,
+        stoploss: 2800,
+        targets: [
+          { id: "t1", value: 3200, touched: false },
+          { id: "t2", value: 3500, touched: false }
+        ],
+        openTime: Date.now() + 3600000,
+        closeTime: Date.now() + 86400000,
+        status: "not_opened" as StatusType,
+        date: Date.now() - 1800000,
+        likes: [],
+        description: "Ethereum signal",
+        isPremium: false,
+        publisher: mockPublisher
+      }
+    ]
+
+    // Test first page (reset)
+    const resetAction = {
+      type: fetchSignals.fulfilled.type,
+      payload: {
+        data: newSignals,
+        isReset: true,
+        totalCount: 1,
+        hasMore: false
+      }
+    }
+
+    let state = signalsReducer(initialState, resetAction)
+    expect(state.signals).toEqual(newSignals)
+    expect(state.loading).toBe(false)
+    expect(state.page).toBe(1)
+    expect(state.hasMore).toBe(false)
+    expect(state.totalCount).toBe(1)
+
+    // Test pagination
+    const paginationAction = {
+      type: fetchSignals.fulfilled.type,
+      payload: {
+        data: newSignals,
+        isReset: false,
+        totalCount: 2,
+        hasMore: true
+      }
+    }
+
+    state = signalsReducer(initialState, paginationAction)
+    expect(state.signals.length).toBe(2)
+    expect(state.loading).toBe(false)
+    expect(state.hasMore).toBe(true)
+    expect(state.totalCount).toBe(2)
   })
 
   test("should handle createSignalAsync.fulfilled", () => {
@@ -249,7 +311,7 @@ describe("signalsSlice", () => {
     // First target should be marked as touched
     expect(state.signals[0].targets[0].touched).toBe(true)
 
-    // Publisher score should be increased
+    // Publisher score should be updated
     expect(state.signals[0].publisher.score).toBe(101)
   })
 
@@ -269,12 +331,13 @@ describe("signalsSlice", () => {
     expect(errorState.error).toBe("Failed to create signal")
   })
 
-  test("should handle updatePage action", () => {
+  test("should handle updatePage", () => {
     const action = {
       type: updatePage.type,
       payload: 2
     }
     const state = signalsReducer(initialState, action)
+
     expect(state.page).toBe(2)
   })
 })

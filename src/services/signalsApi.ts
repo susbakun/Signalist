@@ -1,7 +1,8 @@
+import { backendUrl } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { SignalAccountType, SimplifiedAccountType } from "@/shared/types"
 
-const API_URL = "https://signalist-backend.liara.run/api"
+const API_URL = `${backendUrl}/signals`
 
 const SIGNALS_ENDPOINT = `${API_URL}/signals`
 

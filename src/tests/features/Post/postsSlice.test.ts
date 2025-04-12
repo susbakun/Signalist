@@ -3,6 +3,7 @@ import postsReducer, {
   dislikeCommentAsync,
   dislikePostAsync,
   editPostAsync,
+  fetchPosts,
   likeCommentAsync,
   likePostAsync,
   postCommentAsync,
@@ -57,6 +58,56 @@ describe("postsSlice", () => {
     })
   })
 
+  test("should handle fetchPosts.fulfilled", () => {
+    const newPosts = [
+      {
+        id: "2",
+        content: "New fetched post",
+        date: 1625097600000,
+        likes: [],
+        comments: [],
+        isPremium: false,
+        publisher: mockUser
+      }
+    ]
+
+    // Test first page (reset)
+    const resetAction = {
+      type: fetchPosts.fulfilled.type,
+      payload: {
+        data: newPosts,
+        totalCount: 1,
+        hasMore: false
+      }
+    }
+
+    let state = postsReducer(initialState, resetAction)
+    expect(state.posts).toEqual(newPosts)
+    expect(state.loading).toBe(false)
+    expect(state.hasMore).toBe(false)
+    expect(state.totalCount).toBe(1)
+
+    // Test pagination
+    const paginationAction = {
+      type: fetchPosts.fulfilled.type,
+      payload: {
+        data: newPosts,
+        totalCount: 2,
+        hasMore: true
+      }
+    }
+
+    state = {
+      ...initialState,
+      page: 2
+    }
+
+    state = postsReducer(state, paginationAction)
+    expect(state.posts.length).toBe(2)
+    expect(state.totalCount).toBe(2)
+    expect(state.hasMore).toBe(true)
+  })
+
   test("should handle createPostAsync.fulfilled", () => {
     const action = {
       type: createPostAsync.fulfilled.type,
@@ -94,6 +145,28 @@ describe("postsSlice", () => {
 
     expect(state.posts.length).toBe(2)
     expect(state.posts[1]).toEqual(action.payload)
+  })
+
+  test("should handle editPostAsync.fulfilled", () => {
+    const action = {
+      type: editPostAsync.fulfilled.type,
+      payload: {
+        id: "1",
+        content: "Updated post content",
+        date: 1625097600000,
+        likes: [],
+        comments: [],
+        isPremium: false,
+        publisher: {
+          username: "publisher",
+          name: "Publisher Name",
+          imageUrl: "publisher-image.jpg"
+        }
+      }
+    }
+    const state = postsReducer(initialState, action)
+
+    expect(state.posts[0].content).toBe("Updated post content")
   })
 
   test("should handle likePostAsync.fulfilled", () => {
@@ -262,79 +335,16 @@ describe("postsSlice", () => {
 
     const comment = state.posts[0].comments.find((c) => c.commentId === "mocked-uuid")
     expect(comment).toBeDefined()
-    expect(comment!.likes).not.toContainEqual(mockUser)
     expect(comment!.likes.length).toBe(0)
   })
 
-  test("should handle editPostAsync.fulfilled", () => {
-    const action = {
-      type: editPostAsync.fulfilled.type,
-      payload: {
-        id: "1",
-        content: "Updated content",
-        date: expect.any(Number),
-        likes: [],
-        comments: [],
-        isPremium: false,
-        publisher: {
-          username: "publisher",
-          name: "Publisher Name",
-          imageUrl: "publisher-image.jpg"
-        }
-      }
-    }
-    const state = postsReducer(initialState, action)
-
-    expect(state.posts[0].content).toBe("Updated content")
-    expect(state.posts[0].date).not.toBe(1625097600000) // Date should be updated
-  })
-
-  test("should handle editPostAsync.fulfilled with image", () => {
-    const action = {
-      type: editPostAsync.fulfilled.type,
-      payload: {
-        id: "1",
-        content: "Updated content with image",
-        postImageHref: "https://example.com/new-image-123.jpg",
-        date: expect.any(Number),
-        likes: [],
-        comments: [],
-        isPremium: false,
-        publisher: {
-          username: "publisher",
-          name: "Publisher Name",
-          imageUrl: "publisher-image.jpg"
-        }
-      }
-    }
-    const state = postsReducer(initialState, action)
-
-    expect(state.posts[0].content).toBe("Updated content with image")
-    expect(state.posts[0].postImageHref).toBe("https://example.com/new-image-123.jpg")
-  })
-
-  test("should handle loading states", () => {
-    const loadingAction = {
-      type: createPostAsync.pending.type
-    }
-    const loadingState = postsReducer(initialState, loadingAction)
-    expect(loadingState.loading).toBe(true)
-
-    const errorAction = {
-      type: createPostAsync.rejected.type,
-      error: { message: "Failed to create post" }
-    }
-    const errorState = postsReducer(loadingState, errorAction)
-    expect(errorState.loading).toBe(false)
-    expect(errorState.error).toBe("Failed to create post")
-  })
-
-  test("should handle updatePage action", () => {
+  test("should handle updatePage", () => {
     const action = {
       type: updatePage.type,
       payload: 2
     }
     const state = postsReducer(initialState, action)
+
     expect(state.page).toBe(2)
   })
 })

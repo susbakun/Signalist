@@ -1,9 +1,7 @@
 import { Loader } from "@/components" // Adjust the import path as needed
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
-import { appwriteEndpoint, appwriteMessagesBucketId, appwriteProjectId } from "@/shared/constants"
 import { ChatType } from "@/shared/types"
 import { cn, formatMessageDate, getAvatarPlaceholder, getCurrentUsername } from "@/utils"
-import { Client, ImageFormat, ImageGravity, Storage } from "appwrite"
 import moment from "jalali-moment"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
@@ -12,10 +10,6 @@ type MessageRoomMessagesProps = {
   messages: ChatType[]
   isGroup: boolean
   handleBlurEmojiPicker: () => void
-}
-
-type MessagesHrefsType = {
-  [k: string]: string
 }
 
 type MessagesIsImageLoadedType = {
@@ -27,15 +21,10 @@ export const MessageRoomMessages = ({
   isGroup,
   handleBlurEmojiPicker
 }: MessageRoomMessagesProps) => {
-  const [messageImageHrefs, setMessageImageHrefs] = useState<MessagesHrefsType>({})
   const [enlargedImageHref, setEnlargedImageHref] = useState<string>("")
   const [enlarged, setEnlarged] = useState(false)
   const [areImagesLoading, setAreImagesLoading] = useState<MessagesIsImageLoadedType>({})
   const { getProperAvatar } = useUserMessageRoom()
-
-  const client = new Client()
-  const storage = new Storage(client)
-  client.setEndpoint(appwriteEndpoint).setProject(appwriteProjectId)
 
   const handleImageEnlarge = (messageImageHref?: string) => {
     if (messageImageHref) {
@@ -50,43 +39,19 @@ export const MessageRoomMessages = ({
   }
 
   useEffect(() => {
-    const fetchImages = async () => {
-      const hrefs: MessagesHrefsType = {}
-      const loadingStates: MessagesIsImageLoadedType = {}
-      for (const message of messages) {
-        if (message.messageImageId) {
-          try {
-            loadingStates[message.messageImageId] = true
-            const result = storage.getFilePreview(
-              appwriteMessagesBucketId,
-              message.messageImageId,
-              0,
-              0,
-              ImageGravity.Center,
-              100,
-              0,
-              "fff",
-              0,
-              1,
-              0,
-              "fff",
-              ImageFormat.Png
-            )
-            hrefs[message.messageImageId] = result.href
-          } catch (error) {
-            console.error("Error fetching image: ", error)
-          }
-        }
+    const loadingStates: MessagesIsImageLoadedType = {}
+
+    for (const message of messages) {
+      if (message.messageImageHref) {
+        loadingStates[message.messageImageHref] = true
       }
-      setMessageImageHrefs(hrefs)
-      setAreImagesLoading(loadingStates)
     }
 
-    fetchImages()
+    setAreImagesLoading(loadingStates)
   }, [messages])
 
-  const handleImageLoaded = (imageId: string) => {
-    setAreImagesLoading((prevState) => ({ ...prevState, [imageId]: false }))
+  const handleImageLoaded = (imageHref: string) => {
+    setAreImagesLoading((prevState) => ({ ...prevState, [imageHref]: false }))
   }
 
   const parseMessageText = (text: string) => {
@@ -111,8 +76,7 @@ export const MessageRoomMessages = ({
         {messages.reduce((acc: JSX.Element[], message, index) => {
           const messageDate = formatMessageDate(message.date)
           const prevMessageDate = index > 0 ? formatMessageDate(messages[index - 1].date) : null
-          const messageImageHref = messageImageHrefs[message.messageImageId || ""]
-          const messageImageId = message.messageImageId || ""
+          const messageImageHref = message.messageImageHref
 
           if (messageDate !== prevMessageDate) {
             acc.push(
@@ -161,7 +125,7 @@ export const MessageRoomMessages = ({
                     : "dark:bg-gray-700 bg-gray-200 text-gray-600 dark:text-gray-100 order-2"
                 }`}
               >
-                {areImagesLoading[messageImageId] && (
+                {messageImageHref && areImagesLoading[messageImageHref] && (
                   <Loader className="flex items-center justify-center h-[250px] w-[250px]" />
                 )}
                 {messageImageHref && (
@@ -172,12 +136,12 @@ export const MessageRoomMessages = ({
                     <img
                       className={cn(
                         "w-full object-cover cursor-pointer transition-opacity duration-300",
-                        areImagesLoading[messageImageId] ? "opacity-0 h-0" : "opacity-100"
+                        areImagesLoading[messageImageHref] ? "opacity-0 h-0" : "opacity-100"
                       )}
                       src={messageImageHref}
                       alt="message image"
-                      onLoad={() => handleImageLoaded(messageImageId)}
-                      onError={() => handleImageLoaded(messageImageId)}
+                      onLoad={() => handleImageLoaded(messageImageHref)}
+                      onError={() => handleImageLoaded(messageImageHref)}
                     />
                   </div>
                 )}

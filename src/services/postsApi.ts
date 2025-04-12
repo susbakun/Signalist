@@ -1,7 +1,8 @@
+import { backendUrl } from "@/shared/constants"
 import { CommentModel, PostModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 
-const API_URL = "https://signalist-backend.liara.run/api"
+const API_URL = `${backendUrl}/posts`
 
 const POSTS_ENDPOINT = `${API_URL}/posts`
 

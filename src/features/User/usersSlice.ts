@@ -104,7 +104,7 @@ export const updateProfileAsync = createAsyncThunk(
   "users/updateProfile",
   async (data: {
     username: string
-    updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl">>
+    updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl" | "username" | "email">>
   }) => {
     return await usersApi.updateProfile(data.username, data.updates)
   }

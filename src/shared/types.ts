@@ -9,7 +9,7 @@ export type StatusType = "closed" | "open" | "not_opened"
 export type SimplifiedAccountType = Pick<AccountModel, "name" | "username" | "imageUrl">
 export type GroupInfoType = {
   groupName: string
-  groupImageId?: string
+  groupImageHref?: string // Full URL to the group image stored in the backend
 }
 export type SignalAccountType = SimplifiedAccountType & { score: AccountModel["score"] }
 type DurationType = "30 days" | "3 months" | "6 months" | "12 months"
@@ -22,7 +22,7 @@ export type ChatType = {
   sender: SimplifiedAccountType
   text: string
   date: number
-  messageImageId?: string
+  messageImageHref?: string // Full URL to the message image stored in the backend
 }
 export type DMRoom = {
   userInfo: SimplifiedAccountType
