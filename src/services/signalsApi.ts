@@ -114,3 +114,23 @@ export const removeSignal = async (id: string): Promise<void> => {
   })
   await handleResponse(response)
 }
+
+// Edit a signal (update description, closeTime, and status)
+export const updateSignal = async (
+  signalId: string,
+  updateData: {
+    description: string
+    closeTime: number
+    status?: SignalModel["status"]
+  }
+): Promise<SignalModel> => {
+  const response = await fetch(`${SIGNALS_ENDPOINT}/${signalId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(updateData)
+  })
+  const data = await handleResponse(response)
+  return data.data
+}

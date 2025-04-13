@@ -9,9 +9,16 @@ type SignalTopBarProps = {
   date: SignalModel["date"]
   signalId: SignalModel["id"]
   subscribed?: boolean
+  handleOpenEditSignalModal: () => void
 }
 
-export const SignalTopBar = ({ date, publisher, signalId, subscribed }: SignalTopBarProps) => {
+export const SignalTopBar = ({
+  date,
+  publisher,
+  signalId,
+  subscribed,
+  handleOpenEditSignalModal
+}: SignalTopBarProps) => {
   const placeholder = getAvatarPlaceholder(publisher.name)
   return (
     <div className="flex justify-between">
@@ -34,7 +41,11 @@ export const SignalTopBar = ({ date, publisher, signalId, subscribed }: SignalTo
       </div>
       <div className="flex gap-2 md:gap-4 items-center">
         {subscribed && <SubscriberSign small />}
-        <MoreOptionsButton signalId={signalId} username={publisher.username} />
+        <MoreOptionsButton
+          signalId={signalId}
+          username={publisher.username}
+          handleOpenEditSignalModal={handleOpenEditSignalModal}
+        />
       </div>
     </div>
   )

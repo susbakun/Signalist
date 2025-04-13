@@ -18,6 +18,7 @@ type MoreOptionsButtonProps = {
   isForComment?: boolean
   username: AccountModel["username"]
   handleOpenEditPostModal?: () => void
+  handleOpenEditSignalModal?: () => void
   handleDeleteComment?: () => void
 }
 
@@ -27,6 +28,7 @@ export const MoreOptionsButton = ({
   isForComment = false,
   username,
   handleOpenEditPostModal,
+  handleOpenEditSignalModal,
   handleDeleteComment
 }: MoreOptionsButtonProps) => {
   const [open, setIsOpen] = useState(false)
@@ -52,9 +54,25 @@ export const MoreOptionsButton = ({
         </button>
       </Popover>
     )
-  else if (myAccount?.username === username && !signalId)
+  else if (
+    myAccount?.username === username &&
+    !signalId &&
+    !isForComment &&
+    handleOpenEditPostModal
+  )
     return (
       <button onClick={handleOpenEditPostModal} className="action-button">
+        <MdOutlineModeEditOutline className="w-6 h-6" />
+      </button>
+    )
+  else if (
+    myAccount?.username === username &&
+    signalId &&
+    !isForComment &&
+    handleOpenEditSignalModal
+  )
+    return (
+      <button onClick={handleOpenEditSignalModal} className="action-button">
         <MdOutlineModeEditOutline className="w-6 h-6" />
       </button>
     )

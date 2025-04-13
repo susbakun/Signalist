@@ -1,5 +1,5 @@
 import { AppDispatch } from "@/app/store"
-import { SignalContext, SignalFooter, SignalTopBar } from "@/components"
+import { EditSignalModal, SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { updateSignalStatusAsync } from "@/features/Signal/signalsSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
@@ -18,6 +18,7 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
+  const [openEditSignalModal, setOpenEditSignalModal] = useState(false)
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -25,6 +26,14 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
+
+  const handleOpenEditSignalModal = () => {
+    setOpenEditSignalModal(true)
+  }
+
+  const handleCloseEditSignalModal = () => {
+    setOpenEditSignalModal(false)
+  }
 
   const updateSignalStatus = () => {
     setCurrentTime(new Date().getTime())
@@ -107,21 +116,29 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
   if (isUserBlocked) return null
 
   return (
-    <div
-      className={twMerge(
-        "flex flex-col gap-4 md:gap-8 px-3 md:px-4 py-4 md:py-6 border-b",
-        "border-b-gray-600/20 dark:border-b-white/20 max-w-full",
-        className
-      )}
-    >
-      <SignalTopBar
-        subscribed={amISubscribed}
-        publisher={publisher}
-        date={signal.date}
-        signalId={signal.id}
+    <>
+      <div
+        className={twMerge(
+          "flex flex-col gap-4 md:gap-8 px-3 md:px-4 py-4 md:py-6 border-b",
+          "border-b-gray-600/20 dark:border-b-white/20 max-w-full",
+          className
+        )}
+      >
+        <SignalTopBar
+          subscribed={amISubscribed}
+          publisher={publisher}
+          date={signal.date}
+          signalId={signal.id}
+          handleOpenEditSignalModal={handleOpenEditSignalModal}
+        />
+        <SignalContext signal={signal} isBookmarkPage={isBookmarkPage} />
+        <SignalFooter signal={signal} username={publisher.username} />
+      </div>
+      <EditSignalModal
+        openModal={openEditSignalModal}
+        handleCloseModal={handleCloseEditSignalModal}
+        signal={signal}
       />
-      <SignalContext signal={signal} isBookmarkPage={isBookmarkPage} />
-      <SignalFooter signal={signal} username={publisher.username} />
-    </div>
+    </>
   )
 }

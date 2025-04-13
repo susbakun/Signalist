@@ -9,7 +9,6 @@ import { getUserByUsernameAsync } from "@/features/User/usersSlice"
 export const fetchSignals = createAsyncThunk(
   "signals/fetchSignals",
   async ({ page = 1, limit = 10 }: { page?: number; limit?: number } = {}) => {
-    // If it's the first page, we're resetting
     const isReset = page === 1
     return {
       ...(await signalsApi.fetchSignals(page, limit)),
@@ -84,6 +83,23 @@ export const removeSignalAsync = createAsyncThunk("signals/removeSignal", async 
   await signalsApi.removeSignal(id)
   return id
 })
+
+// Update signal (description & closeTime)
+export const updateSignalAsync = createAsyncThunk(
+  "signals/updateSignal",
+  async (data: {
+    signalId: string
+    description: string
+    closeTime: number
+    status?: SignalModel["status"]
+  }) => {
+    return await signalsApi.updateSignal(data.signalId, {
+      description: data.description,
+      closeTime: data.closeTime,
+      status: data.status
+    })
+  }
+)
 
 // Add a new action to update signal publishers when a user profile is updated
 export const updateSignalPublishersAsync = createAsyncThunk(
@@ -245,6 +261,14 @@ const signalsSlice = createSlice({
           }
           return signal
         })
+      })
+
+      // Update signal (description & closeTime)
+      .addCase(updateSignalAsync.fulfilled, (state, action) => {
+        const index = state.signals.findIndex((signal) => signal.id === action.payload.id)
+        if (index !== -1) {
+          state.signals[index] = action.payload
+        }
       })
   }
 })
