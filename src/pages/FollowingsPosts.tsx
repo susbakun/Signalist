@@ -94,9 +94,13 @@ export const FollowingsPosts = () => {
     )
   }
 
+  const isMyPost = (post: PostModel) => {
+    return post.publisher.username === myAccount?.username
+  }
+
   const followingPosts = [
     ...allPosts.filter((post) => {
-      if (isMyFollowingPost(post)) {
+      if (isMyFollowingPost(post) || isMyPost(post)) {
         return post
       }
       return false

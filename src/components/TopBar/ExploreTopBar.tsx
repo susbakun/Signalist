@@ -29,6 +29,11 @@ export const ExploreTopBar = () => {
     }
   }
 
+  // Prevent dropdown from closing when clicking inside it (needed for touch devices)
+  const handleDropdownMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+  }
+
   const handleSearchUsers = useCallback(() => {
     if (!users) return []
     return users.filter(
@@ -84,6 +89,7 @@ export const ExploreTopBar = () => {
             border-gray-600/50 absolute top-12
               left-[11%] right-[11%]
             dark:bg-dark-main min-h-[75px]"
+              onMouseDown={handleDropdownMouseDown}
             >
               {isEmpty(searchedUsers) ? (
                 <EmptyPage className="h-full items-center text-center pt-2">
@@ -109,6 +115,7 @@ export const ExploreTopBar = () => {
               h-[150px] items-center justify-center bg-primary-main
               border-gray-600/50 absolute top-12 left-[11%] right-[11%] 
               dark:bg-dark-main"
+              onMouseDown={handleDropdownMouseDown}
             >
               <p className="font-normal">Search for People</p>
             </EmptyPage>
