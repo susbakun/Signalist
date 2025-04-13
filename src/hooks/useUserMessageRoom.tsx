@@ -58,21 +58,26 @@ export const useUserMessageRoom = () => {
 
     if (imageUrl) {
       return (
-        <img src={imageUrl} alt={`${imageAlt}'s avatar`} className="mr-3 w-14 h-14 rounded-full" />
+        <div className="mr-3 flex-shrink-0">
+          <CustomAvatar
+            img={imageUrl}
+            alt={`${imageAlt}'s avatar`}
+            placeholderInitials={placeholder}
+            size="md"
+            rounded
+            wrapperClassName="w-14 h-14 flex items-center justify-center"
+            className="text-xl font-semibold"
+          />
+        </div>
       )
     }
+
     return (
       <div
         className="p-2 rounded-full w-fit h-fit mr-3
-      bg-gray-100 dark:bg-gray-600 flex justify-center"
+    bg-gray-100 dark:bg-gray-600 flex justify-center"
       >
-        <CustomAvatar
-          img={imageUrl}
-          alt={`${imageAlt}'s avatar`}
-          placeholderInitials={placeholder}
-          size="md"
-          rounded
-        />
+        <CustomAvatar placeholderInitials={placeholder} size="md" rounded />
       </div>
     )
   }

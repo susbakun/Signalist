@@ -201,7 +201,8 @@ export const MessageRoom = () => {
           roomId: data.roomId,
           messageImageHref: data.message.messageImageHref,
           date: data.message.date,
-          id: messageId
+          id: messageId,
+          pending: data.message.pending || false // Track if message is still pending
         } as SendMessagePayload)
       )
 
@@ -212,6 +213,18 @@ export const MessageRoom = () => {
           messagesContainer.scrollTop = messagesContainer.scrollHeight
         }
       }, 50)
+    })
+
+    // NEW EVENT: Listen for messages persisted notification
+    // This helps ensure all users have the latest messages
+    newSocket.on("messagesPersisted", (data) => {
+      if (data.roomId === roomId) {
+        console.log("Messages have been persisted on server, refreshing conversation")
+        // Fetch latest messages to ensure we have consistent state
+        if (roomId) {
+          dispatch(fetchConversationMessages(roomId))
+        }
+      }
     })
 
     // Handle synced messages to catch up on missed messages
@@ -240,7 +253,9 @@ export const MessageRoom = () => {
               roomId: data.roomId,
               messageImageHref: message.messageImageHref,
               date: message.date,
-              id: messageId
+              id: messageId,
+              // Mark synced messages as not pending
+              pending: false
             })
           )
         })
@@ -319,7 +334,8 @@ export const MessageRoom = () => {
           roomId,
           messageImageHref: undefined, // We'll update this later if we have an image
           date: messageDate,
-          id: messageId
+          id: messageId,
+          pending: true // Mark as pending initially
         })
       )
 
@@ -348,6 +364,33 @@ export const MessageRoom = () => {
         })
       }
 
+      // NEW: Add retry mechanism if socket is not connected
+      let socketRetries = 0
+      const maxSocketRetries = 3
+      const socketRetryInterval = setInterval(() => {
+        if (!socketConnected && socketRetries < maxSocketRetries) {
+          console.log(`Retry ${socketRetries + 1}/${maxSocketRetries} sending via socket`)
+          if (socketRef.current) {
+            socketRef.current.emit("sendMessage", {
+              roomId,
+              message: {
+                sender: myAccount,
+                text: currentText,
+                messageImageHref: messageImageHref, // Use updated image if available
+                date: messageDate,
+                id: messageId,
+                pending: true,
+                fromAPI: false
+              },
+              isGroup: myMessages.isGroup
+            })
+          }
+          socketRetries++
+        } else {
+          clearInterval(socketRetryInterval)
+        }
+      }, 1000)
+
       // Handle image upload in parallel
       if (currentImage) {
         try {
@@ -364,7 +407,8 @@ export const MessageRoom = () => {
                 roomId,
                 messageImageHref,
                 date: messageDate,
-                id: messageId
+                id: messageId,
+                pending: true // Still pending until confirmed by server
               })
             )
 
@@ -375,7 +419,7 @@ export const MessageRoom = () => {
                 messageId: messageId,
                 updates: {
                   messageImageHref,
-                  pending: false
+                  pending: true // Still pending until API confirms
                 }
               })
             }
@@ -383,19 +427,6 @@ export const MessageRoom = () => {
         } catch (error) {
           console.error("Failed to upload image:", error)
         }
-      } else {
-        // If no image, mark as not pending after a short delay
-        setTimeout(() => {
-          if (socketRef.current && socketConnected) {
-            socketRef.current.emit("updateMessage", {
-              roomId,
-              messageId: messageId,
-              updates: {
-                pending: false
-              }
-            })
-          }
-        }, 300)
       }
 
       // Create message object for API
@@ -426,20 +457,60 @@ export const MessageRoom = () => {
                 messageImageHref: messageImageHref,
                 date: messageDate,
                 id: messageId,
-                fromAPI: true // Flag this came from the API
+                fromAPI: true, // Flag this came from the API
+                pending: false // No longer pending
               },
               isGroup: myMessages.isGroup
             })
           }
+
+          // Update socket message to mark as not pending
+          if (socketRef.current && socketConnected) {
+            socketRef.current.emit("updateMessage", {
+              roomId,
+              messageId: messageId,
+              updates: {
+                pending: false
+              }
+            })
+          }
+
+          // Update message in Redux store to mark as not pending
+          dispatch(
+            sendMessage({
+              sender: myAccount,
+              text: currentText,
+              roomId,
+              messageImageHref,
+              date: messageDate,
+              id: messageId,
+              pending: false
+            })
+          )
         })
         .catch((error) => {
           console.error("Failed to persist message:", error)
+          // Update message in Redux store to indicate error
+          dispatch(
+            sendMessage({
+              sender: myAccount,
+              text: currentText,
+              roomId,
+              messageImageHref,
+              date: messageDate,
+              id: messageId,
+              pending: false,
+              error: true
+            })
+          )
         })
         .finally(() => {
           pendingMessagesRef.current.delete(messageId)
+          clearInterval(socketRetryInterval) // Clear retry interval in any case
         })
     } catch (error) {
       console.error("Error sending message:", error)
+      pendingMessagesRef.current.delete(messageId)
     } finally {
       setIsMessageSending(false)
     }

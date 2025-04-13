@@ -113,6 +113,8 @@ export interface SendMessagePayload {
   messageImageHref?: string
   date?: number
   id?: string
+  pending?: boolean
+  error?: boolean
 }
 
 // Empty initial state instead of mock data
