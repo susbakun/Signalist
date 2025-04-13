@@ -111,6 +111,8 @@ export interface SendMessagePayload {
   roomId: string
   text: string
   messageImageHref?: string
+  date?: number
+  id?: string
 }
 
 // Empty initial state instead of mock data

@@ -30,6 +30,7 @@ export const MessageRoom = () => {
   const [socketConnected, setSocketConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const processedMessagesRef = useRef<Set<string>>(new Set()) // Track processed message IDs
+  const pendingMessagesRef = useRef<Set<string>>(new Set()) // Track pending API messages
   const socketDisconnectTimeRef = useRef<number | null>(null) // Track last disconnect time
 
   const { currentUser: myAccount } = useCurrentUser()
@@ -37,6 +38,11 @@ export const MessageRoom = () => {
   const { myMessages, onBack } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch<AppDispatch>()
   const { id: roomId } = useParams()
+
+  // Generate a unique, consistent message ID that can be used for deduplication
+  const generateMessageId = (sender: string, text: string, timestamp: number): string => {
+    return `${timestamp}-${sender}-${text.substring(0, 20)}`.replace(/\s+/g, "-")
+  }
 
   // Update the processed messages set when messages change
   useEffect(() => {
@@ -46,9 +52,9 @@ export const MessageRoom = () => {
       myMessages.messages.forEach((msg) => {
         if (msg.id) {
           currentIds.add(msg.id)
-        } else if (msg.date) {
+        } else if (msg.date && msg.sender) {
           // If no ID exists, use date + sender + text as a unique key
-          const uniqueKey = `${msg.date}-${msg.sender.username}-${msg.text.substring(0, 10)}`
+          const uniqueKey = generateMessageId(msg.sender.username, msg.text, msg.date)
           currentIds.add(uniqueKey)
         }
       })
@@ -150,60 +156,62 @@ export const MessageRoom = () => {
 
     // Handle incoming messages
     newSocket.on("newMessage", (data) => {
-      console.log("Received message:", data)
-      if (data.roomId === roomId) {
-        // Skip if this is our own message reflected back from the server
-        if (data.message.sender.username === myAccount.username) {
-          console.log("Skipping own message from server")
-          return
-        }
+      console.log("Received message via socket:", data)
+      if (!data.roomId || !data.message || data.roomId !== roomId) return
 
-        // Check if we've already processed this message by ID or content
-        const messageId =
-          data.message.id ||
-          `${data.message.date}-${data.message.sender.username}-${data.message.text.substring(0, 10)}`
-
-        if (processedMessagesRef.current.has(messageId)) {
-          console.log(`Skipping already processed message: ${messageId}`)
-          return
-        }
-
-        // Check for similar messages within the last 30 seconds
-        const existingMessages = myMessages.messages || []
-        const hasSimilarRecentMessage = existingMessages.some(
-          (msg) =>
-            msg.sender.username === data.message.sender.username &&
-            msg.text === data.message.text &&
-            Math.abs(new Date(msg.date).getTime() - new Date(data.message.date).getTime()) < 30000 // Within 30 seconds
-        )
-
-        if (hasSimilarRecentMessage) {
-          console.log(`Skipping duplicate message based on content and time`)
-          return
-        }
-
-        // Mark message as processed
-        processedMessagesRef.current.add(messageId)
-
-        // Only process if not a duplicate
-        dispatch(
-          sendMessage({
-            sender: data.message.sender,
-            text: data.message.text,
-            roomId: data.roomId,
-            messageImageHref: data.message.messageImageHref,
-            date: data.message.date
-          } as SendMessagePayload)
-        )
-
-        // Scroll to bottom on new message
-        setTimeout(() => {
-          const messagesContainer = document.querySelector(".overflow-y-auto")
-          if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight
-          }
-        }, 50)
+      // Skip if this is our own message reflected back from the server
+      if (data.message.sender.username === myAccount.username) {
+        console.log("Skipping own message from server")
+        return
       }
+
+      // Generate consistent message ID
+      const messageId =
+        data.message.id ||
+        generateMessageId(data.message.sender.username, data.message.text, data.message.date)
+
+      // Check if we've already processed this message
+      if (processedMessagesRef.current.has(messageId)) {
+        console.log(`Skipping already processed message: ${messageId}`)
+        return
+      }
+
+      // Check for similar messages within the last 30 seconds
+      const existingMessages = myMessages.messages || []
+      const hasSimilarRecentMessage = existingMessages.some(
+        (msg) =>
+          msg.sender.username === data.message.sender.username &&
+          msg.text === data.message.text &&
+          Math.abs(new Date(msg.date).getTime() - new Date(data.message.date).getTime()) < 30000 // Within 30 seconds
+      )
+
+      if (hasSimilarRecentMessage) {
+        console.log(`Skipping duplicate message based on content and time`)
+        return
+      }
+
+      // Mark message as processed
+      processedMessagesRef.current.add(messageId)
+
+      // Add to Redux store
+      dispatch(
+        sendMessage({
+          sender: data.message.sender,
+          text: data.message.text,
+          roomId: data.roomId,
+          messageImageHref: data.message.messageImageHref,
+          date: data.message.date,
+          id: messageId
+        } as SendMessagePayload)
+      )
+
+      // Scroll to bottom on new message
+      setTimeout(() => {
+        const messagesContainer = document.querySelector(".overflow-y-auto")
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight
+        }
+      }, 50)
     })
 
     // Handle synced messages to catch up on missed messages
@@ -214,8 +222,7 @@ export const MessageRoom = () => {
         data.messages.forEach((message: ChatType & { id?: string }) => {
           // Create a unique ID for the message if it doesn't have one
           const messageId =
-            message.id ||
-            `${message.date}-${message.sender.username}-${message.text.substring(0, 10)}`
+            message.id || generateMessageId(message.sender.username, message.text, message.date)
 
           // Skip if we've already processed this message
           if (processedMessagesRef.current.has(messageId)) {
@@ -231,7 +238,9 @@ export const MessageRoom = () => {
               sender: message.sender,
               text: message.text,
               roomId: data.roomId,
-              messageImageHref: message.messageImageHref
+              messageImageHref: message.messageImageHref,
+              date: message.date,
+              id: messageId
             })
           )
         })
@@ -270,6 +279,7 @@ export const MessageRoom = () => {
       socketRef.current = null
       // Clear processed message tracking on unmount
       processedMessagesRef.current.clear()
+      pendingMessagesRef.current.clear()
     }
   }, [roomId, myAccount?.username, myMessages.isGroup, dispatch])
 
@@ -290,26 +300,26 @@ export const MessageRoom = () => {
     setSelectedImage(undefined)
     setIsEmojiPickerOpen(false)
 
-    // Create a unique message ID for this message
-    const tempMessageId = Date.now().toString()
+    // Generate a consistent message ID using timestamp for client-side
     const messageDate = Date.now()
+    const messageId = generateMessageId(myAccount.username, currentText, messageDate)
 
     // Add to processed messages immediately to prevent duplication
-    processedMessagesRef.current.add(tempMessageId)
-    processedMessagesRef.current.add(
-      `${messageDate}-${myAccount.username}-${currentText.substring(0, 10)}`
-    )
+    processedMessagesRef.current.add(messageId)
+    pendingMessagesRef.current.add(messageId)
 
     let messageImageHref: string | undefined = undefined
 
     try {
-      // First update local state so the message appears immediately - with pending flag
+      // First update local state so the message appears immediately
       dispatch(
         sendMessage({
           sender: myAccount,
           text: currentText,
           roomId,
-          messageImageHref: undefined // We'll update this later if we have an image
+          messageImageHref: undefined, // We'll update this later if we have an image
+          date: messageDate,
+          id: messageId
         })
       )
 
@@ -330,8 +340,9 @@ export const MessageRoom = () => {
             text: currentText,
             messageImageHref: undefined, // No image yet
             date: messageDate,
-            id: tempMessageId,
-            pending: true // Flag that this message might be updated
+            id: messageId,
+            pending: true, // Flag that this message might be updated
+            fromAPI: false // Flag this didn't come from the API
           },
           isGroup: myMessages.isGroup
         })
@@ -351,7 +362,9 @@ export const MessageRoom = () => {
                 sender: myAccount,
                 text: currentText,
                 roomId,
-                messageImageHref
+                messageImageHref,
+                date: messageDate,
+                id: messageId
               })
             )
 
@@ -359,7 +372,7 @@ export const MessageRoom = () => {
             if (socketRef.current && socketConnected) {
               socketRef.current.emit("updateMessage", {
                 roomId,
-                messageId: tempMessageId,
+                messageId: messageId,
                 updates: {
                   messageImageHref,
                   pending: false
@@ -376,7 +389,7 @@ export const MessageRoom = () => {
           if (socketRef.current && socketConnected) {
             socketRef.current.emit("updateMessage", {
               roomId,
-              messageId: tempMessageId,
+              messageId: messageId,
               updates: {
                 pending: false
               }
@@ -390,22 +403,43 @@ export const MessageRoom = () => {
         sender: myAccount,
         text: currentText,
         roomId,
-        messageImageHref
+        messageImageHref,
+        id: messageId
       }
 
-      // Send to API for persistence (can happen in parallel)
-      dispatch(sendMessageAsync(messageData)).catch((error) => {
-        console.error("Failed to persist message:", error)
+      // Mark in Redux that API call is being made
+      pendingMessagesRef.current.add(messageId)
 
-        // Retry once after a delay if API call fails
-        setTimeout(() => {
-          dispatch(sendMessageAsync(messageData)).catch((error) => {
-            console.error("Failed to persist message after retry:", error)
-          })
-        }, 3000)
-      })
+      // Send to API for persistence
+      await dispatch(sendMessageAsync(messageData))
+        .then((result) => {
+          console.log("Message persisted via API:", result)
+
+          // If the message successfully sent via API, flag this to the socket server
+          // so it knows not to broadcast it again
+          if (socketRef.current && socketConnected) {
+            socketRef.current.emit("sendMessage", {
+              roomId,
+              message: {
+                sender: myAccount,
+                text: currentText,
+                messageImageHref: messageImageHref,
+                date: messageDate,
+                id: messageId,
+                fromAPI: true // Flag this came from the API
+              },
+              isGroup: myMessages.isGroup
+            })
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to persist message:", error)
+        })
+        .finally(() => {
+          pendingMessagesRef.current.delete(messageId)
+        })
     } catch (error) {
-      console.error("Failed to send message:", error)
+      console.error("Error sending message:", error)
     } finally {
       setIsMessageSending(false)
     }
