@@ -3,6 +3,7 @@ import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
 import { ToastContainer } from "@/components/Shared/ToastContainer"
 import { fetchUsersAsync, updateProfileAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
+import { STORAGE_KEYS } from "@/shared/constants"
 import { AccountModel } from "@/shared/models"
 import { cn } from "@/utils"
 import { Modal } from "flowbite-react"
@@ -165,11 +166,22 @@ export const EditProfileModal = ({
       if (result) {
         handleShowToast("Profile updated successfully", "success")
         localStorage.setItem("currentUser", JSON.stringify(result))
+
+        // update watchlist
+        let key = `${STORAGE_KEYS.WATCHLIST}_${userAccount.username}`
+        const watchlist = localStorage.getItem(key)
+        if (watchlist) {
+          key = `${STORAGE_KEYS.WATCHLIST}_${result.username}`
+          localStorage.setItem(key, watchlist)
+        }
+
         await dispatch(fetchUsersAsync())
+
         setTimeout(() => {
           handleCloseModal()
-        }, 3000)
+        }, 5000)
         navigate(`/${result.username}`, { replace: true })
+        window.location.reload()
       }
     } catch (error) {
       console.error("Error updating profile:", error)

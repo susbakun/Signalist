@@ -94,6 +94,14 @@ export const dislikeCommentAsync = createAsyncThunk(
   }
 )
 
+// Add a new action to update post publishers when a user profile is updated
+export const updatePostPublishersAsync = createAsyncThunk(
+  "posts/updatePostPublishers",
+  async (userData: SimplifiedAccountType) => {
+    return userData
+  }
+)
+
 // Define the state type
 interface PostsState {
   posts: PostModel[]
@@ -236,6 +244,28 @@ const postsSlice = createSlice({
             state.posts[postIndex].comments[commentIndex] = updatedComment
           }
         }
+      })
+
+      // Update post publishers
+      .addCase(updatePostPublishersAsync.fulfilled, (state, action) => {
+        // Update publisher info in all posts and comments where this user is the publisher
+        state.posts = state.posts.map((post) => {
+          // If this post was published by the updated user
+          if (post.publisher.username === action.payload.username) {
+            // Update the publisher info
+            post.publisher = action.payload
+          }
+
+          // Also update publisher info in comments
+          post.comments = post.comments.map((comment) => {
+            if (comment.publisher.username === action.payload.username) {
+              comment.publisher = action.payload
+            }
+            return comment
+          })
+
+          return post
+        })
       })
   }
 })

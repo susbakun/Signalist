@@ -121,11 +121,7 @@ export const SuggestionsPosts = () => {
       {/* Loading indicator and intersection observer target */}
       {hasMore && (
         <div ref={loadMoreRef} className="flex justify-center py-4">
-          {loadingMore ? (
-            <Loader className="h-16 w-16" />
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400">Scroll for more</p>
-          )}
+          {loadingMore && <Loader className="h-16 w-16" />}
         </div>
       )}
     </div>

@@ -81,6 +81,14 @@ export const createGroupConversationAsync = createAsyncThunk<
   }
 )
 
+// Add a new action to update message publishers when a user profile is updated
+export const updateMessageSendersReceiversAsync = createAsyncThunk(
+  "messages/updateMessageSendersReceivers",
+  async (userData: SimplifiedAccountType) => {
+    return userData
+  }
+)
+
 // Define interfaces for action payloads to improve type safety
 interface CreateRoomPayload {
   myUsername: string
@@ -334,6 +342,48 @@ const messagesSlice = createSlice({
       .addCase(createGroupConversationAsync.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || "Failed to create group"
+      })
+
+      // Update message senders and receivers - fulfilled
+      .addCase(updateMessageSendersReceiversAsync.fulfilled, (state, action) => {
+        const username = action.payload.username
+
+        // Iterate through all user conversations
+        Object.keys(state.conversations).forEach((userKey) => {
+          const userConversations = state.conversations[userKey]
+
+          // Iterate through each room in the user's conversations
+          Object.keys(userConversations).forEach((roomId) => {
+            const room = userConversations[roomId]
+
+            // Update sender in DM rooms
+            if (!room.isGroup && room.userInfo) {
+              if (room.userInfo.username === username) {
+                room.userInfo = action.payload
+              }
+            }
+
+            // Update members in group rooms
+            if (room.isGroup && room.usersInfo) {
+              room.usersInfo = room.usersInfo.map((member) =>
+                member.username === username ? action.payload : member
+              )
+            }
+
+            // Update message senders
+            if (room.messages) {
+              room.messages = room.messages.map((message) => {
+                if (message.sender.username === username) {
+                  return {
+                    ...message,
+                    sender: action.payload
+                  }
+                }
+                return message
+              })
+            }
+          })
+        })
       })
   }
 })

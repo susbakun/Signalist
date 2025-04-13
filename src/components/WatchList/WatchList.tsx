@@ -7,7 +7,7 @@ import { getCurrentUsername, transformWallexData } from "@/utils"
 import { Table } from "flowbite-react"
 import { isEmpty } from "lodash"
 import { millify } from "millify"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 
 export const WatchList = () => {
@@ -16,16 +16,19 @@ export const WatchList = () => {
   const { data: wallexData, isLoading } = useGetWallexMarketsQuery()
   const [cryptos, setCryptos] = useState<CoinType[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const username = getCurrentUsername()
 
-  // Transform Wallex data to the format expected by components
-  const cryptosList = wallexData
-    ? {
-        data: {
-          coins: transformWallexData(wallexData)
-        }
+  // Memoize username so it doesn't change on every render
+  const username = useMemo(() => getCurrentUsername(), [])
+
+  // Memoize transformed data to prevent unnecessary recalculations
+  const cryptosList = useMemo(() => {
+    if (!wallexData) return null
+    return {
+      data: {
+        coins: transformWallexData(wallexData)
       }
-    : null
+    }
+  }, [wallexData])
 
   const saveWatchlist = (username: string, watchlist: string[]) => {
     const key = `${STORAGE_KEYS.WATCHLIST}_${username}`
@@ -42,39 +45,60 @@ export const WatchList = () => {
   const handleOpen = () => setIsOpen(true)
 
   const handleSelectMarket = (coin: CoinType) => {
-    const newList = [...cryptos, coin]
-    setCryptos(newList)
-    saveWatchlist(
-      username,
-      newList.map((c) => c.uuid)
-    )
+    setCryptos((prevCryptos) => {
+      const newList = [...prevCryptos, coin]
+      saveWatchlist(
+        username,
+        newList.map((c) => c.uuid)
+      )
+      return newList
+    })
   }
 
   const handleRemoveFromWatchList = (coinId: CoinType["uuid"]) => {
-    const filteredCryptos = cryptos.filter((crypto) => crypto.uuid !== coinId)
-    setCryptos(filteredCryptos)
-    saveWatchlist(
-      username,
-      filteredCryptos.map((c) => c.uuid)
-    )
-  }
-
-  useEffect(() => {
-    // First try to load saved watchlist
-    const savedWatchlist = loadWatchlist(username)
-    if (savedWatchlist.length > 0 && cryptosList?.data?.coins) {
-      setCryptos(
-        savedWatchlist.map(
-          (id) => cryptosList.data.coins.find((c) => c.uuid === id) || ({ uuid: id } as CoinType)
-        )
-      )
-    } else if (cryptosList?.data?.coins) {
-      // If no saved watchlist, use default from API (filter to only USDT pairs if desired)
-      const usdtPairs = cryptosList.data.coins.filter((coin) => coin.quoteAsset === "USDT")
-      setCryptos(usdtPairs.slice(0, 5)) // Start with top 5 USDT pairs
+    setCryptos((prevCryptos) => {
+      const filteredCryptos = prevCryptos.filter((crypto) => crypto.uuid !== coinId)
       saveWatchlist(
         username,
-        usdtPairs.slice(0, 5).map((c) => c.uuid)
+        filteredCryptos.map((c) => c.uuid)
+      )
+      return filteredCryptos
+    })
+  }
+
+  // Load the watchlist once when data is available
+  useEffect(() => {
+    if (!cryptosList?.data?.coins || !username) return
+
+    // Load saved watchlist
+    const savedWatchlist = loadWatchlist(username)
+
+    if (savedWatchlist.length > 0) {
+      // Find matching coins from the API data
+      const matchedCoins = savedWatchlist
+        .map((id) => cryptosList.data.coins.find((c) => c.uuid === id))
+        .filter((coin) => coin !== undefined) as CoinType[]
+
+      if (matchedCoins.length > 0) {
+        setCryptos(matchedCoins)
+      } else {
+        // If no matches found, use defaults
+        const usdtPairs = cryptosList.data.coins.filter((coin) => coin.quoteAsset === "USDT")
+        const defaultCoins = usdtPairs.slice(0, 5)
+        setCryptos(defaultCoins)
+        saveWatchlist(
+          username,
+          defaultCoins.map((c) => c.uuid)
+        )
+      }
+    } else {
+      // No saved watchlist, use defaults
+      const usdtPairs = cryptosList.data.coins.filter((coin) => coin.quoteAsset === "USDT")
+      const defaultCoins = usdtPairs.slice(0, 5)
+      setCryptos(defaultCoins)
+      saveWatchlist(
+        username,
+        defaultCoins.map((c) => c.uuid)
       )
     }
   }, [cryptosList, username])

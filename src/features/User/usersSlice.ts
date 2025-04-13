@@ -3,6 +3,9 @@ import { RootState } from "@/shared/types"
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import * as usersApi from "@/services/usersApi"
+import { updatePostPublishersAsync } from "../Post/postsSlice"
+import { updateMessageSendersReceiversAsync } from "../Message/messagesSlice"
+import { updateSignalPublishersAsync } from "../Signal/signalsSlice"
 
 // Define the state type with loading and error states
 interface UsersState {
@@ -102,11 +105,39 @@ export const updateBookmarksAsync = createAsyncThunk(
 
 export const updateProfileAsync = createAsyncThunk(
   "users/updateProfile",
-  async (data: {
-    username: string
-    updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl" | "username" | "email">>
-  }) => {
-    return await usersApi.updateProfile(data.username, data.updates)
+  async (
+    data: {
+      username: string
+      updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl" | "username" | "email">>
+    },
+    { dispatch, getState }
+  ) => {
+    const response = await usersApi.updateProfile(data.username, data.updates)
+
+    // Get the user's current score from state
+    const state = getState() as RootState
+    const currentUser = state.users.users.find((user) => user.username === response.username)
+    const userScore = currentUser?.score || 0
+
+    // Create simplified account for updates to other slices
+    const simplifiedAccount = {
+      username: response.username,
+      name: response.name,
+      imageUrl: response.imageUrl || ""
+    }
+
+    // Create signal account with score included
+    const signalAccount = {
+      ...simplifiedAccount,
+      score: userScore
+    }
+
+    // Update posts, messages, signals, and other content that references this user
+    dispatch(updatePostPublishersAsync(simplifiedAccount))
+    dispatch(updateMessageSendersReceiversAsync(simplifiedAccount))
+    dispatch(updateSignalPublishersAsync(signalAccount))
+
+    return response
   }
 )
 

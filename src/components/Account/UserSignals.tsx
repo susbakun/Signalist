@@ -113,9 +113,36 @@ export const UserSignals = () => {
 
   if (userSignals.length === 0)
     return (
-      <EmptyPage className="text-center mt-8 pb-16">
-        <h3 className="font-normal">No signals found</h3>
-      </EmptyPage>
+      <>
+        <EmptyPage className="text-center mt-8 pb-16">
+          <h3 className="font-normal">No signals found</h3>
+          {isItmyAccount && (
+            <Tippy
+              content="create signal"
+              className="dark:bg-gray-700 bg-gray-900 text-white font-sans
+              rounded-md px-1 py-[1px] text-sm"
+              delay={[1000, 0]}
+              placement="top"
+              animation="fade"
+              arrow={roundArrow}
+              duration={10}
+              hideOnClick={true}
+            >
+              <button
+                onClick={hanldeOpenCreateSignalModal}
+                className="main-button transition-all duration-100 ease-out
+                fixed bottom-16 right-4 md:bottom-4 px-3 py-3 md:px-4 md:py-4 rounded-full z-10"
+              >
+                <HiMiniSignal className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            </Tippy>
+          )}
+        </EmptyPage>
+        <CreateSignalModal
+          openModal={openCreateSignalModal}
+          handleCloseModal={handleCloseCreateSignalModal}
+        />
+      </>
     )
 
   if (!myAccount) return null
@@ -131,11 +158,7 @@ export const UserSignals = () => {
           {/* Loading indicator and intersection observer target */}
           {hasMore && (
             <div ref={loadMoreRef} className="flex justify-center py-4">
-              {loadingMore ? (
-                <Loader className="h-16 w-16" />
-              ) : (
-                <p className="text-gray-500 dark:text-gray-400">Scroll for more</p>
-              )}
+              {loadingMore && <Loader className="h-16 w-16" />}
             </div>
           )}
         </div>

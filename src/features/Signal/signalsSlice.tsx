@@ -85,6 +85,14 @@ export const removeSignalAsync = createAsyncThunk("signals/removeSignal", async 
   return id
 })
 
+// Add a new action to update signal publishers when a user profile is updated
+export const updateSignalPublishersAsync = createAsyncThunk(
+  "signals/updateSignalPublishers",
+  async (userData: SimplifiedAccountType & { score: number }) => {
+    return userData
+  }
+)
+
 // Define the state type
 interface SignalsState {
   signals: SignalModel[]
@@ -216,6 +224,27 @@ const signalsSlice = createSlice({
       // Remove signal
       .addCase(removeSignalAsync.fulfilled, (state, action) => {
         state.signals = state.signals.filter((signal) => signal.id !== action.payload)
+      })
+
+      // Update signal publishers
+      .addCase(updateSignalPublishersAsync.fulfilled, (state, action) => {
+        // Update publisher info in all signals where this user is the publisher
+        state.signals = state.signals.map((signal) => {
+          if (signal.publisher.username === action.payload.username) {
+            return {
+              ...signal,
+              publisher: {
+                ...signal.publisher,
+                username: action.payload.username,
+                name: action.payload.name,
+                imageUrl: action.payload.imageUrl,
+                // Keep the original score since that's separately managed
+                score: signal.publisher.score
+              }
+            }
+          }
+          return signal
+        })
       })
   }
 })
