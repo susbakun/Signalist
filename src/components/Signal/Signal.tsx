@@ -60,12 +60,8 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
       // Check 1: Right before opening time
       if (signal.openTime > now) {
         const timeUntilOpen = Math.max(500, signal.openTime - now - OFFSET_BUFFER)
-        console.log(
-          `Scheduling check for signal ${signal.id} opening in ${Math.round(timeUntilOpen / 1000)} seconds`
-        )
 
         const openingTimeoutId = setTimeout(() => {
-          console.log(`Checking signal ${signal.id} near opening time`)
           updateSignalStatus()
         }, timeUntilOpen)
 
@@ -77,23 +73,15 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
     if (signal.closeTime > now) {
       // Check 2: Right before closing time
       const timeUntilClose = Math.max(500, signal.closeTime - now - OFFSET_BUFFER)
-      console.log(
-        `Scheduling check for signal ${signal.id} closing in ${Math.round(timeUntilClose / 1000)} seconds`
-      )
 
       const closingTimeoutId = setTimeout(() => {
-        console.log(`Checking signal ${signal.id} near closing time`)
         updateSignalStatus()
       }, timeUntilClose)
 
       // Check 3: After closing time (final status update + cleanup)
       const timeUntilAfterClose = Math.max(1000, signal.closeTime - now + OFFSET_BUFFER)
-      console.log(
-        `Scheduling final check for signal ${signal.id} after closing in ${Math.round(timeUntilAfterClose / 1000)} seconds`
-      )
 
       const afterCloseTimeoutId = setTimeout(() => {
-        console.log(`Final check for signal ${signal.id} after closing time`)
         updateSignalStatus()
       }, timeUntilAfterClose)
 

@@ -1,0 +1,43 @@
+/* Date picker time styles for EditSignalModal */
+.react-datepicker__time-container,
+.react-datepicker__time,
+.react-datepicker__time-box,
+ul.react-datepicker__time-list {
+  background-color: #eaeaea !important;
+  color: #101827 !important;
+}
+
+li.react-datepicker__time-list-item {
+  color: #101827 !important;
+}
+
+li.react-datepicker__time-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+li.react-datepicker__time-list-item--selected {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+body.darkmode .react-datepicker__time-container,
+body.darkmode .react-datepicker__time,
+body.darkmode .react-datepicker__time-box,
+body.darkmode ul.react-datepicker__time-list {
+  background-color: #374151 !important;
+  color: white !important;
+}
+
+body.darkmode li.react-datepicker__time-list-item {
+  color: white !important;
+}
+
+body.darkmode li.react-datepicker__time-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.darkmode li.react-datepicker__time-list-item--selected {
+  background-color: #1d4ed8 !important;
+  color: white !important;
+}

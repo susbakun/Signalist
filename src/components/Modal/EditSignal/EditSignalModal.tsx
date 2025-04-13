@@ -10,52 +10,7 @@ import { MdOutlineKeyboardArrowDown } from "react-icons/md"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import "../CreateSignal/date-picker.css"
-
-// Add custom styles to fix the time picker contrast
-const customTimeStyles = `
-  .react-datepicker__time-container,
-  .react-datepicker__time,
-  .react-datepicker__time-box,
-  ul.react-datepicker__time-list {
-    background-color: #EAEAEA !important;
-    color: #101827 !important;
-  }
-  
-  li.react-datepicker__time-list-item {
-    color: #101827 !important;
-  }
-  
-  li.react-datepicker__time-list-item:hover {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-  }
-  
-  li.react-datepicker__time-list-item--selected {
-    background-color: #3B82F6 !important;
-    color: white !important;
-    font-weight: bold;
-  }
-  
-  body.darkmode .react-datepicker__time-container,
-  body.darkmode .react-datepicker__time,
-  body.darkmode .react-datepicker__time-box,
-  body.darkmode ul.react-datepicker__time-list {
-    background-color: #374151 !important;
-    color: white !important;
-  }
-  
-  body.darkmode li.react-datepicker__time-list-item {
-    color: white !important;
-  }
-  
-  body.darkmode li.react-datepicker__time-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-  
-  body.darkmode li.react-datepicker__time-list-item--selected {
-    background-color: #1D4ED8 !important;
-    color: white !important;
-  }
-`
+import "./index.css"
 
 export type EditSignalModalProps = {
   openModal: boolean
@@ -70,17 +25,6 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState(false)
   const [closeTimeError, setCloseTimeError] = useState("")
-
-  // Add the styles to the document head
-  useEffect(() => {
-    const styleElement = document.createElement("style")
-    styleElement.textContent = customTimeStyles
-    document.head.appendChild(styleElement)
-
-    return () => {
-      document.head.removeChild(styleElement)
-    }
-  }, [])
 
   const dispatch = useDispatch<AppDispatch>()
 
