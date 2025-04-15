@@ -446,22 +446,24 @@ export const MessageRoom = () => {
         .then((result) => {
           console.log("Message persisted via API:", result)
 
-          // If the message successfully sent via API, flag this to the socket server
-          // so it knows not to broadcast it again
-          if (socketRef.current && socketConnected) {
-            socketRef.current.emit("sendMessage", {
-              roomId,
-              message: {
-                sender: myAccount,
-                text: currentText,
-                messageImageHref: messageImageHref,
-                date: messageDate,
-                id: messageId,
-                fromAPI: true, // Flag this came from the API
-                pending: false // No longer pending
-              },
-              isGroup: myMessages.isGroup
-            })
+          // Only emit via socket if API call failed or we're not connected
+          // This prevents double-sending
+          if (!socketRef.current?.connected || result.type === "messages/sendMessage/rejected") {
+            if (socketRef.current && socketConnected) {
+              socketRef.current.emit("sendMessage", {
+                roomId,
+                message: {
+                  sender: myAccount,
+                  text: currentText,
+                  messageImageHref: messageImageHref,
+                  date: messageDate,
+                  id: messageId,
+                  fromAPI: true,
+                  pending: false
+                },
+                isGroup: myMessages.isGroup
+              })
+            }
           }
 
           // Update socket message to mark as not pending
