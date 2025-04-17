@@ -39,7 +39,7 @@ export const ExploreTopBar = () => {
     return users.filter(
       (user) =>
         (user.username.toLowerCase().includes(searched.toLowerCase()) ||
-          user.name.toLocaleLowerCase().includes(searched)) &&
+          user.name.toLowerCase().includes(searched.toLowerCase())) &&
         !isUserBlocked(user.username)
     )
   }, [users, searched, isUserBlocked])
