@@ -4,6 +4,8 @@ import { FiLogOut } from "react-icons/fi"
 import { IoBookmarkOutline, IoSettingsOutline } from "react-icons/io5"
 import { TfiMore } from "react-icons/tfi"
 import { Link, useNavigate } from "react-router-dom"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { TbUserOff } from "react-icons/tb"
 
 type ProfileOptionsButtonProps = {
   open: boolean
@@ -13,6 +15,7 @@ type ProfileOptionsButtonProps = {
 
 export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOptionsButtonProps) => {
   const navigate = useNavigate()
+  const { currentUser } = useCurrentUser()
 
   const handleLogout = () => {
     setIsOpen(false)
@@ -20,6 +23,13 @@ export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOption
       logout()
       navigate("/login")
     }, 1000)
+  }
+
+  const handleBlockedUsersClick = () => {
+    setIsOpen(false)
+    if (currentUser) {
+      navigate(`/${currentUser.username}/blocked-accounts`)
+    }
   }
 
   return (
@@ -36,6 +46,10 @@ export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOption
             <IoBookmarkOutline />
             bookmarks
           </Link>
+          <button onClick={handleBlockedUsersClick} className="option-button px-2 py-2">
+            <TbUserOff />
+            Blocked Users
+          </button>
           <button
             onClick={handleLogout}
             className="option-button border-none px-2 py-2 text-red-600 hover:text-red-700"

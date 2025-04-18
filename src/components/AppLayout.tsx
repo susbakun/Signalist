@@ -12,7 +12,8 @@ import {
   UserSignals,
   UserFollowersModal,
   UserFollowingsModal,
-  UserPremiumModal
+  UserPremiumModal,
+  UserBlockedAccountsModal
 } from "@/components"
 import {
   DetailedNewsPage,
@@ -78,6 +79,7 @@ export const AppContent = () => {
           <Route path="replies" element={<UserReplies />} />
           <Route path="followings" element={<UserFollowingsModal />} />
           <Route path="followers" element={<UserFollowersModal />} />
+          <Route path="blocked-accounts" element={<UserBlockedAccountsModal />} />
           <Route path="premium" element={<UserPremiumModal />} />
           <Route path="bookmarks" element={<BookmarksModal />}>
             <Route path="posts" element={<BookmarkedPosts />} />

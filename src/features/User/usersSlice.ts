@@ -96,6 +96,13 @@ export const blockUserAsync = createAsyncThunk(
   }
 )
 
+export const unblockUserAsync = createAsyncThunk(
+  "users/unblockUser",
+  async (data: { blockerUsername: string; blockedUsername: string }) => {
+    return await usersApi.unblockUser(data.blockerUsername, data.blockedUsername)
+  }
+)
+
 export const updateBookmarksAsync = createAsyncThunk(
   "users/updateBookmarks",
   async (data: { username: string; bookmarks: AccountModel["bookmarks"] }) => {
@@ -288,6 +295,23 @@ const usersSlice = createSlice({
       .addCase(blockUserAsync.rejected, (state, action) => {
         // Don't set loading to false here since we didn't set it to true in pending
         state.error = action.error.message || "Failed to block user"
+      })
+
+      // Handle unblock user cases
+      .addCase(unblockUserAsync.pending, (state) => {
+        // Don't set global loading state to true for unblock actions
+        // This prevents unnecessary UI refreshes
+        state.error = null
+      })
+      .addCase(unblockUserAsync.fulfilled, (state, action) => {
+        // Update only the specific user that changed
+        state.users = state.users.map((user) =>
+          user.username === action.payload.username ? action.payload : user
+        )
+      })
+      .addCase(unblockUserAsync.rejected, (state, action) => {
+        // Don't set loading to false here since we didn't set it to true in pending
+        state.error = action.error.message || "Failed to unblock user"
       })
 
       // Handle update bookmarks cases
