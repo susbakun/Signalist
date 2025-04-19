@@ -366,12 +366,22 @@ export const MessageRoom = () => {
       // TypeScript fix for API response which includes status
       interface MessageApiResponse extends ChatType {
         status?: "already_exists" | "duplicate_content" | "saved"
+        error?: string
       }
 
       try {
-        const result = (await dispatch(
+        // Add timeout to prevent infinite loading if the server doesn't respond
+        const sendMessagePromise = dispatch(
           sendMessageAsync(messageData)
-        ).unwrap()) as MessageApiResponse
+        ).unwrap() as Promise<MessageApiResponse>
+
+        // Create a timeout promise
+        const timeoutPromise = new Promise<MessageApiResponse>((_, reject) => {
+          setTimeout(() => reject(new Error("Request timed out after 8 seconds")), 8000)
+        })
+
+        // Race the message sending against the timeout
+        const result = await Promise.race([sendMessagePromise, timeoutPromise])
 
         console.log("API response:", result)
 
@@ -423,17 +433,43 @@ export const MessageRoom = () => {
       } catch (error) {
         console.error("Error in send message flow:", error)
 
-        // Show error toast
-        handleShowToast("Failed to send message. Please try again.", "error")
-
-        // Mark message as failed
-        dispatch(
-          sendMessage({
-            ...locallyAddedMessagesRef.current[messageId],
-            pending: false,
-            error: true
+        // Try to send via socket as fallback if API fails
+        if (socketRef.current && socketConnected) {
+          console.log("API failed, trying to send via socket as fallback")
+          socketRef.current.emit("sendMessage", {
+            roomId,
+            message: {
+              ...messageObj,
+              messageImageHref,
+              pending: true,
+              fromAPI: false
+            },
+            isGroup: myMessages.isGroup
           })
-        )
+
+          // Don't set as error yet, let socket try to deliver
+          // Instead, update UI to show pending state
+          dispatch(
+            sendMessage({
+              ...messageObj,
+              messageImageHref,
+              pending: true,
+              error: false
+            })
+          )
+        } else {
+          // Socket not available, show error
+          handleShowToast("Failed to send message. Please try again.", "error")
+
+          // Mark message as failed
+          dispatch(
+            sendMessage({
+              ...locallyAddedMessagesRef.current[messageId],
+              pending: false,
+              error: true
+            })
+          )
+        }
       } finally {
         setIsMessageSending(false)
       }
