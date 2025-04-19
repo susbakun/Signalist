@@ -114,10 +114,11 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
             >
               <img
                 className={cn(
-                  "w-full h-full object-cover cursor-pointer",
+                  "w-full object-cover cursor-pointer rounded-lg",
                   "transition-opacity duration-300 opacity-100",
+                  "h-full md:max-h-[600px] md:object-contain",
                   {
-                    "w-[70%] h-[70%] object-contain": enlarged,
+                    "w-[90%] h-auto max-h-[90vh] object-contain": enlarged,
                     "opacity-0 h-0": isImageLoading
                   }
                 )}
