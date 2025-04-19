@@ -8,14 +8,15 @@ import {
 } from "@/features/Message/messagesSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import * as messagesApi from "@/services/messagesApi"
-import { backendUrl } from "@/shared/constants"
 import { MessageModel } from "@/shared/models"
 import { ChatType } from "@/shared/types"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 import { useOutletContext, useParams } from "react-router-dom"
-import { Socket, ManagerOptions, SocketOptions } from "socket.io-client"
+import { Socket } from "socket.io-client"
 import io from "socket.io-client"
+import { ToastContainer } from "@/components/Shared/ToastContainer"
+import { useToastContainer } from "@/hooks/useToastContainer"
 
 type MessageRoomOutletType = {
   myMessages: MessageModel["username"]["roomId"]
@@ -29,15 +30,18 @@ export const MessageRoom = () => {
   const [isMessageSending, setIsMessageSending] = useState(false)
   const [socketConnected, setSocketConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
-  const processedMessagesRef = useRef<Set<string>>(new Set()) // Track processed message IDs
-  const pendingMessagesRef = useRef<Set<string>>(new Set()) // Track pending API messages
-  const socketDisconnectTimeRef = useRef<number | null>(null) // Track last disconnect time
+  const processedMessagesRef = useRef<Set<string>>(new Set())
+  const pendingMessagesRef = useRef<Set<string>>(new Set())
+  const lastSyncTimeRef = useRef<number>(Date.now())
+  const locallyAddedMessagesRef = useRef<Record<string, SendMessagePayload>>({})
 
   const { currentUser: myAccount } = useCurrentUser()
 
   const { myMessages, onBack } = useOutletContext<MessageRoomOutletType>()
   const dispatch = useDispatch<AppDispatch>()
   const { id: roomId } = useParams()
+
+  const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
   // Generate a unique, consistent message ID that can be used for deduplication
   const generateMessageId = (sender: string, text: string, timestamp: number): string => {
@@ -66,131 +70,85 @@ export const MessageRoom = () => {
   useEffect(() => {
     if (!myAccount?.username) return
 
-    // Fix the socket URL to always connect to the correct backend
-    // Remove the trailing '/api' if it exists
-    let socketUrl = backendUrl
-    if (socketUrl.endsWith("/api")) {
-      socketUrl = socketUrl.replace(/\/api$/, "")
-    }
-
-    console.log(`Connecting to socket at: ${socketUrl}`)
-
-    const newSocket = io(socketUrl, {
-      reconnection: true,
-      reconnectionAttempts: Infinity, // Never stop trying to reconnect
-      reconnectionDelay: 500, // Start with a shorter delay
-      reconnectionDelayMax: 2000, // Maximum delay between reconnections
-      timeout: 5000, // Shorter timeout
+    // Store a reference to the Socket instance
+    const newSocket = io("https://signalist-backend.liara.run", {
+      transports: ["websocket"],
       autoConnect: true,
-      transports: ["websocket"], // Only use websocket for faster connections
-      forceNew: false, // Reuse existing connection if possible
-      upgrade: false // Don't try to upgrade to websocket if already connected
-    } as Partial<ManagerOptions & SocketOptions>) // Properly type the socket options
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 10
+    })
 
-    // Use a heartbeat to keep connection active
-    const heartbeatInterval = setInterval(() => {
-      if (newSocket.connected) {
-        newSocket.emit("heartbeat", { username: myAccount.username })
-      }
-    }, 8000)
+    socketRef.current = newSocket
 
+    // Connect and authenticate
     newSocket.on("connect", () => {
-      console.log("Socket connected with ID:", newSocket.id)
+      console.log("Socket connected:", newSocket.id)
       setSocketConnected(true)
-      // Authenticate with username
       newSocket.emit("authenticate", myAccount.username)
+    })
 
-      // When connected, join the room if it's a group chat
-      if (myMessages.isGroup && roomId) {
-        newSocket.emit("joinRoom", roomId)
-      }
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected")
+      setSocketConnected(false)
+    })
 
-      // Request any missed messages with client-side message IDs to help server with deduplication
-      if (roomId && myMessages.messages.length > 0) {
-        const lastMessageTimestamp = myMessages.messages[myMessages.messages.length - 1].date
-        // Collect existing message IDs to help server exclude them from sync
-        const existingMessageIds = Array.from(processedMessagesRef.current)
+    newSocket.on("authenticated", () => {
+      console.log("Socket authenticated as", myAccount.username)
 
-        // Don't sync messages if we just temporarily disconnected (within last 30 seconds)
-        // This prevents unnecessary syncs on brief disconnections
-        const lastDisconnectTime = socketDisconnectTimeRef.current
-        const now = Date.now()
-        const shouldSync = !lastDisconnectTime || now - lastDisconnectTime > 30000
+      // Sync existing messages to avoid any missed messages
+      if (roomId) {
+        const lastSync = lastSyncTimeRef.current
+        console.log(`Syncing messages since ${new Date(lastSync).toISOString()}`)
 
-        if (shouldSync) {
-          console.log("Syncing messages since:", new Date(lastMessageTimestamp))
-          newSocket.emit("syncMessages", {
-            roomId,
-            since: lastMessageTimestamp,
-            existingIds: existingMessageIds
-          })
-        } else {
-          console.log("Skipping sync due to recent disconnection")
-        }
+        // Get existing message IDs to avoid duplicates
+        const existingIds = myMessages?.messages?.map((msg) => msg.id || "") || []
+
+        newSocket.emit("syncMessages", {
+          roomId,
+          since: lastSync,
+          existingIds: existingIds
+        })
+
+        lastSyncTimeRef.current = Date.now()
       }
     })
 
-    newSocket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error)
-      setSocketConnected(false)
-      // Try to reconnect immediately once
-      setTimeout(() => newSocket.connect(), 500)
+    // Handle server errors
+    newSocket.on("error", (data) => {
+      console.error("Socket error:", data)
+      handleShowToast(data.message || "An error occurred", "error")
     })
 
-    newSocket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason)
-      setSocketConnected(false)
-      // Record the disconnect time
-      socketDisconnectTimeRef.current = Date.now()
-
-      // Attempt to reconnect for any reason
-      setTimeout(() => {
-        console.log("Attempting to reconnect...")
-        newSocket.connect()
-      }, 500)
-    })
-
-    newSocket.on("authenticated", (data) => {
-      console.log("Socket authenticated:", data)
-    })
-
-    // Handle incoming messages
+    // Handle new messages from socket
     newSocket.on("newMessage", (data) => {
       console.log("Received message via socket:", data)
-      if (!data.roomId || !data.message || data.roomId !== roomId) return
 
-      // Skip if this is our own message reflected back from the server
-      if (data.message.sender.username === myAccount.username) {
-        console.log("Skipping own message from server")
+      // Skip if no message data
+      if (!data?.message) {
+        console.warn("Received malformed message data:", data)
         return
       }
 
-      // Generate consistent message ID
-      const messageId =
-        data.message.id ||
-        generateMessageId(data.message.sender.username, data.message.text, data.message.date)
+      // Generate a consistent ID if one wasn't provided
+      let messageId = data.message.id
+      if (!messageId) {
+        messageId = generateMessageId(
+          data.message.sender.username,
+          data.message.text,
+          data.message.date || Date.now()
+        )
+        data.message.id = messageId
+      }
 
-      // Check if we've already processed this message
+      // Skip processing if we've already seen this message
       if (processedMessagesRef.current.has(messageId)) {
-        console.log(`Skipping already processed message: ${messageId}`)
+        console.log(`Skipping already processed message ${messageId}`)
         return
       }
 
-      // Check for similar messages within the last 30 seconds
-      const existingMessages = myMessages.messages || []
-      const hasSimilarRecentMessage = existingMessages.some(
-        (msg) =>
-          msg.sender.username === data.message.sender.username &&
-          msg.text === data.message.text &&
-          Math.abs(new Date(msg.date).getTime() - new Date(data.message.date).getTime()) < 30000 // Within 30 seconds
-      )
-
-      if (hasSimilarRecentMessage) {
-        console.log(`Skipping duplicate message based on content and time`)
-        return
-      }
-
-      // Mark message as processed
+      // Mark as processed to avoid duplicates
       processedMessagesRef.current.add(messageId)
 
       // Add to Redux store
@@ -215,49 +173,62 @@ export const MessageRoom = () => {
       }, 50)
     })
 
-    // NEW EVENT: Listen for messages persisted notification
-    // This helps ensure all users have the latest messages
-    newSocket.on("messagesPersisted", (data) => {
-      if (data.roomId === roomId) {
-        console.log("Messages have been persisted on server, refreshing conversation")
-        // Fetch latest messages to ensure we have consistent state
-        if (roomId) {
-          dispatch(fetchConversationMessages(roomId))
+    // Handle synced messages (batch of messages)
+    newSocket.on("syncedMessages", (data) => {
+      console.log(`Received ${data.messages?.length || 0} synced messages for room ${data.roomId}`)
+
+      if (data.roomId !== roomId || !data.messages?.length) return
+
+      // Process each message in the sync batch
+      data.messages.forEach((message: ChatType & { id?: string }) => {
+        // Skip messages we've already processed
+        if (message.id && processedMessagesRef.current.has(message.id)) {
+          console.log(`Skipping already processed synced message ${message.id}`)
+          return
         }
-      }
+
+        // Add the message to Redux
+        const messageId =
+          message.id ||
+          generateMessageId(message.sender.username, message.text, message.date || Date.now())
+
+        processedMessagesRef.current.add(messageId)
+
+        dispatch(
+          sendMessage({
+            sender: message.sender,
+            text: message.text,
+            roomId: data.roomId,
+            messageImageHref: message.messageImageHref,
+            date: message.date,
+            id: messageId,
+            pending: false
+          } as SendMessagePayload)
+        )
+      })
+
+      // Update last sync time
+      lastSyncTimeRef.current = Date.now()
     })
 
-    // Handle synced messages to catch up on missed messages
-    newSocket.on("syncedMessages", (data) => {
-      console.log("Received synced messages:", data)
-      if (data.roomId === roomId && data.messages && data.messages.length > 0) {
-        // Process each message, but avoid duplicates
-        data.messages.forEach((message: ChatType & { id?: string }) => {
-          // Create a unique ID for the message if it doesn't have one
-          const messageId =
-            message.id || generateMessageId(message.sender.username, message.text, message.date)
+    // Listen for messages persisted notification
+    newSocket.on("messagesPersisted", (data) => {
+      if (data.roomId === roomId) {
+        console.log("Messages have been persisted on server")
 
-          // Skip if we've already processed this message
-          if (processedMessagesRef.current.has(messageId)) {
-            console.log(`Skipping synced message: ${messageId}`)
-            return
+        // Remove any pending flags for messages in this room
+        Object.keys(locallyAddedMessagesRef.current).forEach((msgId) => {
+          if (pendingMessagesRef.current.has(msgId)) {
+            pendingMessagesRef.current.delete(msgId)
+
+            // Update the message to mark as not pending
+            dispatch(
+              sendMessage({
+                ...locallyAddedMessagesRef.current[msgId],
+                pending: false
+              })
+            )
           }
-
-          // Mark as processed and add to Redux
-          processedMessagesRef.current.add(messageId)
-
-          dispatch(
-            sendMessage({
-              sender: message.sender,
-              text: message.text,
-              roomId: data.roomId,
-              messageImageHref: message.messageImageHref,
-              date: message.date,
-              id: messageId,
-              // Mark synced messages as not pending
-              pending: false
-            })
-          )
         })
       }
     })
@@ -277,8 +248,6 @@ export const MessageRoom = () => {
       newSocket.emit("joinRoom", roomId)
     }
 
-    socketRef.current = newSocket
-
     // Load conversation messages from database to ensure we have all messages
     if (roomId) {
       dispatch(fetchConversationMessages(roomId))
@@ -286,7 +255,6 @@ export const MessageRoom = () => {
 
     // Cleanup
     return () => {
-      clearInterval(heartbeatInterval)
       if (myMessages.isGroup && roomId) {
         newSocket.emit("leaveRoom", roomId)
       }
@@ -326,18 +294,22 @@ export const MessageRoom = () => {
     let messageImageHref: string | undefined = undefined
 
     try {
+      // Create the message object once and reuse it to ensure consistency
+      const messageObj = {
+        sender: myAccount,
+        text: currentText,
+        roomId,
+        messageImageHref: undefined, // We'll update this later if we have an image
+        date: messageDate,
+        id: messageId,
+        pending: true // Mark as pending initially
+      }
+
+      // Store in local ref to track it
+      locallyAddedMessagesRef.current[messageId] = messageObj
+
       // First update local state so the message appears immediately
-      dispatch(
-        sendMessage({
-          sender: myAccount,
-          text: currentText,
-          roomId,
-          messageImageHref: undefined, // We'll update this later if we have an image
-          date: messageDate,
-          id: messageId,
-          pending: true // Mark as pending initially
-        })
-      )
+      dispatch(sendMessage(messageObj))
 
       // Scroll to bottom immediately after adding the message
       setTimeout(() => {
@@ -347,9 +319,13 @@ export const MessageRoom = () => {
         }
       }, 50)
 
-      // Send via socket first for real-time delivery (before image upload)
-      if (socketRef.current && socketConnected) {
-        socketRef.current.emit("sendMessage", {
+      // Determine send strategy based on connection state
+      const isSocketConnected = socketRef.current && socketConnected
+
+      // If socket is connected, send via socket first for real-time delivery
+      if (isSocketConnected) {
+        console.log("Sending message via socket first (connected)")
+        socketRef.current?.emit("sendMessage", {
           roomId,
           message: {
             sender: myAccount,
@@ -362,34 +338,9 @@ export const MessageRoom = () => {
           },
           isGroup: myMessages.isGroup
         })
+      } else {
+        console.log("Socket not connected, will send via API only")
       }
-
-      // NEW: Add retry mechanism if socket is not connected
-      let socketRetries = 0
-      const maxSocketRetries = 3
-      const socketRetryInterval = setInterval(() => {
-        if (!socketConnected && socketRetries < maxSocketRetries) {
-          console.log(`Retry ${socketRetries + 1}/${maxSocketRetries} sending via socket`)
-          if (socketRef.current) {
-            socketRef.current.emit("sendMessage", {
-              roomId,
-              message: {
-                sender: myAccount,
-                text: currentText,
-                messageImageHref: messageImageHref, // Use updated image if available
-                date: messageDate,
-                id: messageId,
-                pending: true,
-                fromAPI: false
-              },
-              isGroup: myMessages.isGroup
-            })
-          }
-          socketRetries++
-        } else {
-          clearInterval(socketRetryInterval)
-        }
-      }, 1000)
 
       // Handle image upload in parallel
       if (currentImage) {
@@ -400,19 +351,18 @@ export const MessageRoom = () => {
 
           // Update the message with the image URL
           if (messageImageHref) {
-            dispatch(
-              sendMessage({
-                sender: myAccount,
-                text: currentText,
-                roomId,
-                messageImageHref,
-                date: messageDate,
-                id: messageId,
-                pending: true // Still pending until confirmed by server
-              })
-            )
+            const updatedMessageObj = {
+              ...messageObj,
+              messageImageHref
+            }
 
-            // Update via socket that image is now available
+            // Update local ref
+            locallyAddedMessagesRef.current[messageId] = updatedMessageObj
+
+            // Update the message in Redux
+            dispatch(sendMessage(updatedMessageObj))
+
+            // Update via socket that image is now available (if connected)
             if (socketRef.current && socketConnected) {
               socketRef.current.emit("updateMessage", {
                 roomId,
@@ -435,39 +385,21 @@ export const MessageRoom = () => {
         text: currentText,
         roomId,
         messageImageHref,
-        id: messageId
+        id: messageId // IMPORTANT: Always include the same ID to prevent duplication
       }
 
-      // Mark in Redux that API call is being made
-      pendingMessagesRef.current.add(messageId)
-
-      // Send to API for persistence
+      // Always send to API for persistence, regardless of socket state
+      console.log("Sending message via API for persistence, ID:", messageId)
       await dispatch(sendMessageAsync(messageData))
         .then((result) => {
           console.log("Message persisted via API:", result)
 
-          // Only emit via socket if API call failed or we're not connected
-          // This prevents double-sending
-          if (!socketRef.current?.connected || result.type === "messages/sendMessage/rejected") {
-            if (socketRef.current && socketConnected) {
-              socketRef.current.emit("sendMessage", {
-                roomId,
-                message: {
-                  sender: myAccount,
-                  text: currentText,
-                  messageImageHref: messageImageHref,
-                  date: messageDate,
-                  id: messageId,
-                  fromAPI: true,
-                  pending: false
-                },
-                isGroup: myMessages.isGroup
-              })
-            }
-          }
+          // Mark as not pending in our tracking
+          pendingMessagesRef.current.delete(messageId)
 
-          // Update socket message to mark as not pending
+          // If API call succeeded but socket didn't receive it, update socket
           if (socketRef.current && socketConnected) {
+            // Only update the message status, don't resend the whole message
             socketRef.current.emit("updateMessage", {
               roomId,
               messageId: messageId,
@@ -475,6 +407,13 @@ export const MessageRoom = () => {
                 pending: false
               }
             })
+
+            console.log("Updated message pending status via socket")
+          }
+
+          // Update local reference
+          if (locallyAddedMessagesRef.current[messageId]) {
+            locallyAddedMessagesRef.current[messageId].pending = false
           }
 
           // Update message in Redux store to mark as not pending
@@ -492,6 +431,30 @@ export const MessageRoom = () => {
         })
         .catch((error) => {
           console.error("Failed to persist message:", error)
+
+          // If API failed but socket is connected, try sending the complete message via socket
+          if (socketRef.current && socketConnected && !isSocketConnected) {
+            console.log("API failed, sending complete message via socket as fallback")
+            socketRef.current.emit("sendMessage", {
+              roomId,
+              message: {
+                sender: myAccount,
+                text: currentText,
+                messageImageHref: messageImageHref,
+                date: messageDate,
+                id: messageId,
+                pending: false
+              },
+              isGroup: myMessages.isGroup
+            })
+          }
+
+          // Mark as not pending but with error
+          if (locallyAddedMessagesRef.current[messageId]) {
+            locallyAddedMessagesRef.current[messageId].pending = false
+            locallyAddedMessagesRef.current[messageId].error = true
+          }
+
           // Update message in Redux store to indicate error
           dispatch(
             sendMessage({
@@ -506,13 +469,8 @@ export const MessageRoom = () => {
             })
           )
         })
-        .finally(() => {
-          pendingMessagesRef.current.delete(messageId)
-          clearInterval(socketRetryInterval) // Clear retry interval in any case
-        })
     } catch (error) {
-      console.error("Error sending message:", error)
-      pendingMessagesRef.current.delete(messageId)
+      console.error("Error in send message flow:", error)
     } finally {
       setIsMessageSending(false)
     }
@@ -559,35 +517,40 @@ export const MessageRoom = () => {
   }
 
   return (
-    <div className="h-screen md:flex-1 flex flex-col bg-gray-100 dark:bg-gray-900 md:relative md:w-auto fixed w-full inset-0">
-      {/* Header */}
-      <div className="sticky top-0 left-0 right-0 z-20 bg-gray-100 dark:bg-gray-900 shadow-md">
-        <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
+    <>
+      <div className="h-screen md:flex-1 flex flex-col bg-gray-100 dark:bg-gray-900 md:relative md:w-auto fixed w-full inset-0">
+        {/* Header */}
+        <div className="sticky top-0 left-0 right-0 z-20 bg-gray-100 dark:bg-gray-900 shadow-md">
+          <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
+        </div>
+
+        {/* Messages container - increased padding for mobile */}
+        <div className="flex-1 overflow-y-auto pb-48 md:pb-24">
+          <MessageRoomMessages
+            isGroup={myMessages.isGroup}
+            messages={myMessages.messages}
+            handleBlurEmojiPicker={handleBlurEmojiPicker}
+          />
+        </div>
+
+        <div className="md:sticky md:bottom-0 md:left-0 md:right-0 md:w-auto fixed bottom-16 left-0 right-0 w-full z-30 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+          <div className="md:hidden fixed left-0 right-0 h-16 bottom-0 bg-gray-100 dark:bg-gray-900 z-20"></div>
+          <MessageRoomInput
+            messageText={messageText}
+            isEmojiPickerOpen={isEmojiPickerOpen}
+            selectedImage={selectedImage}
+            handleChangeMessageText={handleChangeMessageText}
+            handleSelectEmoji={handleSelectEmoji}
+            handleSendMessage={handleSendMessage}
+            handleToggleEmojiPicker={handleToggleEmojiPicker}
+            handleChangeImage={handleChangeImage}
+            isMessageSending={isMessageSending}
+          />
+        </div>
       </div>
 
-      {/* Messages container - increased padding for mobile */}
-      <div className="flex-1 overflow-y-auto pb-48 md:pb-24">
-        <MessageRoomMessages
-          isGroup={myMessages.isGroup}
-          messages={myMessages.messages}
-          handleBlurEmojiPicker={handleBlurEmojiPicker}
-        />
-      </div>
-
-      <div className="md:sticky md:bottom-0 md:left-0 md:right-0 md:w-auto fixed bottom-16 left-0 right-0 w-full z-30 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
-        <div className="md:hidden fixed left-0 right-0 h-16 bottom-0 bg-gray-100 dark:bg-gray-900 z-20"></div>
-        <MessageRoomInput
-          messageText={messageText}
-          isEmojiPickerOpen={isEmojiPickerOpen}
-          selectedImage={selectedImage}
-          handleChangeMessageText={handleChangeMessageText}
-          handleSelectEmoji={handleSelectEmoji}
-          handleSendMessage={handleSendMessage}
-          handleToggleEmojiPicker={handleToggleEmojiPicker}
-          handleChangeImage={handleChangeImage}
-          isMessageSending={isMessageSending}
-        />
-      </div>
-    </div>
+      {/* Add toast container */}
+      <ToastContainer showToast={showToast} toastContent={toastContent} toastType={toastType} />
+    </>
   )
 }
