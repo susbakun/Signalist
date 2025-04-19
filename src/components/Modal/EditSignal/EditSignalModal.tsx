@@ -130,15 +130,15 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
               value={descriptionText}
               onChange={handleDescriptionChange}
               placeholder="Signal description..."
-              rows={3}
-              maxLength={300}
+              rows={5}
+              maxLength={500}
               className={cn(
                 "w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 resize-none"
               )}
             />
             <div className="min-h-[1.5rem] flex justify-end">
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {descriptionText.length}/300 characters
+                {descriptionText.length}/500 characters
               </p>
             </div>
           </div>
