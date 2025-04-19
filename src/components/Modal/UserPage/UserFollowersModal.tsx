@@ -1,5 +1,6 @@
 import { Loader, UserPreview } from "@/components"
 import { useAppSelector } from "@/features/User/usersSlice"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
 import { AccountModel } from "@/shared/models"
 import { cn } from "@/utils"
@@ -10,7 +11,8 @@ import { useNavigate, useParams } from "react-router-dom"
 export const UserFollowersModal = () => {
   const [openModal, setOpenModal] = useState(true)
   const [searched, setSearched] = useState("")
-  const [me, setMe] = useState<AccountModel | undefined>(undefined)
+  const [user, setUser] = useState<AccountModel | undefined>(undefined)
+  const { currentUser: myAccount } = useCurrentUser()
 
   const navigate = useNavigate()
 
@@ -22,27 +24,27 @@ export const UserFollowersModal = () => {
   }
 
   const handleSearchUsers = useCallback(() => {
-    return me?.followers.filter(
+    return user?.followers.filter(
       (user) =>
         user.username.toLowerCase().includes(searched.toLowerCase()) ||
         user.name.toLocaleLowerCase().includes(searched)
     )
-  }, [me, searched])
+  }, [user, searched])
 
   const handleCloseModal = () => {
     setOpenModal(false)
-    navigate(`/${me?.username}`)
+    navigate(`/${user?.username}`)
   }
 
-  const searchedUsers = useMemo(() => handleSearchUsers(), [me, searched])
+  const searchedUsers = useMemo(() => handleSearchUsers(), [user, searched])
 
   useEffect(() => {
     if (users) {
-      setMe(users.find((user) => user.username === username))
+      setUser(users.find((user) => user.username === username))
     }
   }, [users, username])
 
-  if (me && searchedUsers)
+  if (user && searchedUsers && myAccount)
     return (
       <Modal size="md" show={openModal} onClose={handleCloseModal}>
         <Modal.Header className="border-none pr-1 py-2" />
@@ -76,7 +78,7 @@ export const UserFollowersModal = () => {
                         }
                       )}
                       {...user}
-                      follower={me}
+                      follower={myAccount}
                       key={user.username}
                     />
                   ))

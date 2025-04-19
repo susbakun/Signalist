@@ -7,11 +7,12 @@ import { useNavigate, useParams } from "react-router-dom"
 import { UserPreview } from "../../Shared/UserPreview"
 import { AccountModel } from "@/shared/models"
 import { Loader } from "@/components/Shared/Loader"
-
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 export const UserFollowingsModal = () => {
   const [openModal, setOpenModal] = useState(true)
   const [searched, setSearched] = useState("")
-  const [me, setMe] = useState<AccountModel | undefined>(undefined)
+  const [user, setUser] = useState<AccountModel | undefined>(undefined)
+  const { currentUser: myAccount } = useCurrentUser()
 
   const navigate = useNavigate()
 
@@ -23,27 +24,27 @@ export const UserFollowingsModal = () => {
   }
 
   const handleSearchUsers = useCallback(() => {
-    return me?.followings.filter(
+    return user?.followings.filter(
       (user) =>
         user.username.toLowerCase().includes(searched.toLowerCase()) ||
         user.name.toLocaleLowerCase().includes(searched)
     )
-  }, [me, searched])
+  }, [user, searched])
 
   const handleCloseModal = () => {
     setOpenModal(false)
-    navigate(`/${me?.username}`)
+    navigate(`/${user?.username}`)
   }
 
   useEffect(() => {
     if (users) {
-      setMe(users.find((user) => user.username === username))
+      setUser(users.find((user) => user.username === username))
     }
   }, [users, username])
 
-  const searchedUsers = useMemo(() => handleSearchUsers(), [me, searched])
+  const searchedUsers = useMemo(() => handleSearchUsers(), [user, searched])
 
-  if (me && searchedUsers)
+  if (user && searchedUsers && myAccount)
     return (
       <Modal size="md" show={openModal} onClose={handleCloseModal}>
         <Modal.Header className="border-none pr-1 py-2" />
@@ -74,7 +75,7 @@ export const UserFollowingsModal = () => {
                         "border-none pb-0": index === searchedUsers.length - 1
                       })}
                       {...user}
-                      follower={me}
+                      follower={myAccount}
                       key={user.username}
                     />
                   ))

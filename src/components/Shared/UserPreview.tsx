@@ -35,6 +35,7 @@ export const UserPreview = ({
   const [openUnfollowModal, setOpenUnfollowModal] = useState(false)
   const [isActionLoading, setIsActionLoading] = useState(false)
   const [localIsFollowed, setLocalIsFollowed] = useState(false)
+  console.log(follower, userUsername)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const isFollowed = useMemo(
