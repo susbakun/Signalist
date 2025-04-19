@@ -151,6 +151,12 @@ export const MessageRoom = () => {
       // Mark as processed to avoid duplicates
       processedMessagesRef.current.add(messageId)
 
+      // Skip if it's a message we sent ourselves (will be handled by our local state)
+      if (data.message.sender.username === myAccount?.username) {
+        console.log(`Skipping own message received via socket: ${messageId}`)
+        return
+      }
+
       // Add to Redux store
       dispatch(
         sendMessage({
@@ -160,7 +166,7 @@ export const MessageRoom = () => {
           messageImageHref: data.message.messageImageHref,
           date: data.message.date,
           id: messageId,
-          pending: data.message.pending || false // Track if message is still pending
+          pending: false // Messages from others aren't pending
         } as SendMessagePayload)
       )
 
@@ -216,15 +222,22 @@ export const MessageRoom = () => {
       if (data.roomId === roomId) {
         console.log("Messages have been persisted on server")
 
-        // Remove any pending flags for messages in this room
-        Object.keys(locallyAddedMessagesRef.current).forEach((msgId) => {
-          if (pendingMessagesRef.current.has(msgId)) {
+        // Find any local messages that are still marked as pending
+        const pendingMessageIds = Array.from(pendingMessagesRef.current)
+
+        // Update all pending messages for this room to mark as not pending
+        pendingMessageIds.forEach((msgId) => {
+          const msgData = locallyAddedMessagesRef.current[msgId]
+          if (msgData && msgData.roomId === roomId) {
+            console.log(`Marking message ${msgId} as no longer pending`)
+
+            // Remove from pending set
             pendingMessagesRef.current.delete(msgId)
 
-            // Update the message to mark as not pending
+            // Update in Redux
             dispatch(
               sendMessage({
-                ...locallyAddedMessagesRef.current[msgId],
+                ...msgData,
                 pending: false
               })
             )
@@ -299,7 +312,7 @@ export const MessageRoom = () => {
         sender: myAccount,
         text: currentText,
         roomId,
-        messageImageHref: undefined, // We'll update this later if we have an image
+        messageImageHref: undefined as string | undefined, // Fix typing to allow string assignment
         date: messageDate,
         id: messageId,
         pending: true // Mark as pending initially
@@ -319,160 +332,125 @@ export const MessageRoom = () => {
         }
       }, 50)
 
-      // Determine send strategy based on connection state
-      const isSocketConnected = socketRef.current && socketConnected
-
-      // If socket is connected, send via socket first for real-time delivery
-      if (isSocketConnected) {
-        console.log("Sending message via socket first (connected)")
-        socketRef.current?.emit("sendMessage", {
-          roomId,
-          message: {
-            sender: myAccount,
-            text: currentText,
-            messageImageHref: undefined, // No image yet
-            date: messageDate,
-            id: messageId,
-            pending: true, // Flag that this message might be updated
-            fromAPI: false // Flag this didn't come from the API
-          },
-          isGroup: myMessages.isGroup
-        })
-      } else {
-        console.log("Socket not connected, will send via API only")
-      }
-
-      // Handle image upload in parallel
+      // Upload image first if present (before sending message)
       if (currentImage) {
         try {
           // Upload image to backend
           const response = await messagesApi.uploadMessageImage(currentImage)
           messageImageHref = response.url || response.messageImageHref
 
-          // Update the message with the image URL
+          // Update the message object with image URL
           if (messageImageHref) {
-            const updatedMessageObj = {
-              ...messageObj,
-              messageImageHref
-            }
+            messageObj.messageImageHref = messageImageHref
+            locallyAddedMessagesRef.current[messageId] = messageObj
 
-            // Update local ref
-            locallyAddedMessagesRef.current[messageId] = updatedMessageObj
-
-            // Update the message in Redux
-            dispatch(sendMessage(updatedMessageObj))
-
-            // Update via socket that image is now available (if connected)
-            if (socketRef.current && socketConnected) {
-              socketRef.current.emit("updateMessage", {
-                roomId,
-                messageId: messageId,
-                updates: {
-                  messageImageHref,
-                  pending: true // Still pending until API confirms
-                }
-              })
-            }
+            // Update in Redux store
+            dispatch(sendMessage({ ...messageObj }))
           }
         } catch (error) {
           console.error("Failed to upload image:", error)
         }
       }
 
-      // Create message object for API
+      // IMPORTANT: Send to API first for persistence, then handle socket
+      console.log("Sending message via API for persistence, ID:", messageId)
+
       const messageData = {
         sender: myAccount,
         text: currentText,
         roomId,
         messageImageHref,
-        id: messageId // IMPORTANT: Always include the same ID to prevent duplication
+        id: messageId
       }
 
-      // Always send to API for persistence, regardless of socket state
-      console.log("Sending message via API for persistence, ID:", messageId)
-      await dispatch(sendMessageAsync(messageData))
-        .then((result) => {
-          console.log("Message persisted via API:", result)
+      // TypeScript fix for API response which includes status
+      interface MessageApiResponse extends ChatType {
+        status?: "already_exists" | "duplicate_content" | "saved"
+      }
 
-          // Mark as not pending in our tracking
+      try {
+        const result = (await dispatch(
+          sendMessageAsync(messageData)
+        ).unwrap()) as MessageApiResponse
+
+        console.log("API response:", result)
+
+        // If API returned that message was already saved, just update the pending state
+        if (result.status === "already_exists" || result.status === "duplicate_content") {
+          console.log("Message already exists on server")
           pendingMessagesRef.current.delete(messageId)
 
-          // If API call succeeded but socket didn't receive it, update socket
-          if (socketRef.current && socketConnected) {
-            // Only update the message status, don't resend the whole message
-            socketRef.current.emit("updateMessage", {
-              roomId,
-              messageId: messageId,
-              updates: {
-                pending: false
-              }
-            })
-
-            console.log("Updated message pending status via socket")
-          }
-
-          // Update local reference
           if (locallyAddedMessagesRef.current[messageId]) {
             locallyAddedMessagesRef.current[messageId].pending = false
           }
 
-          // Update message in Redux store to mark as not pending
           dispatch(
             sendMessage({
-              sender: myAccount,
-              text: currentText,
-              roomId,
-              messageImageHref,
-              date: messageDate,
-              id: messageId,
-              pending: false
-            })
-          )
-        })
-        .catch((error) => {
-          console.error("Failed to persist message:", error)
-
-          // If API failed but socket is connected, try sending the complete message via socket
-          if (socketRef.current && socketConnected && !isSocketConnected) {
-            console.log("API failed, sending complete message via socket as fallback")
-            socketRef.current.emit("sendMessage", {
-              roomId,
-              message: {
-                sender: myAccount,
-                text: currentText,
-                messageImageHref: messageImageHref,
-                date: messageDate,
-                id: messageId,
-                pending: false
-              },
-              isGroup: myMessages.isGroup
-            })
-          }
-
-          // Mark as not pending but with error
-          if (locallyAddedMessagesRef.current[messageId]) {
-            locallyAddedMessagesRef.current[messageId].pending = false
-            locallyAddedMessagesRef.current[messageId].error = true
-          }
-
-          // Update message in Redux store to indicate error
-          dispatch(
-            sendMessage({
-              sender: myAccount,
-              text: currentText,
-              roomId,
-              messageImageHref,
-              date: messageDate,
-              id: messageId,
+              ...messageObj,
               pending: false,
-              error: true
+              messageImageHref
             })
           )
-        })
+
+          // Don't send via socket since it's already on the server
+          return
+        }
+
+        // Message was saved, now use socket for real-time delivery to other clients
+        if (socketRef.current && socketConnected) {
+          console.log("Message saved via API, notifying via socket")
+          socketRef.current.emit("sendMessage", {
+            roomId,
+            message: {
+              ...messageObj,
+              messageImageHref,
+              pending: false,
+              fromAPI: true // Mark as coming from API
+            },
+            isGroup: myMessages.isGroup
+          })
+        }
+
+        // Update the message status in Redux
+        pendingMessagesRef.current.delete(messageId)
+        dispatch(
+          sendMessage({
+            ...messageObj,
+            messageImageHref,
+            pending: false
+          })
+        )
+      } catch (error) {
+        console.error("Error in send message flow:", error)
+
+        // Show error toast
+        handleShowToast("Failed to send message. Please try again.", "error")
+
+        // Mark message as failed
+        dispatch(
+          sendMessage({
+            ...locallyAddedMessagesRef.current[messageId],
+            pending: false,
+            error: true
+          })
+        )
+      } finally {
+        setIsMessageSending(false)
+      }
     } catch (error) {
       console.error("Error in send message flow:", error)
-    } finally {
-      setIsMessageSending(false)
+
+      // Show error toast
+      handleShowToast("Failed to send message. Please try again.", "error")
+
+      // Mark message as failed
+      dispatch(
+        sendMessage({
+          ...locallyAddedMessagesRef.current[messageId],
+          pending: false,
+          error: true
+        })
+      )
     }
   }
 
