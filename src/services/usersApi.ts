@@ -41,9 +41,27 @@ export const createUser = async (
       },
       body: JSON.stringify(user)
     })
+
+    // Handle non-ok responses with more specific error details
     if (!response.ok) {
-      throw new Error("Failed to create user")
+      const errorData = await response.json()
+
+      // Extract specific error message and field if available
+      const errorMessage = errorData.message || "Failed to create user"
+      const errorField = errorData.field
+
+      // Create an error with field info for better error handling in UI
+      if (errorField) {
+        // Create a custom error to track the specific field
+        const fieldError = new Error(errorMessage)
+        // @ts-expect-error - Add custom field property to Error object
+        fieldError.field = errorField
+        throw fieldError
+      } else {
+        throw new Error(errorMessage)
+      }
     }
+
     return await response.json()
   } catch (error) {
     console.error("Error creating user:", error)

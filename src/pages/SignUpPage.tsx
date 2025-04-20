@@ -200,7 +200,33 @@ export const SignUpPage = () => {
       } else {
         // Registration failed
         const errorMessage = resultAction.error?.message || "Registration failed"
-        setErrors({ general: errorMessage })
+
+        // Check if error object has a field property
+        // @ts-expect-error - Custom field property
+        const errorField = resultAction.error?.field
+
+        if (errorField) {
+          // Set the error for the specific field
+          switch (errorField) {
+            case "username":
+              setErrors({ username: errorMessage })
+              break
+            case "email":
+              setErrors({ email: errorMessage })
+              break
+            default:
+              setErrors({ general: errorMessage })
+          }
+        } else if (errorMessage.includes("Username already taken")) {
+          setErrors({ username: "This username is already taken. Please choose another." })
+        } else if (errorMessage.includes("Email already registered")) {
+          setErrors({
+            email: "This email is already registered. Please use another email or login."
+          })
+        } else {
+          // General error for other issues
+          setErrors({ general: errorMessage })
+        }
 
         // Reset captcha on error
         if (recaptchaRef.current) {
@@ -210,7 +236,36 @@ export const SignUpPage = () => {
       }
     } catch (error) {
       console.error("Sign up failed:", error)
-      setErrors({ general: "An error occurred during sign up" })
+
+      // Try to extract a useful error message
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred during sign up"
+
+      // Check if the error has a field property
+      // @ts-expect-error - Custom field property
+      const errorField = error instanceof Error ? error.field : undefined
+
+      if (errorField) {
+        // Set error for specific field
+        switch (errorField) {
+          case "username":
+            setErrors({ username: errorMessage })
+            break
+          case "email":
+            setErrors({ email: errorMessage })
+            break
+          default:
+            setErrors({ general: errorMessage })
+        }
+      } else if (errorMessage.includes("Username already taken")) {
+        setErrors({ username: "This username is already taken. Please choose another." })
+      } else if (errorMessage.includes("Email already registered")) {
+        setErrors({ email: "This email is already registered. Please use another email or login." })
+      } else {
+        // Default error handling
+        setErrors({ general: errorMessage })
+      }
+
       // Reset captcha on error
       if (recaptchaRef.current) {
         recaptchaRef.current.reset()

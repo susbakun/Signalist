@@ -547,8 +547,15 @@ export const MessageRoom = () => {
           />
         </div>
 
-        <div className="md:sticky md:bottom-0 md:left-0 md:right-0 md:w-auto fixed bottom-16 left-0 right-0 w-full z-30 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg">
-          <div className="md:hidden fixed left-0 right-0 h-16 bottom-0 bg-gray-100 dark:bg-gray-900 z-20"></div>
+        <div
+          className="md:sticky md:bottom-0 md:left-0 md:right-0 md:w-auto
+          fixed bottom-16 left-0 right-0 w-full z-30 bg-gray-100 dark:bg-gray-900
+          border-t border-gray-200 dark:border-gray-700 shadow-lg"
+        >
+          <div
+            className="md:hidden fixed left-0 right-0 h-16 bottom-0
+          bg-gray-100 dark:bg-gray-900 z-20"
+          ></div>
           <MessageRoomInput
             messageText={messageText}
             isEmojiPickerOpen={isEmojiPickerOpen}

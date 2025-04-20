@@ -149,19 +149,23 @@ export const UserSignals = () => {
 
   return (
     <>
-      <div className="pb-4 w-full overflow-hidden relative flex flex-col justify-center md:px-16 md:pb-0">
-        <div className="w-full overflow-hidden border-x mx-0 dark:border-x-white/20 border-x-gray-600/20 px-0 inset-0">
-          {userSignals.map((signal) => (
-            <Signal key={signal.id} signal={signal} myAccount={myAccount} />
-          ))}
+      <div className="flex flex-col mb-4 mx-4 md:mx-16 border-x border-x-gray-600/20 dark:border-x-white/20">
+        {userSignals.map((signal) => (
+          <Signal
+            key={signal.id}
+            signal={signal}
+            myAccount={myAccount}
+            className="border-y-0 border-x-0"
+          />
+        ))}
 
-          {/* Loading indicator and intersection observer target */}
-          {hasMore && (
-            <div ref={loadMoreRef} className="flex justify-center py-4">
-              {loadingMore && <Loader className="h-16 w-16" />}
-            </div>
-          )}
-        </div>
+        {/* Loading indicator and intersection observer target */}
+        {hasMore && (
+          <div ref={loadMoreRef} className="flex justify-center py-4">
+            {loadingMore && <Loader className="h-16 w-16" />}
+          </div>
+        )}
+
         {isItmyAccount && (
           <Tippy
             content="create signal"
