@@ -149,14 +149,9 @@ export const UserSignals = () => {
 
   return (
     <>
-      <div className="flex flex-col mb-4 mx-4 md:mx-16 border-x border-x-gray-600/20 dark:border-x-white/20">
+      <div className="flex flex-col mb-4 mx-4 md:mx-16 border-x border-x-gray-600/20 dark:border-x-white/20 md:mb-0">
         {userSignals.map((signal) => (
-          <Signal
-            key={signal.id}
-            signal={signal}
-            myAccount={myAccount}
-            className="border-y-0 border-x-0"
-          />
+          <Signal key={signal.id} signal={signal} myAccount={myAccount} className="border-x-0" />
         ))}
 
         {/* Loading indicator and intersection observer target */}
