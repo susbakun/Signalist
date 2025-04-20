@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "@/shared/constants"
 
-const STANDARD_SESSION_TIMEOUT = 60 * 60 * 1000 // 60 minutes
+const STANDARD_SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 60 minutes
 const EXTENDED_SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export const initializeSession = () => {
