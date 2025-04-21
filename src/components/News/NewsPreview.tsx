@@ -1,20 +1,35 @@
 import { demoImageUrl } from "@/shared/constants"
-import { NewsItem } from "@/shared/models"
+import { CryptoCurrency } from "@/shared/models"
 import { cn } from "@/utils"
 import moment from "jalali-moment"
-import { ComponentProps } from "react"
 
-type NewsPreviewProps = ComponentProps<"div"> & NewsItem & { isCompatMode?: boolean }
+type NewsPreviewProps = {
+  id?: number
+  kind?: string
+  domain?: string
+  slug?: string
+  created_at?: string
+  title: string
+  url: string
+  imageurl?: string | null
+  body?: string
+  published_on: number
+  source: string
+  currencies?: CryptoCurrency[] | null
+  isCompatMode?: boolean
+}
 
 export const NewsPreview = ({
   title,
   url,
   imageurl,
   published_on,
-  body,
-  isCompatMode
+  currencies,
+  isCompatMode,
+  body
 }: NewsPreviewProps) => {
   const timestamp = moment.unix(published_on).format("YYYY-MM-DD HH:mm:ss")
+
   return (
     <div
       className="w-full flex flex-col md:flex-row rounded-md bg-white 
@@ -29,6 +44,9 @@ export const NewsPreview = ({
             })}
             src={imageurl || demoImageUrl}
             alt={title}
+            onError={(e) => {
+              e.currentTarget.src = demoImageUrl
+            }}
           />
         </div>
       </div>
@@ -42,12 +60,24 @@ export const NewsPreview = ({
           >
             {title}
           </h5>
-          <p
-            className="font-normal text-sm text-gray-500
-          dark:text-white/60 line-clamp-3"
-          >
-            {body}
-          </p>
+
+          {body && <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{body}</p>}
+
+          {/* Currency Tags */}
+          {currencies && currencies.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {currencies.map((currency) => (
+                <span
+                  key={currency.code}
+                  className="bg-primary-link-button/10 dark:bg-dark-link-button/20
+                text-primary-link-button dark:text-dark-link-button rounded-md
+                  px-2 py-0.5 text-xs font-medium"
+                >
+                  {currency.code}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between pr-2 flex-1">
           <a

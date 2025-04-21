@@ -1,6 +1,6 @@
 import { Loader, NewsPreview } from "@/components"
 import { useGetNewsQuery } from "@/services/newsApi"
-import { NewsArticle } from "@/shared/models"
+import { CryptoCurrency } from "@/shared/models"
 import { cn, isDarkMode } from "@/utils"
 import { uniqBy } from "lodash"
 import { useEffect, useState } from "react"
@@ -9,6 +9,21 @@ import { HiArrowNarrowRight } from "react-icons/hi"
 import { IoChevronDownOutline } from "react-icons/io5"
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton"
 import { Link } from "react-router-dom"
+
+// Define the transformed article structure from the API
+interface NewsArticle {
+  title: string
+  url: string
+  urlToImage?: string
+  description?: string
+  publishedAt: string
+  source: {
+    name: string
+  }
+  currencies?: CryptoCurrency[] | null
+  // For uniqueness in the list
+  id?: string
+}
 
 export const NewsList = () => {
   const [page, setPage] = useState(1)
@@ -20,9 +35,8 @@ export const NewsList = () => {
     isLoading,
     isFetching
   } = useGetNewsQuery({
-    category: "cryptocurrency",
     page,
-    pageSize: 5
+    filter: "hot" // Default to hot news
   })
 
   const handleLoadMore = () => {
@@ -36,11 +50,17 @@ export const NewsList = () => {
   useEffect(() => {
     if (newsData?.articles) {
       setNewsList((prev) => {
-        const combined = [...prev, ...newsData.articles]
-        return uniqBy(combined, "url")
+        // Add unique IDs for list rendering
+        const articlesWithId = newsData.articles.map((article, index) => ({
+          ...article,
+          id: article.url || `article-${index}`
+        }))
+
+        const combined = [...prev, ...articlesWithId]
+        return uniqBy(combined, "url") // Use URL as unique identifier
       })
     }
-  }, [newsData])
+  }, [newsData?.articles])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,13 +100,14 @@ export const NewsList = () => {
       <ul className="flex flex-col gap-8 md:gap-4">
         {newsList.map((article) => (
           <NewsPreview
-            key={article.url}
+            key={article.id || article.url}
             title={article.title}
             url={article.url}
-            imageurl={article.urlToImage}
             body={article.description}
+            imageurl={article.urlToImage}
             published_on={new Date(article.publishedAt).getTime() / 1000}
             source={article.source.name}
+            currencies={article.currencies}
           />
         ))}
       </ul>
@@ -94,6 +115,7 @@ export const NewsList = () => {
         {isFetching ? (
           <Loader />
         ) : (
+          // Check for more items using totalResults
           newsData?.totalResults &&
           newsData.totalResults > newsList.length && (
             <button

@@ -1,9 +1,10 @@
-export const demoImageUrl = "https://www.bing.com/th?id=OVFT.mpzuVZnv8dwIMRfQGPbOPC&pid=News"
+export const demoImageUrl =
+  "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg"
 export const messagesRouteRegExp = /\/messages\/?/
 export const editPostRouteRegExp = /\/(explore\/)?(suggests|posts)\/editPost\/.*/
 export const tradingviewSupportHost = "https://www.tradingview.com"
 export const nobitexMarketChart = "https://nobitex.ir/nobitex-cdn/charts/"
-export const newsApiKey = import.meta.env.VITE_NEWS_API_KEY
+export const cryptoPanicApiKey = import.meta.env.VITE_CRYPTOPANIC_API_KEY
 export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 export const backendUrl = "https://signalist-backend.liara.run/api"
 
@@ -20,16 +21,23 @@ export const STORAGE_KEYS = {
 } as const
 
 export const cryptoNewsCategories = [
-  { value: "Bitcoin", label: "Bitcoin" },
-  { value: "Ethereum", label: "Ethereum" },
-  { value: "Ripple", label: "Ripple" },
-  { value: "Litecoin", label: "Litecoin" },
-  { value: "Cardano", label: "Cardano" },
-  { value: "Polkadot", label: "Polkadot" },
-  { value: "Binance Coin", label: "Binance Coin" },
-  { value: "Solana", label: "Solana" },
-  { value: "Dogecoin", label: "Dogecoin" },
-  { value: "Shiba Inu", label: "Shiba Inu" }
+  { value: "BTC", label: "Bitcoin" },
+  { value: "ETH", label: "Ethereum" },
+  { value: "XRP", label: "Ripple" },
+  { value: "LTC", label: "Litecoin" },
+  { value: "ADA", label: "Cardano" },
+  { value: "DOT", label: "Polkadot" },
+  { value: "BNB", label: "Binance Coin" },
+  { value: "SOL", label: "Solana" },
+  { value: "DOGE", label: "Dogecoin" },
+  { value: "SHIB", label: "Shiba Inu" }
+]
+
+export const cryptoNewsFilters = [
+  { value: "rising", label: "Rising" },
+  { value: "hot", label: "Hot" },
+  { value: "bullish", label: "Bullish" },
+  { value: "bearish", label: "Bearish" }
 ]
 
 export const cryptoNewsSources = [

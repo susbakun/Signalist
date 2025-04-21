@@ -5,6 +5,8 @@ export type RootState = ReturnType<typeof RootStore.getState>
 export type CoinType = CryptoResponseType["data"]["coins"][0] & {
   quoteAsset?: string // Optional field to store the quote asset (USDT, TMN, etc.)
 }
+export type NewsFilterType = "rising" | "hot" | "bullish" | "bearish"
+
 export type StatusType = "closed" | "open" | "not_opened"
 export type SimplifiedAccountType = Pick<AccountModel, "name" | "username" | "imageUrl">
 export type GroupInfoType = {

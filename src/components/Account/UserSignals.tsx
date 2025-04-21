@@ -149,7 +149,11 @@ export const UserSignals = () => {
 
   return (
     <>
-      <div className="flex flex-col mb-4 mx-4 md:mx-16 border-x border-x-gray-600/20 dark:border-x-white/20 md:mb-0">
+      <div
+        className="flex flex-col mb-4 mx-4 md:mx-16
+        border-x border-x-gray-600/20 dark:border-x-white/20
+        md:mb-0"
+      >
         {userSignals.map((signal) => (
           <Signal key={signal.id} signal={signal} myAccount={myAccount} className="border-x-0" />
         ))}
@@ -164,7 +168,8 @@ export const UserSignals = () => {
         {isItmyAccount && (
           <Tippy
             content="create signal"
-            className="dark:bg-gray-700 bg-gray-900 text-white font-sans rounded-md px-1 py-[1px] text-sm"
+            className="dark:bg-gray-700 bg-gray-900 text-white font-sans
+            rounded-md px-1 py-[1px] text-sm"
             delay={[1000, 0]}
             placement="top"
             animation="fade"
@@ -174,7 +179,9 @@ export const UserSignals = () => {
           >
             <button
               onClick={hanldeOpenCreateSignalModal}
-              className="main-button transition-all duration-100 ease-out fixed bottom-16 right-4 md:bottom-4 px-3 py-3 md:px-4 md:py-4 rounded-full z-10"
+              className="main-button transition-all duration-100 ease-out
+              fixed bottom-16 right-4 md:bottom-4 px-3 py-3 md:px-4 md:py-4
+              rounded-full z-10"
             >
               <HiMiniSignal className="w-5 h-5 md:w-6 md:h-6" />
             </button>

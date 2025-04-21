@@ -134,41 +134,56 @@ export type CoinHistoryResponseType = {
   }
 }
 
-export type NewsItem = {
+// CryptoPanic API Types
+export type CryptoCurrency = {
+  code: string
   title: string
+  slug: string
   url: string
-  imageurl: string
-  body: string
-  published_on: number
-  source: string
-  isCompatMode?: boolean
-}
-
-export type CryptoNewsType = {
-  Data: NewsItem[]
-  Type: number
 }
 
 export type NewsSource = {
-  id: string
-  name: string
-}
-
-export type NewsArticle = {
-  source: NewsSource
-  author: string
   title: string
-  description: string
-  url: string
-  urlToImage: string
-  publishedAt: string
-  content: string
+  region: string
+  domain: string
+  path: string | null
+  type: string
 }
 
-export type NewsApiResponse = {
+export type NewsItem = {
+  kind: string
+  domain: string
+  source: NewsSource
+  title: string
+  published_at: string
+  slug: string
+  id: number
+  url: string
+  created_at: string
+  currencies: CryptoCurrency[] | null
+  image_url?: string // Will be populated from microlink
+}
+
+export type CryptoPanicResponse = {
+  count: number
+  next: string | null
+  previous: string | null
+  results: NewsItem[]
+}
+
+export type MicrolinkResponse = {
   status: string
-  totalResults: number
-  articles: NewsArticle[]
+  data: {
+    title: string
+    description: string
+    url: string
+    image?: {
+      url: string
+      width: number
+      height: number
+      type: string
+    }
+  }
 }
 
 export type AccountModel = {
