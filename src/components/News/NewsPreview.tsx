@@ -33,10 +33,10 @@ export const NewsPreview = ({
   return (
     <div
       className="w-full flex flex-col md:flex-row rounded-md bg-white 
-      h-[400px] md:h-[180px] dark:bg-gray-800 gap-3"
+      h-[400px] md:h-[180px] dark:bg-gray-800 gap-3 overflow-hidden"
     >
       <div className="w-full md:w-fit md:max-w-full p-2 overflow-hidden">
-        <div className="h-[300px] md:h-[160px] w-full overflow-hidden rounded-md">
+        <div className="h-[250px] md:h-[160px] w-full overflow-hidden rounded-md">
           <img
             className={cn("w-full h-full object-cover rounded-md", {
               "md:w-[280px]": !isCompatMode,
@@ -50,22 +50,30 @@ export const NewsPreview = ({
           />
         </div>
       </div>
-      <div className="flex flex-col px-2 py-2 w-full h-full">
-        <div className="flex flex-col gap-2 h-auto md:h-[80%] overflow-hidden pb-2">
+      <div className="flex flex-col px-2 py-2 w-full h-full overflow-hidden">
+        <div className="flex flex-col gap-2 overflow-hidden pb-2">
           <h5
-            className={cn("font-bold tracking-tight", "text-gray-900 dark:text-white", {
-              "text-md": isCompatMode,
-              "text-xl": !isCompatMode
-            })}
+            className={cn(
+              "font-bold tracking-tight line-clamp-2",
+              "text-gray-900 dark:text-white",
+              {
+                "text-md": isCompatMode,
+                "text-xl": !isCompatMode
+              }
+            )}
           >
             {title}
           </h5>
 
-          {body && <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{body}</p>}
+          {body && (
+            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 mb-2 max-w-full break-words">
+              {body}
+            </p>
+          )}
 
           {/* Currency Tags */}
           {currencies && currencies.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap gap-2 mt-1 z-10 relative">
               {currencies.map((currency) => (
                 <span
                   key={currency.code}
@@ -79,13 +87,13 @@ export const NewsPreview = ({
             </div>
           )}
         </div>
-        <div className="flex items-center justify-between pr-2 flex-1">
+        <div className="flex items-center justify-between pr-2 mt-auto">
           <a
             target="_blank"
             href={url}
             className={cn(
               "text-primary-link-button dark:text-dark-link-button",
-              "hover:opacity-60 transition-all ease-out font-medium",
+              "hover:opacity-60 transition-all ease-out font-medium truncate",
               {
                 "text-sm": isCompatMode,
                 "text-md": !isCompatMode
@@ -96,12 +104,12 @@ export const NewsPreview = ({
             Visit Website
           </a>
           <p
-            className={cn({
+            className={cn("whitespace-nowrap", {
               "text-sm": isCompatMode,
               "text-md": !isCompatMode
             })}
           >
-            {moment(timestamp).startOf("m").fromNow()}
+            {moment(timestamp).fromNow()}
           </p>
         </div>
       </div>
