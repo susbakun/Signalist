@@ -71,9 +71,12 @@ export const UserFollowingsModal = () => {
                 {searchedUsers.length > 0 ? (
                   searchedUsers.map((user, index) => (
                     <UserPreview
-                      className={cn("border-b border-b-gray-600/20 pb-4 dark:border-b-white/20", {
-                        "border-none pb-0": index === searchedUsers.length - 1
-                      })}
+                      className={cn(
+                        "border-b pt-2 border-b-gray-600/20 pb-4 dark:border-b-white/20",
+                        {
+                          "border-none pb-0": index === searchedUsers.length - 1
+                        }
+                      )}
                       {...user}
                       follower={myAccount}
                       key={user.username}

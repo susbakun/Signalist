@@ -52,13 +52,15 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
   return (
     <>
       <div
-        className="bg-gray-200/80 dark:bg-gray-800 py-1.5 sm:py-2 px-3 sm:px-6 sticky top-0 w-full
+        className="bg-gray-200/80 dark:bg-gray-800 py-1.5
+        sm:py-2 px-3 sm:px-6 sticky top-0 w-full
         flex justify-between items-center"
       >
         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
           <button
             onClick={onBack}
-            className="md:hidden text-gray-600 dark:text-gray-100 hover:text-gray-800 dark:hover:text-gray-300"
+            className="md:hidden text-gray-600 dark:text-gray-100
+          hover:text-gray-800 dark:hover:text-gray-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +82,10 @@ export const MessageRoomTopBar = ({ myMessages, onBack }: MessageRoomTopBarProps
               ? getProperAvatar(placeholder, undefined, myMessages.groupInfo)
               : getProperAvatar(placeholder, myMessages.userInfo, undefined)}
           </div>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate max-w-[150px] sm:max-w-[200px] md:max-w-none">
+          <h2
+            className="text-lg sm:text-xl md:text-2xl font-bold truncate
+            max-w-[150px] sm:max-w-[200px] md:max-w-none"
+          >
             {isGroup ? myMessages.groupInfo.groupName : myMessages.userInfo.username}
           </h2>
         </div>
