@@ -11,7 +11,7 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton"
 import { Link } from "react-router-dom"
 
 // Define the transformed article structure from the API
-interface NewsArticle {
+type NewsArticle = {
   title: string
   url: string
   urlToImage?: string

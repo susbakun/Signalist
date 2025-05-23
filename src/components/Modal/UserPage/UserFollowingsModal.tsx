@@ -8,6 +8,7 @@ import { UserPreview } from "../../Shared/UserPreview"
 import { AccountModel } from "@/shared/models"
 import { Loader } from "@/components/Shared/Loader"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
+
 export const UserFollowingsModal = () => {
   const [openModal, setOpenModal] = useState(true)
   const [searched, setSearched] = useState("")

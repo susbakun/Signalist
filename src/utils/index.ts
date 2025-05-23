@@ -23,8 +23,10 @@ export const getAvatarPlaceholder = (name: string) => {
     for (const word of words) {
       avatarPlaceholder += word[0]
     }
-  } else {
+  } else if (words.length === 1 && words[0].length > 1) {
     avatarPlaceholder += words[0][0] + words[0][1]
+  } else {
+    avatarPlaceholder += words[0][0]
   }
   return avatarPlaceholder
 }

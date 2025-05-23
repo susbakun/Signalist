@@ -53,3 +53,11 @@ export type OptionType = {
   value: string
   label: string
 }
+
+export type CreateSignalInputsErrors = {
+  entry: string
+  stoploss: string
+  openTime: string
+  closeTime: string
+  targets: string
+}
