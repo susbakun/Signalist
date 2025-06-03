@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { FiCalendar } from "react-icons/fi"
@@ -22,7 +22,10 @@ export const SignalModalDatePickers = ({
   handleAddTarget
 }: SignalModalDatePickersProps) => {
   const [touched, setTouched] = useState({ open: false, close: false })
-  const [errors, setErrors] = useState({ open: "", close: "" })
+  const [errors, setErrors] = useState({
+    open: "",
+    close: ""
+  })
 
   const validateDates = (open: Date, close: Date) => {
     const now = new Date()
@@ -56,6 +59,14 @@ export const SignalModalDatePickers = ({
   const handleCalendarClose = (type: "open" | "close") => {
     setTouched((prev) => ({ ...prev, [type]: true }))
   }
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      validateDates(openTime, closeTime)
+    }, 10000)
+
+    return () => clearInterval(intervalId)
+  })
 
   return (
     <>
