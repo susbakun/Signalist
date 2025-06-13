@@ -1,0 +1,35 @@
+name: CI/CD to Liara
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-lint-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Deploy to Liara
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+        run: |
+          npm i -g @liara/cli@7
+          liara deploy --app="signalist" --api-token="$LIARA_TOKEN" --no-app-logs
