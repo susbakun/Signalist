@@ -88,7 +88,7 @@ export const ExploreTopBar = () => {
             bg-primary-main gap-4 px-4 py-3
             border-gray-600/50 absolute top-12
               left-[11%] right-[11%]
-            dark:bg-dark-main min-h-[75px]"
+            dark:bg-dark-main min-h-[75px] max-h-[375px] overflow-y-auto explore-top-bar-dropdown"
               onMouseDown={handleDropdownMouseDown}
             >
               {isEmpty(searchedUsers) ? (

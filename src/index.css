@@ -150,6 +150,16 @@
     display: none;
   }
 
+  .explore-top-bar-dropdown::-webkit-scrollbar {
+    display: none;
+  }
+  .explore-top-bar-dropdown::-webkit-scrollbar-thumb {
+    display: none;
+  }
+  .explore-top-bar-dropdown::-webkit-scrollbar-track {
+    display: none;
+  }
+
   .gradient-border {
     position: relative;
     display: inline-block;
