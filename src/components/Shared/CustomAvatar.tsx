@@ -11,8 +11,8 @@ export const CustomAvatar = ({ wrapperClassName, className, img, ...props }: Cus
     <div className={twMerge("relative", wrapperClassName)}>
       {img ? (
         <>
-          <div className="absolute inset-0 z-0 overflow-hidden rounded-full">
-            <img src={img} alt="Avatar" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 z-0 overflow-hidden aspect-square h-full flex mx-auto">
+            <img src={img} alt="Avatar" className="w-full h-full object-cover rounded-full" />
           </div>
           <div className="invisible">
             <Avatar img={img} className={className} {...props} />

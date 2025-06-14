@@ -1,11 +1,12 @@
 import { AppDispatch } from "@/app/store"
 import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
+import { Loader } from "@/components/Shared/Loader"
 import { ToastContainer } from "@/components/Shared/ToastContainer"
 import { fetchUsersAsync, updateProfileAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { STORAGE_KEYS } from "@/shared/constants"
 import { AccountModel } from "@/shared/models"
-import { cn } from "@/utils"
+import { cn, urlToFile } from "@/utils"
 import { Modal } from "flowbite-react"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { FaUser } from "react-icons/fa"
@@ -30,6 +31,7 @@ export const EditProfileModal = ({
   const [bio, setBio] = useState("")
   const [profileImage, setProfileImage] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [loadingImage, setLoadingImage] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
@@ -42,6 +44,15 @@ export const EditProfileModal = ({
       setUsername(userAccount.username || "")
       setEmail(userAccount.email || "")
       setBio(userAccount.bio || "")
+      if (userAccount?.imageUrl) {
+        setLoadingImage(true)
+        urlToFile(userAccount.imageUrl, `${userAccount.username}.jpeg`, "image/jpeg").then(
+          (file) => {
+            setProfileImage(file)
+            setLoadingImage(false)
+          }
+        )
+      }
     }
   }, [userAccount])
 
@@ -206,12 +217,16 @@ export const EditProfileModal = ({
               </div>
             )}
 
-            <ProfileImagePicker
-              name={name}
-              selectedImage={profileImage}
-              onImageChange={handleImageChange}
-              error={errors.profileImage}
-            />
+            {loadingImage ? (
+              <Loader />
+            ) : (
+              <ProfileImagePicker
+                name={name}
+                selectedImage={profileImage}
+                onImageChange={handleImageChange}
+                error={errors.profileImage}
+              />
+            )}
 
             <div className="space-y-4">
               {/* Name field */}

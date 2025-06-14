@@ -66,7 +66,7 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
   return (
     <div className="flex flex-col gap-2 w-full max-w-full overflow-hidden">
       {signal.isPremium && !amISubscribed && publisher.username !== currentUsername ? (
-        <div className="relative rounded-lg h-[500px] overflow-x-hidden overflow-y-hidden">
+        <div className="relative rounded-lg h-[500px] overflow-hidden">
           <BluredSignalComponent />
           <Link
             to={`/${publisher.username}/premium`}
@@ -131,7 +131,7 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
           )}
           <div
             className="bg-white dark:bg-gray-900
-          p-4 rounded-lg border border-white/20 w-full"
+            p-4 rounded-lg border border-white/20 w-full"
           >
             <div
               className={cn("flex justify-between md:justify-center text-sm md:text-base", {
