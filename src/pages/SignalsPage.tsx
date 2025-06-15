@@ -161,7 +161,6 @@ const RightSidebar = () => {
   const { currentUser: myAccount } = useCurrentUser()
   const { isUserBlocked } = useIsUserBlocked(myAccount)
 
-  // Fetch users if they're not loaded yet
   useEffect(() => {
     if (users.length === 0 && !usersLoading) {
       dispatch(fetchUsersAsync())
