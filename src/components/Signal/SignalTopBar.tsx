@@ -26,6 +26,7 @@ export const SignalTopBar = ({
         <CustomAvatar
           placeholderInitials={placeholder}
           size="md"
+          wrapperClassName="w-10 h-10"
           img={publisher.imageUrl}
           rounded
         />

@@ -26,7 +26,13 @@ export const PostTopBar = ({
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
-        <CustomAvatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
+        <CustomAvatar
+          placeholderInitials={placeholder}
+          size="md"
+          img={imageUrl}
+          rounded
+          wrapperClassName="w-10 h-10"
+        />
         <Link to={`/${username}`} className="flex flex-col justify-center">
           <p>{name.toLowerCase()}</p>
           <div className="flex gap-2">

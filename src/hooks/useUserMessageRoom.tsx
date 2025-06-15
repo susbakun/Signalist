@@ -77,7 +77,12 @@ export const useUserMessageRoom = () => {
         className="p-2 rounded-full w-fit h-fit mr-3
     bg-gray-100 dark:bg-gray-600 flex justify-center"
       >
-        <CustomAvatar placeholderInitials={placeholder} size="md" rounded />
+        <CustomAvatar
+          placeholderInitials={placeholder}
+          size="md"
+          wrapperClassName="w-10 h-10"
+          rounded
+        />
       </div>
     )
   }

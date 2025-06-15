@@ -41,6 +41,7 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
             placeholderInitials={placeholder}
             size="xl"
             img={userAccount.imageUrl}
+            wrapperClassName="w-40 h-40"
             rounded
           />
           <div className="hidden md:flex mt-1 mb-4">

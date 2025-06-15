@@ -1,4 +1,5 @@
 import { twMerge } from "tailwind-merge"
+import { CustomAvatar } from "./CustomAvatar"
 
 type StreamingUserAvatarProps = {
   imageUrl?: string
@@ -13,74 +14,32 @@ export const StreamingUserAvatar = ({
   className,
   size = "md"
 }: StreamingUserAvatarProps) => {
+  const sizeStyles = {
+    xs: { width: "24px", height: "24px", fontSize: "10px" },
+    sm: { width: "32px", height: "32px", fontSize: "14px" },
+    md: { width: "40px", height: "40px", fontSize: "16px" },
+    lg: { width: "64px", height: "64px", fontSize: "20px" },
+    xl: { width: "96px", height: "96px", fontSize: "28px" }
+  }
+
+  const currentSize = sizeStyles[size]
+
   return (
-    <div className={twMerge("gradient-border rounded-full", className)}>
-      <div className="bg-dark-main dark:bg-dark-main rounded-full p-[2px]">
+    <div className={twMerge("gradient-border rounded-full", className)} style={currentSize}>
+      <div className="bg-dark-main dark:bg-dark-main rounded-full p-[2px] w-full h-full">
         {imageUrl ? (
-          <div className="relative overflow-hidden rounded-full">
-            <img
-              src={imageUrl}
-              alt={`${placeholderInitials}'s avatar`}
-              className="w-full h-full object-cover"
-              style={{
-                width:
-                  size === "xs"
-                    ? "24px"
-                    : size === "sm"
-                      ? "32px"
-                      : size === "md"
-                        ? "40px"
-                        : size === "lg"
-                          ? "64px"
-                          : "96px",
-                height:
-                  size === "xs"
-                    ? "24px"
-                    : size === "sm"
-                      ? "32px"
-                      : size === "md"
-                        ? "40px"
-                        : size === "lg"
-                          ? "64px"
-                          : "96px"
-              }}
-            />
-          </div>
+          <CustomAvatar
+            img={imageUrl}
+            alt={`${placeholderInitials}'s avatar`}
+            placeholderInitials={placeholderInitials}
+            size={size}
+            rounded
+            wrapperClassName="w-full h-full"
+          />
         ) : (
           <div
-            className="flex items-center justify-center text-white bg-gray-500 rounded-full"
-            style={{
-              width:
-                size === "xs"
-                  ? "24px"
-                  : size === "sm"
-                    ? "32px"
-                    : size === "md"
-                      ? "40px"
-                      : size === "lg"
-                        ? "64px"
-                        : "96px",
-              height:
-                size === "xs"
-                  ? "24px"
-                  : size === "sm"
-                    ? "32px"
-                    : size === "md"
-                      ? "40px"
-                      : size === "lg"
-                        ? "64px"
-                        : "96px",
-              fontSize:
-                size === "xs"
-                  ? "10px"
-                  : size === "sm"
-                    ? "14px"
-                    : size === "md"
-                      ? "16px"
-                      : size === "lg"
-                        ? "20px"
-                        : "28px"
-            }}
+            className="flex items-center justify-center text-white bg-gray-500 rounded-full w-full h-full"
+            style={{ fontSize: currentSize.fontSize }}
           >
             {placeholderInitials}
           </div>

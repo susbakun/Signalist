@@ -75,7 +75,10 @@ export const RightSideBar = () => {
     users.length > 0
       ? [
           ...users.filter(
-            (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
+            (user) =>
+              user.username !== myAccount?.username &&
+              !isUserBlocked(user.username) &&
+              user.username !== "MarmadukeWhisperer"
           )
         ]
       : []

@@ -40,7 +40,7 @@ export const CommentTopBar = ({ user, date, commentId, postId }: CommentTopBarPr
         <CustomAvatar
           placeholderInitials={placeholder}
           size="sm"
-          className="md:h-10 md:w-10"
+          wrapperClassName="md:h-10 md:w-10"
           img={user.imageUrl}
           rounded
         />

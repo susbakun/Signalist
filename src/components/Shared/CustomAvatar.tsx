@@ -5,16 +5,15 @@ type CustomAvatarProps = Omit<AvatarProps, "img"> & {
   wrapperClassName?: string
   img?: string
 }
-
 export const CustomAvatar = ({ wrapperClassName, className, img, ...props }: CustomAvatarProps) => {
   return (
-    <div className={twMerge("relative", wrapperClassName)}>
+    <div className={twMerge("relative flex-shrink-0", wrapperClassName)}>
       {img ? (
         <>
-          <div className="absolute inset-0 z-0 overflow-hidden aspect-square h-full flex mx-auto">
+          <div className="relative z-10 overflow-hidden aspect-square h-full flex mx-auto">
             <img src={img} alt="Avatar" className="w-full h-full object-cover rounded-full" />
           </div>
-          <div className="invisible">
+          <div className="sr-only">
             <Avatar img={img} className={className} {...props} />
           </div>
         </>

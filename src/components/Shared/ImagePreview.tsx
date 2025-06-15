@@ -14,7 +14,14 @@ export const ImagePreview = ({ imagePreview, rounded, handleResetInput }: ImageP
       <div className="flex items-center gap-2 my-2">
         <div className="w-full h-full flex items-center relative">
           {rounded ? (
-            <CustomAvatar img={imagePreview} alt="image preview" size="lg" color="gray" rounded />
+            <CustomAvatar
+              img={imagePreview}
+              alt="image preview"
+              size="lg"
+              color="gray"
+              wrapperClassName="w-10 h-10"
+              rounded
+            />
           ) : (
             <img
               src={imagePreview}

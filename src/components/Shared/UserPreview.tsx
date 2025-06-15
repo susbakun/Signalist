@@ -113,7 +113,13 @@ export const UserPreview = ({
     <>
       <div className={twMerge("flex jusfity-between", className)}>
         <div className="flex gap-2 items-center flex-1">
-          <CustomAvatar placeholderInitials={placeholder} size="md" img={imageUrl} rounded />
+          <CustomAvatar
+            placeholderInitials={placeholder}
+            size="md"
+            wrapperClassName="w-10 h-10"
+            img={imageUrl}
+            rounded
+          />
           {isForMessageRoom ? (
             <div className="flex flex-col justify-center">
               <p>{name.toLowerCase()}</p>
