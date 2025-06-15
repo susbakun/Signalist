@@ -189,7 +189,6 @@ export const SignUpPage = () => {
         localStorage.setItem(STORAGE_KEYS.AUTH, "true")
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user))
 
-        // Initialize session management
         initializeSession()
         setupActivityListeners()
 
@@ -262,7 +261,6 @@ export const SignUpPage = () => {
       } else if (errorMessage.includes("Email already registered")) {
         setErrors({ email: "This email is already registered. Please use another email or login." })
       } else {
-        // Default error handling
         setErrors({ general: errorMessage })
       }
 
