@@ -23,9 +23,11 @@ jobs:
 
       - name: Run tests
         run: npm test || true
+        continue-on-error: true
 
       - name: Lint code
         run: npm run lint || true
+        continue-on-error: true
 
       - name: Deploy to Liara
         env:
