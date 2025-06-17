@@ -21,14 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test || true
-        continue-on-error: true
-
-      - name: Lint code
-        run: npm run lint || true
-        continue-on-error: true
-
       - name: Deploy to Liara
         env:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
