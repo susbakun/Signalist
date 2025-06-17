@@ -79,8 +79,8 @@ export const MessageRoomMessages = ({
     const shouldScroll = shouldScrollToBottom()
 
     if (shouldScroll) {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "auto" })
+      if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === "function") {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
       }
     } else {
       // Maintain scroll position when new content is added
