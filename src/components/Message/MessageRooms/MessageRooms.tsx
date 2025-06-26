@@ -89,7 +89,7 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
               <NavLink
                 key={messageId}
                 className="flex items-center p-3 mb-3 bg-white overflow-hidden
-            dark:bg-gray-700 rounded-xl cursor-pointer messageRooms max-w-full"
+              dark:bg-gray-700 rounded-xl cursor-pointer messageRooms max-w-full"
                 to={messageId}
               >
                 <div className="flex items-center flex-1 min-w-0">

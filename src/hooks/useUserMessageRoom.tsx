@@ -58,9 +58,9 @@ export const useUserMessageRoom = () => {
             img={imageUrl}
             alt={`${imageAlt}'s avatar`}
             placeholderInitials={placeholder}
-            size="md"
+            size="lg"
             rounded
-            wrapperClassName="w-14 h-14 flex items-center justify-center"
+            wrapperClassName="w-16 h-16 flex items-center justify-center"
             className="text-xl font-semibold"
           />
         </div>
