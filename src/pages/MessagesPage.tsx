@@ -1,20 +1,26 @@
 import { MessageRooms } from "@/components"
 import { AppDispatch } from "@/app/store"
-import { fetchUserConversations, useAppSelector } from "@/features/Message/messagesSlice"
-import { getCurrentUsername } from "@/utils"
+import {
+  fetchUserConversations,
+  useAppSelector,
+  getNewMessage
+} from "@/features/Message/messagesSlice"
+import { getCurrentUsername, getCurrentUser } from "@/utils"
 import { useEffect, useState, useRef } from "react"
 import { useDispatch } from "react-redux"
 import { Outlet, useParams } from "react-router-dom"
-import io from "socket.io-client"
-import { Socket } from "socket.io-client"
+import io, { Socket } from "socket.io-client"
+import { socketUrl } from "@/shared/constants"
 
 export const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<null | string>(null)
   const [initialLoading, setInitialLoading] = useState(true)
-  const socketRef = useRef<Socket | null>(null)
 
   const dispatch = useDispatch<AppDispatch>()
   const currentUsername = getCurrentUsername()
+  const currentUser = getCurrentUser()
+  const socketRef = useRef<Socket | null>(null)
+  const currentRoomRef = useRef<string | null>(null)
 
   // Get the conversations from the updated messagesSlice structure
   const { conversations, error } = useAppSelector((state) => state.messages)
@@ -52,75 +58,107 @@ export const MessagesPage = () => {
 
     // Fetch conversations immediately on page load
     fetchConversations()
-
-    // And set up an interval to refresh conversations more frequently
-    // This helps catch up on missed messages due to socket issues
-    const intervalId = setInterval(fetchConversations, 15000) // 15 seconds instead of 30
-
-    // Clean up on unmount
-    return () => {
-      clearInterval(intervalId)
-    }
   }, [dispatch, currentUsername])
 
-  // Setup socket connection for real-time updates
+  // Initialize socket connection once
   useEffect(() => {
-    if (!currentUsername) return
+    if (!currentUsername || !currentUser) return
 
-    // Get backend URL from environment or use default
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://signalist-backend.liara.run"
-    let socketUrl = backendUrl
-    if (socketUrl.endsWith("/api")) {
-      socketUrl = socketUrl.replace(/\/api$/, "")
-    }
+    console.log(`Connecting to socket at: ${socketUrl}`)
 
-    console.log(`Connecting to main socket at: ${socketUrl}`)
-
-    // Create socket connection
-    const newSocket = io(socketUrl, {
+    const socket = io(socketUrl, {
       withCredentials: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      transports: ["websocket", "polling"]
+      forceNew: true, // Force a new connection
+      autoConnect: true
     })
 
-    // Socket connection events
-    newSocket.on("connect", () => {
-      console.log("Main socket connected with ID:", newSocket.id)
+    socketRef.current = socket
 
-      // Authenticate with username
-      newSocket.emit("authenticate", currentUsername)
+    socket.on("connect", () => {
+      console.log("Socket connected with ID:", socket.id)
+      socket.emit("authenticate", currentUsername)
+
+      // If we were in a room before reconnection, rejoin it
+      if (currentRoomRef.current) {
+        console.log("Rejoining room after reconnection:", currentRoomRef.current)
+        socket.emit("joinRoom", currentRoomRef.current)
+      }
     })
 
-    newSocket.on("connect_error", (error) => {
-      console.error("Main socket connection error:", error)
+    socket.on("newMessage", (message) => {
+      console.log("Received new message:", message)
+
+      // Only add message if it's from someone else (avoid duplicates)
+      if (message.sender.username !== currentUsername) {
+        // Find the room ID this message belongs to
+        const roomId = currentRoomRef.current
+        if (roomId) {
+          console.log("Adding message to room:", roomId)
+          dispatch(
+            getNewMessage({
+              currentUser,
+              text: message.text,
+              messageRoomId: roomId,
+              sender: message.sender
+            })
+          )
+        } else {
+          console.log("No current room to add message to")
+        }
+      } else {
+        console.log("Ignoring own message")
+      }
     })
 
-    newSocket.on("disconnect", (reason) => {
-      console.log("Main socket disconnected:", reason)
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error)
     })
 
-    // Try to connect
-    newSocket.connect()
-
-    // Handle new messages at the page level
-    newSocket.on("newMessage", () => {
-      // Refresh conversations when any new message arrives
-      dispatch(fetchUserConversations(currentUsername))
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason)
+      if (reason === "io server disconnect") {
+        // Server disconnected, try to reconnect
+        socket.connect()
+      }
     })
 
-    socketRef.current = newSocket
+    socket.on("reconnect", (attemptNumber) => {
+      console.log(`Socket reconnected after ${attemptNumber} attempts`)
+    })
 
-    // Cleanup on unmount
+    socket.on("reconnect_error", (error) => {
+      console.error("Socket reconnection error:", error)
+    })
+
     return () => {
-      newSocket.disconnect()
-      socketRef.current = null
+      if (currentRoomRef.current) {
+        socket.emit("leaveRoom", currentRoomRef.current)
+      }
+      socket.disconnect()
     }
-  }, [currentUsername, dispatch])
+  }, [currentUsername, currentUser, dispatch])
 
+  // Handle room joining/leaving when selectedChat changes
   useEffect(() => {
+    if (!socketRef.current) return
+
+    // Leave previous room if any
+    if (currentRoomRef.current) {
+      console.log("Leaving room:", currentRoomRef.current)
+      socketRef.current.emit("leaveRoom", currentRoomRef.current)
+    }
+
+    // Join new room if selected
     if (id) {
+      console.log("Joining room:", id)
+      socketRef.current.emit("joinRoom", id)
+      currentRoomRef.current = id
       setSelectedChat(id)
+    } else {
+      currentRoomRef.current = null
+      setSelectedChat(null)
     }
   }, [id])
 
@@ -130,7 +168,8 @@ export const MessagesPage = () => {
   return (
     <div className="flex h-screen bg-primary-main dark:bg-[#101827] text-gray-600 dark:text-gray-100">
       <div
-        className={`${selectedChat ? "hidden md:block" : "block"} md:w-[35%] lg:w-[30%] xl:w-[25%] w-full h-full overflow-y-auto border-r border-gray-200 dark:border-gray-700`}
+        className={`${selectedChat ? "hidden md:block" : "block"} md:w-[35%] lg:w-[30%] xl:w-[25%] w-full h-full
+        overflow-y-auto border-r border-gray-200 dark:border-gray-700`}
       >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -145,7 +184,8 @@ export const MessagesPage = () => {
         )}
       </div>
       <div
-        className={`bg-gray-100 dark:bg-gray-900 flex flex-col ${selectedChat ? "block" : "hidden"} md:block md:w-[65%] lg:w-[70%] xl:w-[75%] w-full max-h-full overflow-y-hidden`}
+        className={`bg-gray-100 dark:bg-gray-900 flex flex-col ${selectedChat ? "block" : "hidden"}
+           md:block md:w-[65%] lg:w-[70%] xl:w-[75%] w-full max-h-full overflow-y-hidden`}
       >
         {selectedChat && myMessages[selectedChat] ? (
           <Outlet

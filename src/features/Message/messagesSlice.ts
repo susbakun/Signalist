@@ -1,14 +1,17 @@
 import { ChatType, DMRoom, GroupRoom, RootState, SimplifiedAccountType } from "@/shared/types"
 import { MessageModel } from "@/shared/models"
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import * as messagesApi from "@/services/messagesApi"
+import { Socket } from "socket.io-client"
+import { v4 } from "uuid"
 
 // Define the state interface with loading and error properties
 interface MessagesState {
   conversations: MessageModel
   loading: boolean
   error: string | null
+  socket: Socket | null
 }
 
 // Define async thunks for API operations
@@ -89,23 +92,6 @@ export const updateMessageSendersReceiversAsync = createAsyncThunk(
   }
 )
 
-// Define interfaces for action payloads to improve type safety
-interface CreateRoomPayload {
-  myUsername: string
-  roomId: string
-  userInfo: SimplifiedAccountType
-}
-
-interface CreateGroupPayload {
-  myUsername: string
-  roomId: string
-  userInfos: SimplifiedAccountType[]
-  groupInfo: {
-    groupName: string
-    groupImageHref?: string
-  }
-}
-
 export interface SendMessagePayload {
   sender: SimplifiedAccountType
   roomId: string
@@ -121,126 +107,54 @@ export interface SendMessagePayload {
 const initialState: MessagesState = {
   conversations: {},
   loading: false,
-  error: null
+  error: null,
+  socket: null
 }
 
 const messagesSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    // Keep these for fallback in case API fails
-    createRoom: (state, action: PayloadAction<CreateRoomPayload>) => {
-      if (!state.conversations[action.payload.myUsername]) {
-        state.conversations[action.payload.myUsername] = {}
-      }
+    getNewMessage: (state, action) => {
+      const { currentUser, messageRoomId, text, sender } = action.payload
 
-      state.conversations[action.payload.myUsername][action.payload.roomId] = {
-        userInfo: action.payload.userInfo,
-        messages: [],
-        groupInfo: null,
-        usersInfo: null,
-        isGroup: false
-      }
-    },
-    createGroup: (state, action: PayloadAction<CreateGroupPayload>) => {
-      if (!state.conversations[action.payload.myUsername]) {
-        state.conversations[action.payload.myUsername] = {}
-      }
+      console.log("getNewMessage dispatched with:", {
+        currentUser: currentUser.username,
+        messageRoomId,
+        text,
+        sender: sender?.username
+      })
 
-      state.conversations[action.payload.myUsername][action.payload.roomId] = {
-        usersInfo: action.payload.userInfos,
-        messages: [],
-        groupInfo: action.payload.groupInfo,
-        userInfo: null,
-        isGroup: true
-      }
-    },
-    sendMessage: (state, action: PayloadAction<SendMessagePayload>) => {
+      // Use the sender from the payload if provided (for incoming messages), otherwise use currentUser
+      const messageSender = sender || currentUser
+
       const newMessage: ChatType = {
-        sender: action.payload.sender,
-        date: new Date().getTime(),
-        text: action.payload.text
+        sender: messageSender,
+        text,
+        messageImageHref: "",
+        date: Date.now(),
+        id: v4()
       }
 
-      if (action.payload.messageImageHref) {
-        newMessage.messageImageHref = action.payload.messageImageHref
-      }
-
-      // Create sender structure if it doesn't exist
-      if (!state.conversations[action.payload.sender.username]) {
-        state.conversations[action.payload.sender.username] = {}
-      }
-
-      // Create the room if it doesn't exist yet
-      if (!state.conversations[action.payload.sender.username][action.payload.roomId]) {
-        return // Can't send to a room that doesn't exist
-      }
-
-      state.conversations[action.payload.sender.username][action.payload.roomId].messages.push(
-        newMessage
-      )
-
-      const currentRoom = state.conversations[action.payload.sender.username][action.payload.roomId]
-
-      if (!currentRoom.isGroup) {
-        // Make sure user info exists
-        if (!currentRoom.userInfo) {
-          return // Invalid room structure
-        }
-
-        const recipientUsername = currentRoom.userInfo.username
-
-        if (
-          state.conversations[recipientUsername] &&
-          state.conversations[recipientUsername][action.payload.roomId]
-        ) {
-          state.conversations[recipientUsername][action.payload.roomId].messages.push(newMessage)
-        } else {
-          if (!state.conversations[recipientUsername]) {
-            state.conversations[recipientUsername] = {}
-          }
-
-          state.conversations[recipientUsername][action.payload.roomId] = {
-            userInfo: {
-              name: action.payload.sender.name,
-              username: action.payload.sender.username,
-              imageUrl: action.payload.sender.imageUrl
-            },
-            messages: [newMessage],
-            isGroup: false,
-            groupInfo: null,
-            usersInfo: null
-          }
-        }
+      // Check if the conversation exists for the current user
+      if (
+        state.conversations[currentUser.username] &&
+        state.conversations[currentUser.username][messageRoomId]
+      ) {
+        console.log("Adding message to conversation:", messageRoomId)
+        state.conversations[currentUser.username][messageRoomId].messages = [
+          ...state.conversations[currentUser.username][messageRoomId].messages,
+          newMessage
+        ]
       } else {
-        const groupMembers = currentRoom.usersInfo
-
-        if (groupMembers) {
-          groupMembers.forEach((member) => {
-            if (member.username !== action.payload.sender.username) {
-              if (!state.conversations[member.username]) {
-                state.conversations[member.username] = {}
-              }
-
-              if (
-                state.conversations[member.username] &&
-                state.conversations[member.username][action.payload.roomId]
-              ) {
-                state.conversations[member.username][action.payload.roomId].messages.push(
-                  newMessage
-                )
-              } else {
-                state.conversations[member.username][action.payload.roomId] = {
-                  userInfo: null,
-                  messages: [newMessage],
-                  isGroup: true,
-                  groupInfo: currentRoom.groupInfo,
-                  usersInfo: currentRoom.usersInfo
-                }
-              }
-            }
-          })
-        }
+        console.error("Conversation not found:", {
+          user: currentUser.username,
+          roomId: messageRoomId,
+          hasConversations: !!state.conversations[currentUser.username],
+          availableRooms: state.conversations[currentUser.username]
+            ? Object.keys(state.conversations[currentUser.username])
+            : []
+        })
       }
     }
   },
@@ -291,10 +205,22 @@ const messagesSlice = createSlice({
         state.error = null
       })
       // Send message - fulfilled
-      .addCase(sendMessageAsync.fulfilled, (state) => {
+      .addCase(sendMessageAsync.fulfilled, (state, action) => {
         state.loading = false
-        // When a message is sent via API, it would come back via socket.io
-        // So we don't need to update here
+        const { text, sender, roomId } = action.meta.arg
+
+        const newMessage: ChatType = {
+          sender,
+          text,
+          messageImageHref: "",
+          date: Date.now(),
+          id: v4()
+        }
+
+        state.conversations[sender.username][roomId].messages = [
+          ...state.conversations[sender.username][roomId].messages,
+          newMessage
+        ]
       })
       // Send message - rejected
       .addCase(sendMessageAsync.rejected, (state, action) => {
@@ -392,6 +318,6 @@ const messagesSlice = createSlice({
   }
 })
 
-export const { sendMessage, createRoom, createGroup } = messagesSlice.actions
+export const { getNewMessage } = messagesSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default messagesSlice.reducer

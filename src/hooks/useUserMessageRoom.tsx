@@ -29,11 +29,6 @@ export const useUserMessageRoom = () => {
     })
   }
 
-  /**
-   * Check if a group has a valid image ID
-   * @param groupInfo - The group info object
-   * @returns true if the group has a valid image ID, false otherwise
-   */
   const hasValidGroupImage = (groupInfo?: GroupInfoType) => {
     return !!groupInfo && !!groupInfo.groupImageHref
   }

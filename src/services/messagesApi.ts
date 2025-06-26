@@ -100,12 +100,3 @@ export const uploadMessageImage = async (file: File) => {
     throw error
   }
 }
-
-/**
- * Get the URL for a message or group image
- * @param imageId - The ID of the image to retrieve
- * @returns The complete URL to access the image from the backend
- */
-export const getMessageImageUrl = (imageId: string) => {
-  return `${API_MESSAGES_URL}/image/${imageId}`
-}

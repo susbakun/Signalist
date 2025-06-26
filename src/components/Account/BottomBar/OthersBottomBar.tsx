@@ -1,19 +1,19 @@
 import { SharePostModal, ToastContainer, UserUnfollowModal } from "@/components"
 import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
 import { AppDispatch } from "@/app/store"
-import { createRoom, useAppSelector } from "@/features/Message/messagesSlice"
+import { createDMConversationAsync, useAppSelector } from "@/features/Message/messagesSlice"
 import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
-import { SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
 import { useMemo, useState } from "react"
 import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
 import { useDispatch } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
+import { SimplifiedAccountType } from "@/shared/types"
 import { v4 } from "uuid"
 
 type OthersBottomBarProps = {
@@ -55,7 +55,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
         imageUrl: userAccount.imageUrl
       }
       const roomId = v4()
-      dispatch(createRoom({ myUsername: currentUsername, userInfo, roomId }))
+      dispatch(createDMConversationAsync({ user1: myAccount, user2: userInfo }))
       navigate(`/messages/${roomId}`)
     }
   }

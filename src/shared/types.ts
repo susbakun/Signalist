@@ -21,13 +21,11 @@ export type SubscriberType = {
   expireDate: number
 }
 export type ChatType = {
+  id: string
   sender: SimplifiedAccountType
   text: string
   date: number
   messageImageHref?: string // Full URL to the message image stored in the backend
-  id?: string // Unique message ID
-  pending?: boolean // Flag to indicate if the message is still being processed
-  updated_at?: number // Timestamp of the last message update
 }
 export type DMRoom = {
   userInfo: SimplifiedAccountType

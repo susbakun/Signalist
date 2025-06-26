@@ -7,6 +7,7 @@ export const nobitexMarketChart = "https://nobitex.ir/nobitex-cdn/charts/"
 export const cryptoPanicApiKey = import.meta.env.VITE_CRYPTOPANIC_API_KEY
 export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 export const backendUrl = "https://signalist-backend.liara.run/api"
+export const socketUrl = "https://signalist-backend.liara.run"
 
 // Storage Keys
 export const STORAGE_KEYS = {
