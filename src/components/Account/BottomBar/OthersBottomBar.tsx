@@ -1,14 +1,18 @@
 import { SharePostModal, ToastContainer, UserUnfollowModal } from "@/components"
 import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
 import { AppDispatch } from "@/app/store"
-import { createDMConversationAsync, useAppSelector } from "@/features/Message/messagesSlice"
+import {
+  createDMConversationAsync,
+  fetchUserConversations,
+  useAppSelector
+} from "@/features/Message/messagesSlice"
 import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useToastContainer } from "@/hooks/useToastContainer"
 import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
 import { getCurrentUsername } from "@/utils"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
 import { useDispatch } from "react-redux"
@@ -130,6 +134,10 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
     handleCloseShareModal()
   }
 
+  useEffect(() => {
+    dispatch(fetchUserConversations(currentUsername))
+  }, [])
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -151,6 +159,7 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
               className="px-4 py-1 bg-primary-link-button
                 dark:bg-dark-link-button rounded-md action-button
                 text-white flex"
+              disabled={messages === undefined}
             >
               <BiMessage className="w-5 h-6" />
             </button>
