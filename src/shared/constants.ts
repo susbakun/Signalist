@@ -53,3 +53,11 @@ export const cryptoNewsSources = [
   { value: "CryptoBriefing", label: "CryptoBriefing" },
   { value: "AMBCrypto", label: "AMBCrypto" }
 ]
+
+export const sizeClasses = {
+  xs: "w-6 h-6 text-xs",
+  sm: "w-8 h-8 text-sm",
+  md: "w-10 h-10 text-base",
+  lg: "w-16 h-16 text-lg",
+  xl: "w-36 h-36 text-xl"
+}

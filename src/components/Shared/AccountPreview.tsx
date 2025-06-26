@@ -19,6 +19,7 @@ export const AccountPreview = () => {
           .join("")}
         size="xl"
         img={userSimplified.imageUrl}
+        wrapperClassName="w-26 h-26"
         rounded
       />
       <div className="space-y-1 font-medium dark:text-white text-slate-700 flex flex-col justify-center text-center">
