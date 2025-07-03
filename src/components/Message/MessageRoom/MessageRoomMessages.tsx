@@ -145,7 +145,6 @@ export const MessageRoomMessages = ({
 
             const currentUsername = getCurrentUsername()
             const isCurrentUser = message.sender.username === currentUsername
-            const isPending = message.pending
 
             acc.push(
               <div
@@ -178,7 +177,7 @@ export const MessageRoomMessages = ({
                     isCurrentUser
                       ? "bg-primary-link-button dark:bg-dark-link-button text-white order-1"
                       : "dark:bg-gray-700 bg-gray-200 text-gray-600 dark:text-gray-100 order-2"
-                  } ${isPending ? "opacity-75" : "opacity-100"}`}
+                  }`}
                 >
                   {messageImageHref && areImagesLoading[messageImageHref] && (
                     <Loader className="flex items-center justify-center h-[100px] w-[100px]" />
@@ -213,39 +212,6 @@ export const MessageRoomMessages = ({
                     }`}
                   >
                     <span>{moment(message.date).format("h:mm A")}</span>
-
-                    {/* Status indicators for current user's messages */}
-                    {isCurrentUser && (
-                      <span className="ml-1">
-                        {isPending ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            className="text-gray-400"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
-                            />
-                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            className="text-blue-400"
-                          >
-                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z" />
-                          </svg>
-                        )}
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>

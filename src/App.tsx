@@ -32,8 +32,8 @@ function App() {
       await dispatch(fetchUsersAsync())
     }
 
-    // Initialize session management
-    if (localStorage.getItem(STORAGE_KEYS.AUTH) === "true") {
+    // Initialize session management if user data exists
+    if (localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
       getAllUsers()
     }
   }, [dispatch])

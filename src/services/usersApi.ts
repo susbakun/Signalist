@@ -6,7 +6,9 @@ const API_URL = `${backendUrl}/users`
 
 export const getUsers = async (): Promise<AccountModel[]> => {
   try {
-    const response = await fetch(`${API_URL}`)
+    const response = await fetch(`${API_URL}`, {
+      credentials: "include"
+    })
     if (!response.ok) {
       throw new Error("Failed to fetch users")
     }
@@ -19,13 +21,39 @@ export const getUsers = async (): Promise<AccountModel[]> => {
 
 export const getUserByUsername = async (username: string): Promise<AccountModel> => {
   try {
-    const response = await fetch(`${API_URL}/${username}`)
+    const response = await fetch(`${API_URL}/${username}`, {
+      credentials: "include"
+    })
     if (!response.ok) {
-      throw new Error(`Failed to fetch user with username: ${username}`)
+      throw new Error("Failed to fetch user")
     }
     return await response.json()
   } catch (error) {
-    console.error(`Error fetching user ${username}:`, error)
+    console.error("Error fetching user:", error)
+    throw error
+  }
+}
+
+// Upload image file to server
+export const uploadProfileImage = async (file: File): Promise<string> => {
+  try {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const response = await fetch(`${backendUrl}/upload/users`, {
+      method: "POST",
+      credentials: "include",
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to upload image")
+    }
+
+    const data = await response.json()
+    return data.url
+  } catch (error) {
+    console.error("Error uploading image:", error)
     throw error
   }
 }
@@ -39,30 +67,14 @@ export const createUser = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify(user)
     })
-
-    // Handle non-ok responses with more specific error details
     if (!response.ok) {
-      const errorData = await response.json()
-
-      // Extract specific error message and field if available
-      const errorMessage = errorData.message || "Failed to create user"
-      const errorField = errorData.field
-
-      // Create an error with field info for better error handling in UI
-      if (errorField) {
-        // Create a custom error to track the specific field
-        const fieldError = new Error(errorMessage)
-        // @ts-expect-error - Add custom field property to Error object
-        fieldError.field = errorField
-        throw fieldError
-      } else {
-        throw new Error(errorMessage)
-      }
+      throw new Error("Failed to create user")
     }
-
-    return await response.json()
+    const data = await response.json()
+    return data.user
   } catch (error) {
     console.error("Error creating user:", error)
     throw error
@@ -72,13 +84,14 @@ export const createUser = async (
 export const loginUser = async (credentials: {
   email: string
   password: string
-}): Promise<{ user: AccountModel; token: string }> => {
+}): Promise<{ user: AccountModel }> => {
   try {
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify(credentials)
     })
     if (!response.ok) {
@@ -87,6 +100,37 @@ export const loginUser = async (credentials: {
     return await response.json()
   } catch (error) {
     console.error("Error logging in:", error)
+    throw error
+  }
+}
+
+export const logoutUser = async (): Promise<void> => {
+  try {
+    const response = await fetch(`${API_URL}/logout`, {
+      method: "POST",
+      credentials: "include"
+    })
+    if (!response.ok) {
+      throw new Error("Failed to logout")
+    }
+  } catch (error) {
+    console.error("Error logging out:", error)
+    throw error
+  }
+}
+
+export const getCurrentUser = async (): Promise<AccountModel> => {
+  try {
+    const response = await fetch(`${API_URL}/me`, {
+      credentials: "include"
+    })
+    if (!response.ok) {
+      throw new Error("Not authenticated")
+    }
+    const data = await response.json()
+    return data.user
+  } catch (error) {
+    console.error("Error getting current user:", error)
     throw error
   }
 }
@@ -101,6 +145,7 @@ export const followUser = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ followingUsername })
     })
     if (!response.ok) {
@@ -126,6 +171,7 @@ export const unfollowUser = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ followingUsername })
     })
     if (!response.ok) {
@@ -148,6 +194,7 @@ export const blockUser = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ blockedUsername })
     })
     if (!response.ok) {
@@ -170,6 +217,7 @@ export const unblockUser = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ blockedUsername })
     })
     if (!response.ok) {
@@ -192,6 +240,7 @@ export const updateBookmarks = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ bookmarks })
     })
     if (!response.ok) {
@@ -206,7 +255,7 @@ export const updateBookmarks = async (
 
 export const updateProfile = async (
   username: string,
-  updates: Partial<Pick<AccountModel, "name" | "bio" | "imageUrl" | "username" | "email">>
+  updates: Partial<AccountModel>
 ): Promise<AccountModel> => {
   try {
     const response = await fetch(`${API_URL}/${username}`, {
@@ -214,6 +263,7 @@ export const updateProfile = async (
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify(updates)
     })
     if (!response.ok) {
@@ -236,6 +286,7 @@ export const updateUserScore = async (signal: SignalModel): Promise<AccountModel
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ signal })
     })
 

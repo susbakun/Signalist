@@ -4,6 +4,9 @@ import { backendUrl } from "@/shared/constants"
 
 const API_MESSAGES_URL = `${backendUrl}/messages`
 
+// Configure axios to include cookies in all requests
+axios.defaults.withCredentials = true
+
 /**
  * Get all conversations for a user
  * @param username - The username to get conversations for
@@ -85,8 +88,9 @@ export const uploadMessageImage = async (file: File) => {
   formData.append("file", file)
 
   try {
-    const response = await fetch("https://signalist-backend.liara.run/api/upload/messages", {
+    const response = await fetch(`${backendUrl}/upload/messages`, {
       method: "POST",
+      credentials: "include",
       body: formData
     })
 

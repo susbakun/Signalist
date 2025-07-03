@@ -38,29 +38,8 @@ export const registerUserAsync = createAsyncThunk(
   async (
     user: Omit<AccountModel, "followers" | "followings" | "bookmarks" | "blockedAccounts" | "score">
   ) => {
-    // Define the response type that may include token
-    interface RegisterResponse {
-      user?: AccountModel
-      token?: string
-    }
-
     const response = await usersApi.createUser(user)
-
-    // Check if response has user and token properties
-    const fullResponse = response as AccountModel | RegisterResponse
-
-    if (
-      "token" in fullResponse &&
-      "user" in fullResponse &&
-      fullResponse.token &&
-      fullResponse.user
-    ) {
-      // It's a response with both token and user
-      localStorage.setItem("token", fullResponse.token)
-      return fullResponse.user
-    }
-
-    // It's just the user
+    // No token handling needed with cookie-based auth
     return response as AccountModel
   }
 )
@@ -69,8 +48,7 @@ export const loginUserAsync = createAsyncThunk(
   "users/loginUser",
   async (credentials: { email: string; password: string }) => {
     const response = await usersApi.loginUser(credentials)
-    // Store token in localStorage
-    localStorage.setItem("token", response.token)
+    // No token handling needed with cookie-based auth
     return response.user
   }
 )

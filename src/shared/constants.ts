@@ -1,3 +1,5 @@
+import { isDevmode } from "@/utils"
+
 export const demoImageUrl =
   "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg"
 export const messagesRouteRegExp = /\/messages\/?/
@@ -6,14 +8,17 @@ export const tradingviewSupportHost = "https://www.tradingview.com"
 export const nobitexMarketChart = "https://nobitex.ir/nobitex-cdn/charts/"
 export const cryptoPanicApiKey = import.meta.env.VITE_CRYPTOPANIC_API_KEY
 export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
-export const backendUrl = "https://signalist-backend.liara.run/api"
-export const socketUrl = "https://signalist-backend.liara.run"
+export const backendUrl = isDevmode()
+  ? "http://localhost:3000/api"
+  : "https://signalist-backend.liara.run/api"
+export const socketUrl = isDevmode()
+  ? "http://localhost:3000"
+  : "https://signalist-backend.liara.run"
 
 // Storage Keys
 export const STORAGE_KEYS = {
   WATCHLIST: "user_watchlist",
   LAST_ACTIVITY: "lastActivityTime",
-  AUTH: "isAuthenticated",
   CURRENT_USER: "currentUser",
   THEME_MODE: "themeMode",
   REMEMBERED_EMAIL: "rememberedEmail",
@@ -34,24 +39,13 @@ export const cryptoNewsCategories = [
   { value: "SHIB", label: "Shiba Inu" }
 ]
 
-export const cryptoNewsFilters = [
-  { value: "rising", label: "Rising" },
-  { value: "hot", label: "Hot" },
-  { value: "bullish", label: "Bullish" },
-  { value: "bearish", label: "Bearish" }
-]
-
-export const cryptoNewsSources = [
-  { value: "CoinTelegraph", label: "CoinTelegraph" },
-  { value: "CryptoSlate", label: "CryptoSlate" },
-  { value: "NewsBTC", label: "NewsBTC" },
-  { value: "Decrypt", label: "Decrypt" },
-  { value: "Bitcoin Magazine", label: "Bitcoin Magazine" },
-  { value: "CoinDesk", label: "CoinDesk" },
-  { value: "The Block", label: "The Block" },
-  { value: "U.Today", label: "U.Today" },
-  { value: "CryptoBriefing", label: "CryptoBriefing" },
-  { value: "AMBCrypto", label: "AMBCrypto" }
+// CoinDesk API Source IDs
+export const cryptoNewsSourceIds = [
+  { value: "coindesk", label: "CoinDesk" },
+  { value: "cointelegraph", label: "CoinTelegraph" },
+  { value: "decrypt", label: "Decrypt" },
+  { value: "bitcoinmagazine", label: "Bitcoin Magazine" },
+  { value: "coingape", label: "CoinGape" }
 ]
 
 export const sizeClasses = {

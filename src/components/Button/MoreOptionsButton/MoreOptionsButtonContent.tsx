@@ -117,11 +117,11 @@ export const MoreOptionsButtonContent = ({
     )
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     closePopover()
     handleShowToast("Logging out...", "logout")
-    setTimeout(() => {
-      logout()
+    setTimeout(async () => {
+      await logout()
       navigate("/login")
     }, 1000)
   }

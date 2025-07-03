@@ -35,8 +35,7 @@ export const NewsList = () => {
     isLoading,
     isFetching
   } = useGetNewsQuery({
-    page,
-    filter: "hot" // Default to hot news
+    page
   })
 
   const handleLoadMore = () => {

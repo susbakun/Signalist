@@ -8,6 +8,7 @@ import { PostModalFooter } from "./PostModalFooter"
 import "./togglebutton.css"
 import { AppDispatch } from "@/app/store"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { backendUrl } from "@/shared/constants"
 
 export type CreatePostModalProps = {
   openModal: boolean
@@ -94,7 +95,7 @@ export const CreatePostModal = ({ openModal, handleCloseModal }: CreatePostModal
       const formData = new FormData()
       formData.append("file", selectedFile)
       try {
-        const response = await fetch("https://signalist-backend.liara.run/api/upload/posts", {
+        const response = await fetch(`${backendUrl}/upload/posts`, {
           method: "POST",
           body: formData
         })

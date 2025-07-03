@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from "@/shared/constants"
+import { logoutUser as apiLogoutUser } from "@/services/usersApi"
 
 const STANDARD_SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 60 minutes
 const EXTENDED_SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000 // 30 days
@@ -36,11 +37,18 @@ export const startSessionTimer = () => {
   }, 60 * 1000)
 }
 
-export const logout = () => {
+export const logout = async () => {
+  try {
+    // Call the backend logout API to clear cookies
+    await apiLogoutUser()
+  } catch (error) {
+    console.error("Error calling logout API:", error)
+    // Continue with local cleanup even if API call fails
+  }
+
   // Clear all auth data but preserve rememberedEmail for user convenience
   const wasRemembered = localStorage.getItem(STORAGE_KEYS.REMEMBERED_AUTH) === "true"
 
-  localStorage.removeItem(STORAGE_KEYS.AUTH)
   localStorage.removeItem(STORAGE_KEYS.CURRENT_USER)
   localStorage.removeItem(STORAGE_KEYS.LAST_ACTIVITY)
   localStorage.removeItem(STORAGE_KEYS.EXTENDED_SESSION)

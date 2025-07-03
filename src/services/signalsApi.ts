@@ -22,7 +22,9 @@ export const fetchSignals = async (
   totalCount: number
   hasMore: boolean
 }> => {
-  const response = await fetch(`${SIGNALS_ENDPOINT}?page=${page}&limit=${limit}`)
+  const response = await fetch(`${SIGNALS_ENDPOINT}?page=${page}&limit=${limit}`, {
+    credentials: "include"
+  })
   const data = await handleResponse(response)
   return {
     data: data.data,
@@ -33,7 +35,9 @@ export const fetchSignals = async (
 
 // Get a single signal by ID
 export const fetchSignalById = async (id: string): Promise<SignalModel> => {
-  const response = await fetch(`${SIGNALS_ENDPOINT}/${id}`)
+  const response = await fetch(`${SIGNALS_ENDPOINT}/${id}`, {
+    credentials: "include"
+  })
   const data = await handleResponse(response)
   return data.data
 }
@@ -57,6 +61,7 @@ export const createSignal = async (signalData: {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(signalData)
   })
   const data = await handleResponse(response)
@@ -69,7 +74,8 @@ export const updateSignalStatus = async (signalId: string): Promise<SignalModel>
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
-    }
+    },
+    credentials: "include"
   })
   const data = await handleResponse(response)
   return data.data
@@ -85,6 +91,7 @@ export const likeSignal = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
@@ -101,6 +108,7 @@ export const dislikeSignal = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
@@ -110,7 +118,8 @@ export const dislikeSignal = async (
 // Delete a signal
 export const removeSignal = async (id: string): Promise<void> => {
   const response = await fetch(`${SIGNALS_ENDPOINT}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include"
   })
   await handleResponse(response)
 }
@@ -129,8 +138,28 @@ export const updateSignal = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(updateData)
   })
   const data = await handleResponse(response)
   return data.data
+}
+
+// Upload image for signal
+export const uploadSignalImage = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch(`${backendUrl}/upload/signals`, {
+    method: "POST",
+    credentials: "include",
+    body: formData
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to upload image")
+  }
+
+  const data = await response.json()
+  return data.url
 }

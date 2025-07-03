@@ -1,7 +1,7 @@
 import { AppDispatch } from "@/app/store"
 import { ProfileImagePicker } from "@/components/Auth/ProfileImagePicker"
 import { fetchUsersAsync, registerUserAsync } from "@/features/User/usersSlice"
-import { recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
+import { backendUrl, recaptchaSiteKey, STORAGE_KEYS } from "@/shared/constants"
 import { cn } from "@/utils"
 import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
@@ -37,9 +37,10 @@ export const SignUpPage = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
-  const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
+  // Check if user is already authenticated via current user data
+  const currentUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
 
-  if (isAuthenticated) {
+  if (currentUser) {
     return <Navigate to="/" replace />
   }
 
@@ -123,7 +124,7 @@ export const SignUpPage = () => {
       formData.append("file", image)
 
       // Use the posts upload endpoint for now - in production, you'd ideally have a dedicated user images endpoint
-      const response = await fetch("https://signalist-backend.liara.run/api/upload/users", {
+      const response = await fetch(`${backendUrl}/upload/users`, {
         method: "POST",
         body: formData
       })
@@ -186,7 +187,7 @@ export const SignUpPage = () => {
       if (registerUserAsync.fulfilled.match(resultAction)) {
         const user = resultAction.payload
 
-        localStorage.setItem(STORAGE_KEYS.AUTH, "true")
+        // Store user info (cookies handle authentication now)
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user))
 
         initializeSession()

@@ -13,6 +13,7 @@ import {
 import { createSignalAsync } from "@/features/Signal/signalsSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useGetWallexMarketsQuery } from "@/services/cryptoApi"
+import { backendUrl } from "@/shared/constants"
 import { SignalModel } from "@/shared/models"
 import { CoinType, SignalAccountType } from "@/shared/types"
 import { transformWallexData } from "@/utils"
@@ -232,7 +233,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
       const formData = new FormData()
       formData.append("file", selectedFile)
       try {
-        const response = await fetch("https://signalist-backend.liara.run/api/upload/signals", {
+        const response = await fetch(`${backendUrl}/upload/signals`, {
           method: "POST",
           body: formData
         })

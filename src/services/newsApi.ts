@@ -1,12 +1,11 @@
 import { backendUrl } from "@/shared/constants"
-import { NewsItem, CryptoCurrency } from "@/shared/models"
+import { CryptoCurrency } from "@/shared/models"
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 type NewsQueryInput = {
   currency?: string
   page?: number
-  filter?: "rising" | "hot" | "bullish" | "bearish" | ""
-  source?: string
+  source_ids?: string
   category?: string
   pageSize?: number
 }
@@ -31,20 +30,34 @@ interface NewsApiResponse {
   }
 }
 
-// Define the structure of the CryptoPanic response
-interface CryptoPanicResponseData {
+// Define the structure of the CoinDesk response (after backend transformation)
+interface CoinDeskResponseData {
   success?: boolean
   message?: string
   status?: number
   count?: number
-  results?: NewsItem[]
+  results?: Array<{
+    title: string
+    url: string
+    image_url?: string
+    description?: string
+    published_at: string
+    source: {
+      title: string
+    }
+    currencies?: Array<{
+      code: string
+      title: string
+    }>
+    body?: string
+  }>
   error?: string
   next?: string | null
   previous?: string | null
 }
 
-// Transform CryptoPanic response to the format expected by components
-const transformCryptoPanicResponse = (response: CryptoPanicResponseData): NewsApiResponse => {
+// Transform CoinDesk response to the format expected by components
+const transformCoinDeskResponse = (response: CoinDeskResponseData): NewsApiResponse => {
   // Check if there was an error response
   if (response.success === false) {
     console.error("API Error:", response)
@@ -69,17 +82,23 @@ const transformCryptoPanicResponse = (response: CryptoPanicResponseData): NewsAp
 
   // Normal processing for valid response
   return {
-    articles: response.results.map((item: NewsItem) => ({
+    articles: response.results.map((item) => ({
       title: item.title || "No Title",
       url: item.url || "#",
       urlToImage: item.image_url,
-      description: item.title, // CryptoPanic doesn't provide description
+      description: item.description || item.title, // Use description or fallback to title
       publishedAt: item.published_at || new Date().toISOString(),
       source: {
-        name: item.source?.title || "Unknown Source"
+        name: item.source?.title || "CoinDesk"
       },
-      // Pass currencies for display in the UI
-      currencies: item.currencies
+      // Convert currencies to match expected format
+      currencies:
+        item.currencies?.map((currency) => ({
+          code: currency.code,
+          title: currency.title,
+          slug: currency.code.toLowerCase(),
+          url: `#${currency.code.toLowerCase()}` // Generate a placeholder URL
+        })) || null
     })),
     totalResults: response.count || response.results.length
   }
@@ -89,6 +108,7 @@ export const newsApi = createApi({
   reducerPath: "newsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: backendUrl,
+    credentials: "include",
     // Add more descriptive error handling
     prepareHeaders: (headers) => {
       headers.set("Accept", "application/json")
@@ -101,16 +121,20 @@ export const newsApi = createApi({
         // Build query parameters
         const queryParams = new URLSearchParams()
 
-        if (args.filter) {
-          queryParams.append("filter", args.filter)
+        if (args.source_ids) {
+          queryParams.append("source_ids", args.source_ids)
         }
 
-        if (args.currency) {
-          queryParams.append("currencies", args.currency)
+        if (args.category) {
+          queryParams.append("categories", args.category)
         }
 
         if (args.page && args.page > 1) {
           queryParams.append("page", args.page.toString())
+        }
+
+        if (args.pageSize) {
+          queryParams.append("pageSize", args.pageSize.toString())
         }
 
         // Return the endpoint with query parameters
@@ -119,10 +143,9 @@ export const newsApi = createApi({
           method: "GET"
         }
       },
-      transformResponse: (response: CryptoPanicResponseData) =>
-        transformCryptoPanicResponse(response),
+      transformResponse: (response: CoinDeskResponseData) => transformCoinDeskResponse(response),
       // Properly transform errors
-      transformErrorResponse: (response: { status: number; data: CryptoPanicResponseData }) => {
+      transformErrorResponse: (response: { status: number; data: CoinDeskResponseData }) => {
         console.error("API Error Response:", response)
         return {
           articles: [],

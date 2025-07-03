@@ -1,8 +1,8 @@
 import { CustomSelect, Loader } from "@/components"
 import { NewsPreview } from "@/components/News/NewsPreview"
 import { useGetNewsQuery } from "@/services/newsApi"
-import { cryptoNewsCategories, cryptoNewsFilters } from "@/shared/constants"
-import { NewsFilterType, OptionType } from "@/shared/types"
+import { cryptoNewsCategories, cryptoNewsSourceIds } from "@/shared/constants"
+import { OptionType } from "@/shared/types"
 import { cn } from "@/utils"
 import { useEffect, useState, useCallback } from "react"
 import { FaArrowUp } from "react-icons/fa"
@@ -24,8 +24,8 @@ type NewsArticle = {
 // News filter types to match the API expectations
 
 export const DetailedNewsPage = () => {
-  const [currency, setCurrency] = useState<string>("")
-  const [filter, setFilter] = useState<NewsFilterType>("hot")
+  const [currency, setCurrency] = useState<string>("BTC")
+  const [sourceId, setSourceId] = useState<string>("coindesk")
   const [newsList, setNewsList] = useState<NewsArticle[]>([])
   const [isVisible, setIsVisible] = useState(false)
   const [page, setPage] = useState(1)
@@ -38,12 +38,12 @@ export const DetailedNewsPage = () => {
     error,
     refetch
   } = useGetNewsQuery({
-    filter,
-    currency,
+    source_ids: sourceId,
+    category: currency,
     page
   })
 
-  // Reset page state when filter or currency changes
+  // Reset page state when source or currency changes
   const resetPagination = useCallback(() => {
     setPage(1)
     setNewsList([])
@@ -88,8 +88,8 @@ export const DetailedNewsPage = () => {
     resetPagination()
   }
 
-  const changeNewsFilter = (selected: OptionType | null) => {
-    setFilter((selected ? selected.value.toLowerCase() : "hot") as NewsFilterType)
+  const changeNewsSource = (selected: OptionType | null) => {
+    setSourceId(selected ? selected.value : "coindesk")
     resetPagination()
   }
 
@@ -168,8 +168,12 @@ export const DetailedNewsPage = () => {
       </div>
       <div className="py-4 flex flex-col md:flex-row gap-4 px-4">
         <div className="w-full md:w-1/2">
-          <label className="block mb-2 text-sm font-medium">News Filter</label>
-          <CustomSelect options={cryptoNewsFilters} selected={filter} onChange={changeNewsFilter} />
+          <label className="block mb-2 text-sm font-medium">News Source</label>
+          <CustomSelect
+            options={cryptoNewsSourceIds}
+            selected={sourceId}
+            onChange={changeNewsSource}
+          />
         </div>
         <div className="w-full md:w-1/2">
           <label className="block mb-2 text-sm font-medium">Cryptocurrency</label>

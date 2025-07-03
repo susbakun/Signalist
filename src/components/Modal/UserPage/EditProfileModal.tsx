@@ -4,7 +4,7 @@ import { Loader } from "@/components/Shared/Loader"
 import { ToastContainer } from "@/components/Shared/ToastContainer"
 import { fetchUsersAsync, updateProfileAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
-import { STORAGE_KEYS } from "@/shared/constants"
+import { backendUrl, STORAGE_KEYS } from "@/shared/constants"
 import { AccountModel } from "@/shared/models"
 import { cn, urlToFile } from "@/utils"
 import { Modal } from "flowbite-react"
@@ -105,7 +105,7 @@ export const EditProfileModal = ({
       const formData = new FormData()
       formData.append("file", image)
 
-      const response = await fetch("https://signalist-backend.liara.run/api/upload/users", {
+      const response = await fetch(`${backendUrl}/upload/users`, {
         method: "POST",
         body: formData
       })

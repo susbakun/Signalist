@@ -21,7 +21,8 @@ export const LoginPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
 
-  const isAuthenticated = localStorage.getItem(STORAGE_KEYS.AUTH) === "true"
+  // Check if user is already authenticated via current user data
+  const currentUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
 
   // Check for remembered credentials on component mount
   useEffect(() => {
@@ -58,7 +59,7 @@ export const LoginPage = () => {
     }
   }
 
-  if (isAuthenticated) {
+  if (currentUser) {
     return <Navigate to="/" replace />
   }
 
@@ -82,8 +83,7 @@ export const LoginPage = () => {
         // Login successful
         const user = resultAction.payload
 
-        // Store user info and auth status
-        localStorage.setItem(STORAGE_KEYS.AUTH, "true")
+        // Store user info (cookies handle authentication now)
         localStorage.setItem(
           STORAGE_KEYS.CURRENT_USER,
           JSON.stringify(user) // Store the complete user object

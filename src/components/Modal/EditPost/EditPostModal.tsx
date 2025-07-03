@@ -6,6 +6,7 @@ import { ChangeEvent, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import "./togglebutton.css"
 import { AppDispatch } from "@/app/store"
+import { backendUrl } from "@/shared/constants"
 
 export type EditPostModalProps = {
   openModal: boolean
@@ -80,7 +81,7 @@ export const EditPostModal = ({ openModal, handleCloseModal, post }: EditPostMod
       const formData = new FormData()
       formData.append("file", selectedFile)
       try {
-        const response = await fetch("https://signalist-backend.liara.run/api/upload/posts", {
+        const response = await fetch(`${backendUrl}/upload/posts`, {
           method: "POST",
           body: formData
         })

@@ -22,7 +22,9 @@ export const fetchPosts = async (
   totalCount: number
   hasMore: boolean
 }> => {
-  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}`)
+  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}`, {
+    credentials: "include"
+  })
   const data = await handleResponse(response)
   return {
     data: data.data,
@@ -33,7 +35,9 @@ export const fetchPosts = async (
 
 // Get a single post by ID
 export const fetchPostById = async (id: string): Promise<PostModel> => {
-  const response = await fetch(`${POSTS_ENDPOINT}/${id}`)
+  const response = await fetch(`${POSTS_ENDPOINT}/${id}`, {
+    credentials: "include"
+  })
   const data = await handleResponse(response)
   return data.data
 }
@@ -50,6 +54,7 @@ export const createPost = async (postData: {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(postData)
   })
   const data = await handleResponse(response)
@@ -70,6 +75,7 @@ export const editPost = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(updateData)
   })
   const data = await handleResponse(response)
@@ -79,7 +85,8 @@ export const editPost = async (
 // Remove a post
 export const removePost = async (id: string): Promise<void> => {
   const response = await fetch(`${POSTS_ENDPOINT}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include"
   })
   await handleResponse(response)
 }
@@ -91,6 +98,7 @@ export const likePost = async (postId: string, user: SimplifiedAccountType): Pro
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
@@ -107,6 +115,7 @@ export const dislikePost = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
@@ -126,6 +135,7 @@ export const postComment = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(commentData)
   })
   const data = await handleResponse(response)
@@ -135,7 +145,8 @@ export const postComment = async (
 // Delete a comment
 export const deleteComment = async (postId: string, commentId: string): Promise<void> => {
   const response = await fetch(`${POSTS_ENDPOINT}/${postId}/comments/${commentId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include"
   })
   await handleResponse(response)
 }
@@ -151,6 +162,7 @@ export const likeComment = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
@@ -168,8 +180,28 @@ export const dislikeComment = async (
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify({ user })
   })
   const data = await handleResponse(response)
   return data.data
+}
+
+// Upload image for post
+export const uploadPostImage = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch(`${backendUrl}/upload/posts`, {
+    method: "POST",
+    credentials: "include",
+    body: formData
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to upload image")
+  }
+
+  const data = await response.json()
+  return data.url
 }

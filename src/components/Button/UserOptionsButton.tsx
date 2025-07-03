@@ -17,10 +17,10 @@ export const UserOptionsButton = ({ open, handleOpen, setIsOpen }: ProfileOption
   const navigate = useNavigate()
   const { currentUser } = useCurrentUser()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsOpen(false)
-    setTimeout(() => {
-      logout()
+    setTimeout(async () => {
+      await logout()
       navigate("/login")
     }, 1000)
   }
