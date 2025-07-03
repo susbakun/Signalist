@@ -18,7 +18,6 @@ export const ImagePreview = ({ imagePreview, rounded, handleResetInput }: ImageP
               img={imagePreview}
               alt="image preview"
               size="lg"
-              color="gray"
               wrapperClassName="w-10 h-10"
               rounded
             />
