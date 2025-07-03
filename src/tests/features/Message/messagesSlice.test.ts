@@ -1,33 +1,19 @@
 import messagesReducer, {
   createDMConversationAsync,
   createGroupConversationAsync,
-  createGroup,
-  createRoom,
   fetchUserConversations,
-  sendMessage,
-  sendMessageAsync
+  sendMessageAsync,
+  getNewMessage
 } from "@/features/Message/messagesSlice"
-import * as messagesApi from "@/services/messagesApi"
-import { vi } from "vitest"
-
-// Mock the messagesApi module
-vi.mock("@/services/messagesApi", () => ({
-  getUserConversations: vi.fn(),
-  getConversationMessages: vi.fn(),
-  sendMessage: vi.fn(),
-  createDMConversation: vi.fn(),
-  createGroupConversation: vi.fn(),
-  uploadMessageImage: vi.fn()
-}))
+import { DMRoom, GroupRoom } from "@/shared/types"
 
 describe("messagesSlice", () => {
   // Mock the initial state with the new structure
   const initialState = {
-    conversations: {
-      testuser: {}
-    },
+    conversations: {},
     loading: false,
-    error: null
+    error: null,
+    socket: null
   }
 
   // Mock user data
@@ -47,275 +33,103 @@ describe("messagesSlice", () => {
     expect(messagesReducer(undefined, { type: "unknown" })).toEqual({
       conversations: {},
       loading: false,
-      error: null
+      error: null,
+      socket: null
     })
   })
 
-  test("should handle createRoom", () => {
-    const action = createRoom({
-      myUsername: "testuser",
-      roomId: "room1",
-      userInfo: mockRecipient
-    })
-
-    const state = messagesReducer(initialState, action)
-
-    expect(state.conversations.testuser.room1).toBeDefined()
-    expect(state.conversations.testuser.room1.isGroup).toBe(false)
-    expect(state.conversations.testuser.room1.userInfo).toEqual(mockRecipient)
-    expect(state.conversations.testuser.room1.messages).toEqual([])
-    expect(state.conversations.testuser.room1.groupInfo).toBeNull()
-    expect(state.conversations.testuser.room1.usersInfo).toBeNull()
-  })
-
-  test("should handle createGroup", () => {
-    const mockGroupInfo = {
-      groupName: "Test Group",
-      groupImageHref: "group-image-url"
+  test("should handle getNewMessage action", () => {
+    // First set up a conversation
+    const mockDMRoom: DMRoom = {
+      isGroup: false as const,
+      userInfo: mockRecipient,
+      messages: [],
+      groupInfo: null,
+      usersInfo: null
     }
 
-    const mockUserInfos = [mockUser, mockRecipient]
-
-    const action = createGroup({
-      myUsername: "testuser",
-      roomId: "group1",
-      userInfos: mockUserInfos,
-      groupInfo: mockGroupInfo
-    })
-
-    const state = messagesReducer(initialState, action)
-
-    expect(state.conversations.testuser.group1).toBeDefined()
-    expect(state.conversations.testuser.group1.isGroup).toBe(true)
-    expect(state.conversations.testuser.group1.groupInfo).toEqual(mockGroupInfo)
-    expect(state.conversations.testuser.group1.usersInfo).toEqual(mockUserInfos)
-    expect(state.conversations.testuser.group1.messages).toEqual([])
-    expect(state.conversations.testuser.group1.userInfo).toBeNull()
-  })
-
-  test("should handle sendMessage in a direct message room", () => {
-    // First create a room
-    let state = messagesReducer(
-      initialState,
-      createRoom({
-        myUsername: "testuser",
-        roomId: "room1",
-        userInfo: mockRecipient
-      })
-    )
-
-    // Add recipient to the state
-    state = {
-      ...state,
+    const stateWithConversation = {
       conversations: {
-        ...state.conversations,
-        recipient: {}
-      }
+        testuser: {
+          room1: mockDMRoom
+        }
+      },
+      loading: false,
+      error: null,
+      socket: null
     }
 
-    // Then send a message
-    const action = sendMessage({
-      sender: mockUser,
-      roomId: "room1",
-      text: "Hello, recipient!"
+    const action = getNewMessage({
+      currentUser: mockUser,
+      messageRoomId: "room1",
+      text: "Hello, recipient!",
+      sender: mockUser
     })
 
-    state = messagesReducer(state, action)
+    const state = messagesReducer(stateWithConversation, action)
 
-    // Check if message was added to sender's room
     expect(state.conversations.testuser.room1.messages.length).toBe(1)
     expect(state.conversations.testuser.room1.messages[0].text).toBe("Hello, recipient!")
     expect(state.conversations.testuser.room1.messages[0].sender).toEqual(mockUser)
     expect(state.conversations.testuser.room1.messages[0].date).toEqual(expect.any(Number))
-
-    // Check if message was added to recipient's room
-    expect(state.conversations.recipient.room1).toBeDefined()
-    expect(state.conversations.recipient.room1.messages.length).toBe(1)
-    expect(state.conversations.recipient.room1.messages[0].text).toBe("Hello, recipient!")
+    expect(state.conversations.testuser.room1.messages[0].id).toEqual(expect.any(String))
   })
 
-  test("should handle sendMessage with an image", () => {
-    // First create a room
-    let state = messagesReducer(
-      initialState,
-      createRoom({
-        myUsername: "testuser",
-        roomId: "room1",
-        userInfo: mockRecipient
-      })
-    )
+  test("should handle getNewMessage with different sender", () => {
+    // First set up a conversation
+    const mockDMRoom: DMRoom = {
+      isGroup: false as const,
+      userInfo: mockRecipient,
+      messages: [],
+      groupInfo: null,
+      usersInfo: null
+    }
 
-    // Add recipient to the state
-    state = {
-      ...state,
+    const stateWithConversation = {
       conversations: {
-        ...state.conversations,
-        recipient: {}
-      }
-    }
-
-    // Then send a message with an image
-    const action = sendMessage({
-      sender: mockUser,
-      roomId: "room1",
-      text: "Check out this image!",
-      messageImageHref: "image-url-123"
-    })
-
-    state = messagesReducer(state, action)
-
-    // Check if message was added with image
-    expect(state.conversations.testuser.room1.messages[0].messageImageHref).toBe("image-url-123")
-    expect(state.conversations.recipient.room1.messages[0].messageImageHref).toBe("image-url-123")
-  })
-
-  test("should handle sendMessage in a group", () => {
-    const mockGroupInfo = {
-      groupName: "Test Group",
-      groupImageHref: "group-image-url"
-    }
-
-    const mockMember = {
-      username: "member",
-      name: "Group Member",
-      imageUrl: "member-image.jpg"
-    }
-
-    const mockUserInfos = [mockUser, mockRecipient, mockMember]
-
-    // First create a group
-    let state = messagesReducer(
-      initialState,
-      createGroup({
-        myUsername: "testuser",
-        roomId: "group1",
-        userInfos: mockUserInfos,
-        groupInfo: mockGroupInfo
-      })
-    )
-
-    // Add other members to the state
-    state = {
-      ...state,
-      conversations: {
-        ...state.conversations,
-        recipient: {},
-        member: {}
-      }
-    }
-
-    // Then send a message to the group
-    const action = sendMessage({
-      sender: mockUser,
-      roomId: "group1",
-      text: "Hello, group!"
-    })
-
-    state = messagesReducer(state, action)
-
-    // Check if message was added to sender's room
-    expect(state.conversations.testuser.group1.messages.length).toBe(1)
-    expect(state.conversations.testuser.group1.messages[0].text).toBe("Hello, group!")
-
-    // Check if message was added to all group members' rooms
-    expect(state.conversations.recipient.group1).toBeDefined()
-    expect(state.conversations.recipient.group1.messages.length).toBe(1)
-    expect(state.conversations.recipient.group1.messages[0].text).toBe("Hello, group!")
-
-    expect(state.conversations.member.group1).toBeDefined()
-    expect(state.conversations.member.group1.messages.length).toBe(1)
-    expect(state.conversations.member.group1.messages[0].text).toBe("Hello, group!")
-  })
-
-  test("should create a new room for recipient if it doesn't exist", () => {
-    // Start with a state that doesn't have the recipient
-    const state = {
-      conversations: {
-        testuser: {},
-        recipient: {}
+        testuser: {
+          room1: mockDMRoom
+        }
       },
       loading: false,
-      error: null
+      error: null,
+      socket: null
     }
 
-    // First create a room for the sender
-    let newState = messagesReducer(
-      state,
-      createRoom({
-        myUsername: "testuser",
-        roomId: "room1",
-        userInfo: mockRecipient
-      })
-    )
-
-    // Then send a message
-    const action = sendMessage({
-      sender: mockUser,
-      roomId: "room1",
-      text: "Hello, new recipient!"
+    const action = getNewMessage({
+      currentUser: mockUser,
+      messageRoomId: "room1",
+      text: "Hello from recipient!",
+      sender: mockRecipient
     })
 
-    newState = messagesReducer(newState, action)
+    const state = messagesReducer(stateWithConversation, action)
 
-    // Check if a new room was created for the recipient
-    expect(newState.conversations.recipient).toBeDefined()
-    expect(newState.conversations.recipient.room1).toBeDefined()
-    expect(newState.conversations.recipient.room1.userInfo?.username).toBe("testuser")
-    expect(newState.conversations.recipient.room1.messages.length).toBe(1)
-    expect(newState.conversations.recipient.room1.messages[0].text).toBe("Hello, new recipient!")
-  })
-
-  test("should create a new room for group member if it doesn't exist", () => {
-    const mockGroupInfo = {
-      groupName: "Test Group",
-      groupImageHref: "group-image-url"
-    }
-
-    const mockUserInfos = [mockUser, mockRecipient]
-
-    // First create a group for the sender
-    let state = messagesReducer(
-      initialState,
-      createGroup({
-        myUsername: "testuser",
-        roomId: "group1",
-        userInfos: mockUserInfos,
-        groupInfo: mockGroupInfo
-      })
-    )
-
-    // Then send a message to the group
-    const action = sendMessage({
-      sender: mockUser,
-      roomId: "group1",
-      text: "Hello, new group member!"
-    })
-
-    state = messagesReducer(state, action)
-
-    // Check if a new room was created for the other group member
-    expect(state.conversations.recipient).toBeDefined()
-    expect(state.conversations.recipient.group1).toBeDefined()
-    expect(state.conversations.recipient.group1.isGroup).toBe(true)
-    expect(state.conversations.recipient.group1.groupInfo).toEqual(mockGroupInfo)
-    expect(state.conversations.recipient.group1.messages.length).toBe(1)
-    expect(state.conversations.recipient.group1.messages[0].text).toBe("Hello, new group member!")
+    expect(state.conversations.testuser.room1.messages.length).toBe(1)
+    expect(state.conversations.testuser.room1.messages[0].text).toBe("Hello from recipient!")
+    expect(state.conversations.testuser.room1.messages[0].sender).toEqual(mockRecipient)
   })
 
   // Async thunk tests
-  test("fetchUserConversations.fulfilled should update user conversations", async () => {
-    const mockConversations = {
-      room1: {
-        userInfo: mockRecipient,
-        messages: [],
-        isGroup: false,
-        groupInfo: null,
-        usersInfo: null
-      }
+  test("fetchUserConversations.pending should set loading to true", () => {
+    const action = { type: fetchUserConversations.pending.type }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(true)
+    expect(state.error).toBeNull()
+  })
+
+  test("fetchUserConversations.fulfilled should update user conversations", () => {
+    const mockDMRoom: DMRoom = {
+      userInfo: mockRecipient,
+      messages: [],
+      isGroup: false as const,
+      groupInfo: null,
+      usersInfo: null
     }
 
-    // Mock the API call
-    vi.mocked(messagesApi.getUserConversations).mockResolvedValueOnce(mockConversations)
+    const mockConversations = {
+      room1: mockDMRoom
+    }
 
     // Create the action
     const action = {
@@ -330,18 +144,32 @@ describe("messagesSlice", () => {
     expect(state.conversations.testuser).toEqual(mockConversations)
   })
 
-  test("createDMConversationAsync.fulfilled should create a new DM room", async () => {
-    const mockResponse = {
+  test("fetchUserConversations.rejected should set error", () => {
+    const action = {
+      type: fetchUserConversations.rejected.type,
+      error: { message: "Failed to fetch conversations" }
+    }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(false)
+    expect(state.error).toBe("Failed to fetch conversations")
+  })
+
+  test("createDMConversationAsync.pending should set loading to true", () => {
+    const action = { type: createDMConversationAsync.pending.type }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(true)
+    expect(state.error).toBeNull()
+  })
+
+  test("createDMConversationAsync.fulfilled should create a new DM room", () => {
+    const mockResponse: DMRoom & { roomId: string } = {
       roomId: "new-room",
       userInfo: mockRecipient,
       messages: [],
-      isGroup: false,
+      isGroup: false as const,
       groupInfo: null,
       usersInfo: null
     }
-
-    // Mock the API call
-    vi.mocked(messagesApi.createDMConversation).mockResolvedValueOnce(mockResponse)
 
     // Create the action
     const action = {
@@ -356,7 +184,24 @@ describe("messagesSlice", () => {
     expect(state.conversations.testuser["new-room"]).toEqual(mockResponse)
   })
 
-  test("createGroupConversationAsync.fulfilled should create a new group", async () => {
+  test("createDMConversationAsync.rejected should set error", () => {
+    const action = {
+      type: createDMConversationAsync.rejected.type,
+      error: { message: "Failed to create conversation" }
+    }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(false)
+    expect(state.error).toBe("Failed to create conversation")
+  })
+
+  test("createGroupConversationAsync.pending should set loading to true", () => {
+    const action = { type: createGroupConversationAsync.pending.type }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(true)
+    expect(state.error).toBeNull()
+  })
+
+  test("createGroupConversationAsync.fulfilled should create a new group", () => {
     const mockGroupInfo = {
       groupName: "New Test Group",
       groupImageHref: "new-group-image-url"
@@ -364,17 +209,14 @@ describe("messagesSlice", () => {
 
     const mockUserInfos = [mockUser, mockRecipient]
 
-    const mockResponse = {
+    const mockResponse: GroupRoom & { roomId: string } = {
       roomId: "new-group",
       userInfo: null,
       messages: [],
-      isGroup: true,
+      isGroup: true as const,
       groupInfo: mockGroupInfo,
       usersInfo: mockUserInfos
     }
-
-    // Mock the API call
-    vi.mocked(messagesApi.createGroupConversation).mockResolvedValueOnce(mockResponse)
 
     // Create the action
     const action = {
@@ -395,14 +237,24 @@ describe("messagesSlice", () => {
     expect(state.conversations.testuser["new-group"]).toEqual(mockResponse)
   })
 
-  test("sendMessageAsync should set loading to true when pending", () => {
+  test("createGroupConversationAsync.rejected should set error", () => {
+    const action = {
+      type: createGroupConversationAsync.rejected.type,
+      error: { message: "Failed to create group" }
+    }
+    const state = messagesReducer(initialState, action)
+    expect(state.loading).toBe(false)
+    expect(state.error).toBe("Failed to create group")
+  })
+
+  test("sendMessageAsync.pending should set loading to true", () => {
     const action = { type: sendMessageAsync.pending.type }
     const state = messagesReducer(initialState, action)
     expect(state.loading).toBe(true)
     expect(state.error).toBeNull()
   })
 
-  test("sendMessageAsync should set error when rejected", () => {
+  test("sendMessageAsync.rejected should set error", () => {
     const action = {
       type: sendMessageAsync.rejected.type,
       error: { message: "Test error" }
