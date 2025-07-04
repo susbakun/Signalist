@@ -5,10 +5,8 @@ import { Provider } from "react-redux"
 import { BrowserRouter } from "react-router-dom"
 import { vi } from "vitest"
 
-// Mock the hooks and redux store
 vi.mock("@/features/Post/postsSlice", () => ({
   useAppSelector: vi.fn().mockImplementation((selector) => {
-    // Mock the state that useAppSelector would return
     const mockState = {
       users: [
         {
