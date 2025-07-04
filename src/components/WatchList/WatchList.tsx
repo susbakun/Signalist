@@ -3,11 +3,12 @@ import { EmptyPage } from "@/pages"
 import { useGetWallexMarketsQuery } from "@/services/cryptoApi"
 import { STORAGE_KEYS } from "@/shared/constants"
 import { CoinType } from "@/shared/types"
-import { getCurrentUsername, transformWallexData } from "@/utils"
+import { getCurrentUsername, getWeeklyChartUrl, transformWallexData } from "@/utils"
 import { Table } from "flowbite-react"
 import { isEmpty } from "lodash"
+import millify from "millify"
 import { useEffect, useState, useMemo } from "react"
-import { IoAddCircleOutline } from "react-icons/io5"
+import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 
 export const WatchList = () => {
   // Use the new Wallex API instead of the CoinRanking API
@@ -154,6 +155,37 @@ export const WatchList = () => {
               ))}
             </Table.Body>
           </Table>
+          <div className="md:hidden grid grid-cols-2 gap-4">
+            {cryptos.map((crypto) => (
+              <div key={crypto.uuid} className="bg-white dark:bg-gray-800 p-4 rounded-md">
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex items-center gap-2">
+                    <img className="w-6 h-6" src={crypto.iconUrl} alt={crypto.name} />
+                    <span className="text-sm truncate max-w-[80px]">
+                      {crypto.symbol}/{crypto.quoteAsset || "USD"}
+                    </span>
+                  </div>
+                  <button onClick={() => handleRemoveFromWatchList(crypto.uuid)} className="ml-2">
+                    <IoTrashOutline className="w-5 h-5 text-red-500" />
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <p>Price: ${(+crypto.price).toLocaleString("en-Us")}</p>
+                  <p>Volume: {millify(+crypto["24hVolume"])}</p>
+                  <p className={+crypto.change > 0 ? "text-green-500" : "text-red-500"}>
+                    Change: {millify(+crypto.change)}%
+                  </p>
+                  <div className="flex justify-center mt-2">
+                    <img
+                      src={getWeeklyChartUrl(crypto.symbol)}
+                      alt={crypto.name}
+                      className="hue-rotate-15 saturate-150 brightness-110"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>
