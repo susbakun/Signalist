@@ -7,7 +7,7 @@ import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
 import { useRef, useState } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
-import { FaLock, FaUser } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa"
 import { MdEmail } from "react-icons/md"
 import { useDispatch } from "react-redux"
 import { Link, Navigate, useNavigate } from "react-router-dom"
@@ -23,6 +23,7 @@ export const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState("")
   const recaptchaRef = useRef<ReCAPTCHA>(null)
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{
     name?: string
     username?: string
@@ -284,14 +285,20 @@ export const SignUpPage = () => {
         className="w-full max-w-md"
       >
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-8 py-6 bg-gradient-to-r from-primary-link-button to-[#10b981] dark:from-dark-link-button dark:to-[#059669]">
+          <div
+            className="px-8 py-6 bg-gradient-to-r from-primary-link-button to-[#10b981]
+           dark:from-dark-link-button dark:to-[#059669]"
+          >
             <h2 className="text-2xl font-bold text-white text-center">Create Account</h2>
             <p className="text-gray-100 text-center mt-2">Join our community today</p>
           </div>
 
           <form onSubmit={handleSubmit} className="px-8 py-6 space-y-4">
             {errors.general && (
-              <div className="text-red-500 text-sm text-center bg-red-100 dark:bg-red-900/20 rounded-lg py-2">
+              <div
+                className="text-red-500 text-sm text-center bg-red-100
+               dark:bg-red-900/20 rounded-lg py-2"
+              >
                 {errors.general}
               </div>
             )}
@@ -317,7 +324,9 @@ export const SignUpPage = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
                     className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
+                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                      "dark:bg-gray-700 dark:border-gray-600 h-10",
                       errors.name && "border-red-500 dark:border-red-500"
                     )}
                   />
@@ -337,7 +346,9 @@ export const SignUpPage = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Username"
                     className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
+                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                      "dark:bg-gray-700 dark:border-gray-600 h-10",
                       errors.username && "border-red-500 dark:border-red-500"
                     )}
                   />
@@ -357,7 +368,9 @@ export const SignUpPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
                     className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
+                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                      "dark:bg-gray-700 dark:border-gray-600 h-10",
                       errors.email && "border-red-500 dark:border-red-500"
                     )}
                   />
@@ -372,15 +385,27 @@ export const SignUpPage = () => {
                     <FaLock className="text-gray-400 text-lg" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
+                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                      "dark:bg-gray-700 dark:border-gray-600 h-10",
                       errors.password && "border-red-500 dark:border-red-500"
                     )}
                   />
+                  <button
+                    className="action-button absolute right-3 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="w-5 h-5" />
+                    ) : (
+                      <FaEye className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
                 {errors.password ? (
                   <p className="text-red-500 text-xs mt-1 bg-red-50 dark:bg-red-900/10 p-1 rounded">
@@ -406,7 +431,9 @@ export const SignUpPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm Password"
                     className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 h-10",
+                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
+                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                      "dark:bg-gray-700 dark:border-gray-600 h-10",
                       errors.confirmPassword && "border-red-500 dark:border-red-500"
                     )}
                   />
@@ -431,7 +458,9 @@ export const SignUpPage = () => {
                   rows={3}
                   maxLength={150}
                   className={cn(
-                    "w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 resize-none",
+                    "w-full px-4 py-2 border rounded-lg focus:outline-none",
+                    "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                    "dark:bg-gray-700 dark:border-gray-600 resize-none",
                     errors.bio && "border-red-500 dark:border-red-500"
                   )}
                 />
@@ -462,7 +491,8 @@ export const SignUpPage = () => {
               type="submit"
               disabled={isLoading || !captchaToken}
               className={cn(
-                "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity mt-6",
+                "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button",
+                "text-white rounded-lg hover:opacity-90 transition-opacity mt-6",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
