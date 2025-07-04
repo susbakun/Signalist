@@ -1,6 +1,7 @@
 import { AppDispatch } from "@/app/store"
 import { EditSignalModal, SignalContext, SignalFooter, SignalTopBar } from "@/components"
 import { updateSignalStatusAsync } from "@/features/Signal/signalsSlice"
+import { useAppSelector } from "@/features/User/usersSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { AccountModel, SignalModel } from "@/shared/models"
@@ -23,9 +24,12 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
   const dispatch = useDispatch<AppDispatch>()
 
   const { publisher } = signal
+  const publisherDetails = useAppSelector((store) => store.users.users).find(
+    (user) => user.username === publisher.username
+  )
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
-  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   const handleOpenEditSignalModal = () => {
     setOpenEditSignalModal(true)
@@ -101,7 +105,9 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
     }
   }, [myAccount, determineIsUserBlocked, signal.publisher.username])
 
-  if (isUserBlocked) return null
+  if (!publisherDetails) return null
+
+  if (isUserBlocked || areYouBlocked(publisherDetails)) return null
 
   return (
     <>

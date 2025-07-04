@@ -69,14 +69,17 @@ export const MessageRoom = () => {
 
   return (
     <>
-      <div className="h-screen md:flex-1 flex flex-col bg-gray-100 dark:bg-gray-900 md:relative md:w-auto fixed w-full inset-0">
+      <div
+        className="h-screen md:flex-1 flex flex-col bg-gray-100 dark:bg-gray-900
+        md:relative md:w-auto fixed w-full inset-0"
+      >
         {/* Header */}
         <div className="sticky top-0 left-0 right-0 z-20 bg-gray-100 dark:bg-gray-900 shadow-md">
           <MessageRoomTopBar myMessages={myMessages} onBack={onBack} />
         </div>
 
         {/* Messages container - increased padding for mobile */}
-        <div className="flex-1 overflow-y-auto pb-48 md:pb-24">
+        <div className="flex-1 overflow-y-auto pb-24">
           <MessageRoomMessages
             isGroup={myMessages.isGroup}
             messages={myMessages.messages}

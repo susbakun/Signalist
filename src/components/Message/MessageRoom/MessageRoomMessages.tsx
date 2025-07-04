@@ -29,6 +29,14 @@ export const MessageRoomMessages = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const lastScrollHeightRef = useRef<number>(0)
   const lastScrollPositionRef = useRef<number>(0)
+  const previousMessagesLength = useRef<number>(0)
+
+  // Function to scroll to bottom
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior })
+    }
+  }, [])
 
   // Function to check if we should scroll to bottom
   const shouldScrollToBottom = useCallback(() => {
@@ -71,31 +79,48 @@ export const MessageRoomMessages = ({
     }
   }, [messages])
 
+  // Initial scroll to bottom when component mounts or when entering a new room
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Scroll to bottom immediately on initial load
+      scrollToBottom("auto")
+    }
+  }, [scrollToBottom])
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (!messagesContainerRef.current) return
 
-    // Check if we were at the bottom before the update
-    const shouldScroll = shouldScrollToBottom()
+    const currentMessagesLength = messages.length
+    const isNewMessage = currentMessagesLength > previousMessagesLength.current
 
-    if (shouldScroll) {
-      if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === "function") {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
-      }
+    // Always scroll to bottom if a new message was added
+    if (isNewMessage) {
+      scrollToBottom("smooth")
     } else {
-      // Maintain scroll position when new content is added
-      const newScrollHeight = messagesContainerRef.current.scrollHeight
-      const heightDifference = newScrollHeight - lastScrollHeightRef.current
-      messagesContainerRef.current.scrollTop = lastScrollPositionRef.current + heightDifference
+      // For other updates (like image loading), check if we should scroll
+      const shouldScroll = shouldScrollToBottom()
+
+      if (shouldScroll) {
+        scrollToBottom("smooth")
+      } else {
+        // Maintain scroll position when new content is added
+        const newScrollHeight = messagesContainerRef.current.scrollHeight
+        const heightDifference = newScrollHeight - lastScrollHeightRef.current
+        messagesContainerRef.current.scrollTop = lastScrollPositionRef.current + heightDifference
+      }
     }
-  }, [messages, shouldScrollToBottom])
+
+    // Update the previous messages length
+    previousMessagesLength.current = currentMessagesLength
+  }, [messages, shouldScrollToBottom, scrollToBottom])
 
   const handleImageLoaded = (imageHref: string) => {
     setAreImagesLoading((prevState) => ({ ...prevState, [imageHref]: false }))
 
     // Check if we should scroll after image load
-    if (shouldScrollToBottom() && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" })
+    if (shouldScrollToBottom()) {
+      scrollToBottom("auto")
     }
   }
 

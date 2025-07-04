@@ -14,7 +14,7 @@ export const ExploreTopBar = () => {
 
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const { currentUser: myAccount } = useCurrentUser()
-  const { isUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearched(e.target.value)
@@ -40,7 +40,8 @@ export const ExploreTopBar = () => {
       (user) =>
         (user.username.toLowerCase().includes(searched.toLowerCase()) ||
           user.name.toLowerCase().includes(searched.toLowerCase())) &&
-        !isUserBlocked(user.username)
+        !isUserBlocked(user.username) &&
+        !areYouBlocked(user)
     )
   }, [users, searched, isUserBlocked])
 

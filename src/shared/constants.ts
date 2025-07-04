@@ -5,7 +5,6 @@ export const demoImageUrl =
 export const messagesRouteRegExp = /\/messages\/?/
 export const editPostRouteRegExp = /\/(explore\/)?(suggests|posts)\/editPost\/.*/
 export const tradingviewSupportHost = "https://www.tradingview.com"
-export const nobitexMarketChart = "https://nobitex.ir/nobitex-cdn/charts/"
 export const cryptoPanicApiKey = import.meta.env.VITE_CRYPTOPANIC_API_KEY
 export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 export const backendUrl = isDevmode()

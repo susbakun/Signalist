@@ -62,7 +62,7 @@ export const RightSideBar = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { users, loading: usersLoading } = useAppSelector((state) => state.users)
   const { currentUser: myAccount } = useCurrentUser()
-  const { isUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   useEffect(() => {
     if (users.length === 0 && !usersLoading) {
@@ -77,6 +77,7 @@ export const RightSideBar = () => {
             (user) =>
               user.username !== myAccount?.username &&
               !isUserBlocked(user.username) &&
+              !areYouBlocked(user) &&
               user.username !== "MarmadukeWhisperer"
           )
         ]

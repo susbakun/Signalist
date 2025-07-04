@@ -154,3 +154,7 @@ export const urlToFile = async (url: string, filename: string, mimeType: string)
   const blob = await res.blob()
   return new File([blob], filename, { type: mimeType })
 }
+
+export const getWeeklyChartUrl = (symbol: string) => {
+  return `https://images.cryptocompare.com/sparkchart/${symbol}/USD/latest.png?ts=`
+}

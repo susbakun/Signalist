@@ -1,4 +1,5 @@
 import { EditPostModal, PostBody, PostFooter, PostTopBar } from "@/components"
+import { useAppSelector } from "@/features/Post/postsSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { AccountModel, PostModel } from "@/shared/models"
@@ -15,8 +16,12 @@ export const Post = ({ post, myAccount, className }: PostProps) => {
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
+  const publisherDetails = useAppSelector((store) => store.users.users).find(
+    (user) => user.username === publisher.username
+  )
+
   const { amISubscribed } = useIsUserSubscribed(publisher)
-  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   const handleOpenEditPostModal = () => {
     setIsEditPostModalOpen(true)
@@ -33,7 +38,9 @@ export const Post = ({ post, myAccount, className }: PostProps) => {
     }
   }, [myAccount])
 
-  if (isUserBlocked) return null
+  if (!publisherDetails) return null
+
+  if (isUserBlocked || areYouBlocked(publisherDetails)) return null
 
   return (
     <>

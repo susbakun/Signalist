@@ -6,6 +6,7 @@ import { ComponentProps, useEffect, useState } from "react"
 import { TbExternalLink } from "react-icons/tb"
 import { Link } from "react-router-dom"
 import { twMerge } from "tailwind-merge"
+import { useAppSelector } from "@/features/Signal/signalsSlice"
 
 type StreamingUserProps = Pick<AccountModel, "name" | "username" | "imageUrl"> & {
   myAccount: AccountModel
@@ -20,9 +21,13 @@ export const StreamingUser = ({
 }: StreamingUserProps) => {
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
+  const publisherDetails = useAppSelector((store) => store.users.users).find(
+    (user) => user.username === username
+  )
+
   const placeholder = getAvatarPlaceholder(name)
 
-  const { isUserBlocked: determineIsUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked: determineIsUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   useEffect(() => {
     if (myAccount) {
@@ -30,7 +35,9 @@ export const StreamingUser = ({
     }
   }, [myAccount])
 
-  if (isUserBlocked) return
+  if (!publisherDetails) return null
+
+  if (isUserBlocked || areYouBlocked(publisherDetails)) return null
 
   return (
     <>

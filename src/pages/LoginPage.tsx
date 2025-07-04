@@ -4,7 +4,7 @@ import { initializeSession, setupActivityListeners } from "@/utils/session"
 import { motion } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
 import ReCAPTCHA from "react-google-recaptcha"
-import { FaLock, FaUser } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store"
@@ -17,6 +17,8 @@ export const LoginPage = () => {
   const [error, setError] = useState("")
   const [captchaToken, setCaptchaToken] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
   const recaptchaRef = useRef<ReCAPTCHA>(null)
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
@@ -137,7 +139,10 @@ export const LoginPage = () => {
         className="w-full max-w-md"
       >
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-8 py-6 bg-gradient-to-r from-primary-link-button to-[#10b981] dark:from-dark-link-button dark:to-[#059669]">
+          <div
+            className="px-8 py-6 bg-gradient-to-r from-primary-link-button to-[#10b981]
+           dark:from-dark-link-button dark:to-[#059669]"
+          >
             <h2 className="text-2xl font-bold text-white text-center">Welcome Back!</h2>
             <p className="text-gray-100 text-center mt-2">Please sign in to continue</p>
           </div>
@@ -158,7 +163,9 @@ export const LoginPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
                   required
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none
+                  focus:border-primary-link-button dark:focus:border-dark-link-button
+                  dark:bg-gray-700 dark:border-gray-600"
                 />
               </div>
 
@@ -174,9 +181,18 @@ export const LoginPage = () => {
                   focus:border-primary-link-button dark:focus:border-dark-link-button
                   dark:bg-gray-700 dark:border-gray-600"
                 />
+                <button
+                  className="action-button absolute right-3 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="w-5 h-5" />
+                  ) : (
+                    <FaEye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             </div>
-
             <div className="flex items-center justify-between">
               <label className="flex items-center space-x-2 text-sm">
                 <input
@@ -194,7 +210,6 @@ export const LoginPage = () => {
                 Forgot Password?
               </Link>
             </div>
-
             {/* reCAPTCHA component */}
             <div className="flex justify-center mt-4">
               <ReCAPTCHA
@@ -213,7 +228,8 @@ export const LoginPage = () => {
               type="submit"
               disabled={isLoading || !captchaToken}
               className={cn(
-                "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity",
+                "w-full py-2 px-4 bg-primary-link-button dark:bg-dark-link-button",
+                "text-white rounded-lg hover:opacity-90 transition-opacity",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
@@ -224,7 +240,8 @@ export const LoginPage = () => {
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="text-primary-link-button dark:text-dark-link-button font-medium hover:opacity-80"
+                className="text-primary-link-button dark:text-dark-link-button
+                 font-medium hover:opacity-80"
               >
                 Sign Up
               </Link>

@@ -1,6 +1,5 @@
-import { nobitexMarketChart } from "@/shared/constants"
 import { CoinType } from "@/shared/types"
-import { cn } from "@/utils"
+import { cn, getWeeklyChartUrl } from "@/utils"
 import { TableCell, TableRow } from "flowbite-react"
 import millify from "millify"
 import { ComponentProps, useState } from "react"
@@ -54,7 +53,11 @@ export const CryptoPreview = ({
       </TableCell>
       <TableCell className="text-gray-600 dark:text-white/60">{millify(+volume)}</TableCell>
       <TableCell className="flex justify-center">
-        <img src={`${nobitexMarketChart}${symbol.toLowerCase()}.svg`} alt={name} />
+        <img
+          src={getWeeklyChartUrl(symbol)}
+          alt={name}
+          className="hue-rotate-15 saturate-150 brightness-110"
+        />
       </TableCell>
       <TableCell className={+change > 0 ? "text-dark-link-button" : "text-rose-500"}>
         {millify(+change)}%

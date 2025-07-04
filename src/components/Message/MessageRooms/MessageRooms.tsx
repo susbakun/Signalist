@@ -111,8 +111,14 @@ export const MessageRooms = ({ myMessages }: MessageRoomsProps) => {
                     </div>
                     {text && (
                       <p
-                        className="text-gray-400 truncate max-w-full break-all overflow-hidden text-ellipsis whitespace-nowrap"
-                        style={{ maxWidth: "280px" }}
+                        className="text-gray-400 truncate max-w-[200px]
+                        md:max-w-[280px] break-all overflow-hidden text-ellipsis
+                        whitespace-nowrap"
+                        style={{
+                          direction: "ltr",
+                          unicodeBidi: "plaintext",
+                          textAlign: "left"
+                        }}
                       >
                         {text}
                       </p>

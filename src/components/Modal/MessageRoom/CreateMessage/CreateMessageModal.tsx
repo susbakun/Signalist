@@ -36,7 +36,7 @@ export const CreateMessageModal = ({
 
   const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
-  const { isUserBlocked } = useIsUserBlocked(myAccount)
+  const { isUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
 
   const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom()
 
@@ -45,7 +45,8 @@ export const CreateMessageModal = ({
       (user) =>
         (user.username.toLowerCase().includes(searched.toLowerCase()) ||
           user.name.toLocaleLowerCase().includes(searched)) &&
-        !isUserBlocked(user.username)
+        !isUserBlocked(user.username) &&
+        !areYouBlocked(user)
     )
   }, [exceptMeUsers, searched])
 
