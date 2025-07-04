@@ -1,0 +1,11 @@
+{
+  "platform": "static",
+  "app": "signalist-frontend",
+  "build": {
+    "location": "germany"
+  },
+  "staticBuild": {
+    "outputPath": "dist",
+    "buildCommand": "npm run build"
+  }
+}
