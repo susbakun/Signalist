@@ -24,6 +24,9 @@ export default defineConfig(({ mode }) => {
         "@/features": resolve("src/features"),
         "@/shared": resolve("src/shared")
       }
+    },
+    build: {
+      outDir: "build"
     }
   }
 })
