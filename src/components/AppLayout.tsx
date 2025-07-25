@@ -68,8 +68,12 @@ export const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/news" element={<DetailedNewsPage />} />
         <Route path="/explore" element={<ExplorePage />}>
-          <Route path="followings" element={<FollowingsPosts />} />
-          <Route path="suggests" element={<SuggestionsPosts />} />
+          <Route path="followings" element={<FollowingsPosts />}>
+            <Route path="hashtag/:tagName" />
+          </Route>
+          <Route path="suggests" element={<SuggestionsPosts />}>
+            <Route path="hashtag/:tagName" />
+          </Route>
         </Route>
         <Route path="/signals" element={<SignalsPage />} />
         <Route path="/premium" element={<PremiumPage />} />

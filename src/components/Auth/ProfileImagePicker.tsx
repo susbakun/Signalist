@@ -223,13 +223,15 @@ export const ProfileImagePicker = ({
         <Modal.Footer className="py-4 px-6 flex justify-center">
           <button
             onClick={handleCloseCropModal}
-            className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:opacity-90 transition-opacity mr-2"
+            className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700
+            dark:text-gray-200 rounded-lg hover:opacity-90 transition-opacity mr-2"
           >
             Cancel
           </button>
           <button
             onClick={handleCropComplete}
-            className="px-4 py-2 text-sm bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+            className="px-4 py-2 text-sm bg-primary-link-button dark:bg-dark-link-button
+            text-white rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
           >
             <MdCrop className="w-5 h-5" />
             Apply Crop

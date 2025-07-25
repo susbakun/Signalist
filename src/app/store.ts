@@ -2,14 +2,13 @@ import messagesReducer from "@/features/Message/messagesSlice"
 import postsReducer from "@/features/Post/postsSlice"
 import signalsReducer from "@/features/Signal/signalsSlice"
 import usersReducer from "@/features/User/usersSlice"
-import { cryptoApi, wallexApi } from "@/services/cryptoApi"
+import { wallexApi } from "@/services/cryptoApi"
 import { newsApi } from "@/services/newsApi"
 import { configureStore } from "@reduxjs/toolkit"
 import { thunk } from "redux-thunk"
 
 const store = configureStore({
   reducer: {
-    [cryptoApi.reducerPath]: cryptoApi.reducer,
     [wallexApi.reducerPath]: wallexApi.reducer,
     [newsApi.reducerPath]: newsApi.reducer,
     posts: postsReducer,
@@ -18,11 +17,7 @@ const store = configureStore({
     messages: messagesReducer
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(cryptoApi.middleware)
-      .concat(wallexApi.middleware)
-      .concat(newsApi.middleware)
-      .concat(thunk)
+    getDefaultMiddleware().concat(wallexApi.middleware).concat(newsApi.middleware).concat(thunk)
 })
 
 export type RootState = ReturnType<typeof store.getState>

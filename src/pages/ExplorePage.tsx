@@ -8,6 +8,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { EmptyPage } from "./EmptyPage"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store"
+import { sampleSize } from "lodash"
 
 export const ExplorePage = () => {
   const [openCreatePostModal, setOpenCreatePostModal] = useState(false)
@@ -83,7 +84,9 @@ export const RightSideBar = () => {
         ]
       : []
 
-  selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
+  const randomUsers = sampleSize(selectedUsers, 4)
+
+  selectedUsers = randomUsers.sort((a, b) => b.score - a.score)
 
   return (
     <aside className="w-full h-screen flex flex-col pt-8 px-4 md:px-8 sticky top-0">

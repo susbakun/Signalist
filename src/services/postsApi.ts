@@ -16,13 +16,14 @@ const handleResponse = async (response: Response) => {
 // Get all posts
 export const fetchPosts = async (
   page = 1,
-  limit = 10
+  limit = 10,
+  tagName = ""
 ): Promise<{
   data: PostModel[]
   totalCount: number
   hasMore: boolean
 }> => {
-  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}`, {
+  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}&tagName=${tagName}`, {
     credentials: "include"
   })
   const data = await handleResponse(response)

@@ -7,8 +7,12 @@ import * as postsApi from "@/services/postsApi"
 // Define async thunks for API operations
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
-  async ({ page = 1, limit = 10 }: { page?: number; limit?: number } = {}) => {
-    return await postsApi.fetchPosts(page, limit)
+  async ({
+    page = 1,
+    limit = 10,
+    tagName = ""
+  }: { page?: number; limit?: number; tagName?: string } = {}) => {
+    return await postsApi.fetchPosts(page, limit, tagName)
   }
 )
 

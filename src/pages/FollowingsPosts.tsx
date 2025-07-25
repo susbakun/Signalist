@@ -6,8 +6,11 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store" // Adjust this import to your store file location
 import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { useParams } from "react-router-dom"
 
 export const FollowingsPosts = () => {
+  const { tagName } = useParams()
+
   const dispatch = useDispatch<AppDispatch>()
   const [loadingMore, setLoadingMore] = useState(false)
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
@@ -71,7 +74,7 @@ export const FollowingsPosts = () => {
       const nextPage = page + 1
 
       // Dispatch is wrapped in a promise to ensure we wait for completion
-      await dispatch(fetchPosts({ page: nextPage })).unwrap()
+      await dispatch(fetchPosts({ page: nextPage, tagName })).unwrap()
 
       // Update page in the state
       dispatch(updatePage(nextPage))
