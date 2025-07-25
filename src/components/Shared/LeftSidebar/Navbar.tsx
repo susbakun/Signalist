@@ -7,8 +7,6 @@ import {
   IoBarChartOutline,
   IoHome,
   IoHomeOutline,
-  IoMail,
-  IoMailOutline,
   IoSearchOutline
 } from "react-icons/io5"
 import { TbCoinFilled, TbPremiumRights } from "react-icons/tb"
@@ -48,14 +46,6 @@ export const Navbar = () => {
           <IoBarChartOutline className="w-6 h-6 button-icon" />
         )}
         {!isInMessages && <span className="font-medium">Signals</span>}
-      </NavLink>
-      <NavLink className="link-button" to="/messages">
-        {getIcon(
-          /^\/messages*/,
-          <IoMail className="w-6 h-6 button-icon" />,
-          <IoMailOutline className="w-6 h-6 button-icon" />
-        )}
-        {!isInMessages && <span className="font-medium">Messages</span>}
       </NavLink>
       <NavLink className="link-button" to="/premium">
         {getIcon(

@@ -6,8 +6,6 @@ import {
   IoBarChartOutline,
   IoHome,
   IoHomeOutline,
-  IoMail,
-  IoMailOutline,
   IoSearchOutline
 } from "react-icons/io5"
 import { TbCoinFilled, TbPremiumRights } from "react-icons/tb"
@@ -66,20 +64,7 @@ export const MobileNavbar = () => {
             <IoBarChartOutline className="w-6 h-6" />
           )}
         </NavLink>
-        <NavLink
-          to="/messages"
-          className={({ isActive }) =>
-            isActive
-              ? "text-white dark:text-white"
-              : "text-gray-600 dark:text-gray-300 hover:text-white"
-          }
-        >
-          {getIcon(
-            /^\/messages*/,
-            <IoMail className="w-6 h-6" />,
-            <IoMailOutline className="w-6 h-6" />
-          )}
-        </NavLink>
+
         <NavLink
           to="/premium"
           className={({ isActive }) =>

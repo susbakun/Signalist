@@ -20,9 +20,7 @@ export const SignalsPage = () => {
   }
   return (
     <div className="flex flex-col md:flex-row">
-      <MobileTopBar />
       <ExploreSignals />
-      <RightSidebar />
       <CreateSignalButton handleOpenModal={hanldeOpenCreateSignalModal} />
       <CreateSignalModal
         openModal={openCreateSignalModal}
