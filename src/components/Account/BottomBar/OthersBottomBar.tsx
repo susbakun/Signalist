@@ -1,24 +1,16 @@
 import { SharePostModal, ToastContainer, UserUnfollowModal } from "@/components"
 import { ShaerUserButton } from "@/components/Button/ShaerUserButton"
 import { AppDispatch } from "@/app/store"
-import {
-  createDMConversationAsync,
-  fetchUserConversations,
-  useAppSelector
-} from "@/features/Message/messagesSlice"
+import { fetchUserConversations } from "@/features/Message/messagesSlice"
 import { followUserAsync, unfollowUserAsync } from "@/features/User/usersSlice"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { useToastContainer } from "@/hooks/useToastContainer"
-import { useUserMessageRoom } from "@/hooks/useUserMessageRoom"
 import { AccountModel } from "@/shared/models"
 import { getCurrentUsername } from "@/utils"
 import { useEffect, useMemo, useState } from "react"
-import { BiMessage } from "react-icons/bi"
 import { IoLockClosed, IoLockOpenOutline } from "react-icons/io5"
 import { useDispatch } from "react-redux"
-import { Link, useNavigate } from "react-router-dom"
-import { SimplifiedAccountType } from "@/shared/types"
-import { v4 } from "uuid"
+import { Link } from "react-router-dom"
 
 type OthersBottomBarProps = {
   userAccount: AccountModel
@@ -31,38 +23,14 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
   const [isActionLoading, setIsActionLoading] = useState(false)
 
   const currentUsername = getCurrentUsername()
-  const messages = useAppSelector((state) =>
-    currentUsername ? state.messages.conversations[currentUsername] : {}
-  )
 
   const isFollowed = useMemo(
     () => myAccount?.followings.some((following) => following.username === userAccount.username),
     [myAccount, userAccount]
   )
   const dispatch = useDispatch<AppDispatch>()
-  const navigate = useNavigate()
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
-  const { checkIfExistsRoom, findExistingRoomId } = useUserMessageRoom()
   const { amISubscribed } = useIsUserSubscribed(userAccount)
-
-  const handleCreateMessage = () => {
-    if (!myAccount || !currentUsername) return
-
-    handleCloseModal()
-    if (messages && checkIfExistsRoom(messages, userAccount)) {
-      const roomId = findExistingRoomId(messages, userAccount)
-      navigate(`/messages/${roomId}`)
-    } else {
-      const userInfo: SimplifiedAccountType = {
-        name: userAccount.name,
-        username: userAccount.username,
-        imageUrl: userAccount.imageUrl
-      }
-      const roomId = v4()
-      dispatch(createDMConversationAsync({ user1: myAccount, user2: userInfo }))
-      navigate(`/messages/${roomId}`)
-    }
-  }
 
   const handleFollowUser = async () => {
     if (!myAccount?.username || isActionLoading) return
@@ -151,17 +119,6 @@ export const OthersBottomBar = ({ userAccount, myAccount }: OthersBottomBarProps
                 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isActionLoading ? "Loading..." : isFollowed ? "followed" : "follow"}
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={handleCreateMessage}
-              className="px-4 py-1 bg-primary-link-button
-                dark:bg-dark-link-button rounded-md action-button
-                text-white flex"
-              disabled={messages === undefined}
-            >
-              <BiMessage className="w-5 h-6" />
             </button>
           </div>
           {userAccount.hasPremium && (

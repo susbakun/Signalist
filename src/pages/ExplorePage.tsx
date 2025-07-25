@@ -3,7 +3,7 @@ import { fetchUsersAsync, useAppSelector } from "@/features/User/usersSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { editPostRouteRegExp } from "@/shared/constants"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { EmptyPage } from "./EmptyPage"
 import { useDispatch } from "react-redux"
@@ -84,7 +84,7 @@ export const RightSideBar = () => {
         ]
       : []
 
-  const randomUsers = sampleSize(selectedUsers, 4)
+  const randomUsers = useMemo(() => sampleSize(selectedUsers, 4), [])
 
   selectedUsers = randomUsers.sort((a, b) => b.score - a.score)
 

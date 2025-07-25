@@ -92,48 +92,6 @@ export type CryptoResponseType = {
   }
 }
 
-export type CryptoDetailsResponseType = {
-  data: {
-    coin: {
-      uuid: string
-      rank: number
-      change: string
-      marketCap: string
-      price: string
-      iconUrl: string
-      name: string
-      description: string
-      "24hVolume": string
-      slug: string
-      allTimeHigh: {
-        price: string
-      }
-      numberOfMarkets: number
-      numberOfExchanges: number
-      supply: {
-        confirmed: boolean
-        circulating: string
-        total: string
-      }
-      links: {
-        name: string
-        url: string
-        type: string
-      }[]
-    }
-  }
-}
-
-export type CoinHistoryResponseType = {
-  data: {
-    change: number
-    history: {
-      price: string
-      timestamp: number
-    }[]
-  }
-}
-
 // CryptoPanic API Types
 export type CryptoCurrency = {
   code: string
@@ -162,28 +120,6 @@ export type NewsItem = {
   created_at: string
   currencies: CryptoCurrency[] | null
   image_url?: string // Will be populated from microlink
-}
-
-export type CryptoPanicResponse = {
-  count: number
-  next: string | null
-  previous: string | null
-  results: NewsItem[]
-}
-
-export type MicrolinkResponse = {
-  status: string
-  data: {
-    title: string
-    description: string
-    url: string
-    image?: {
-      url: string
-      width: number
-      height: number
-      type: string
-    }
-  }
 }
 
 export type AccountModel = {

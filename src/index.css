@@ -45,7 +45,7 @@
   .link-button {
     @apply flex items-center gap-2 p-2 rounded-lg w-full;
     @apply bg-transparent hover:text-primary-link-button;
-    @apply transition ease-in;
+    @apply transition ease-in text-lg;
   }
   .link-button.active {
     @apply bg-primary-link-button dark:bg-dark-link-button;
