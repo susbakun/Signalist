@@ -1,12 +1,10 @@
 import { AppDispatch } from "@/app/store"
-import { CreateSignalButton, CreateSignalModal, Loader, Signal, StreamingUser } from "@/components"
+import { CreateSignalButton, CreateSignalModal, Loader, Signal } from "@/components"
 import { fetchSignals, updatePage, useAppSelector } from "@/features/Signal/signalsSlice"
 import { useEffect, useState, useRef, useMemo } from "react"
 import { useDispatch } from "react-redux"
 import { EmptyPage } from "./EmptyPage"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
-import { fetchUsersAsync } from "@/features/User/usersSlice"
 
 export const SignalsPage = () => {
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
@@ -147,114 +145,6 @@ const ExploreSignals = () => {
           <div ref={loadMoreRef} className="flex justify-center py-6 mt-2">
             {loadingMore && <Loader className="h-16 w-16" />}
           </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const RightSidebar = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
-  const { currentUser: myAccount } = useCurrentUser()
-  const { isUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
-
-  useEffect(() => {
-    if (users.length === 0 && !usersLoading) {
-      dispatch(fetchUsersAsync())
-    }
-  }, [users, usersLoading, dispatch])
-
-  let selectedUsers =
-    users.length > 0
-      ? [
-          ...users.filter(
-            (user) =>
-              user.username !== myAccount?.username &&
-              !isUserBlocked(user.username) &&
-              !areYouBlocked(user) &&
-              user.username !== "MarmadukeWhisperer"
-          )
-        ]
-      : []
-
-  selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
-
-  if (!myAccount) return null
-
-  return (
-    <aside
-      className="hidden md:flex flex-col
-        w-[30%] h-screen pt-8 px-4 sticky top-0"
-    >
-      <div
-        className="border border-gray-600/20 dark:border-white/20
-          rounded-xl gap-4 p-3 flex flex-col"
-      >
-        <h2 className="text-xl font-bold">Streams</h2>
-        <div className="flex flex-col gap-4">
-          {usersLoading ? (
-            <Loader className="h-[350px]" />
-          ) : selectedUsers.length > 0 ? (
-            selectedUsers.map((user) => (
-              <StreamingUser myAccount={myAccount} key={user.username} {...user} />
-            ))
-          ) : (
-            <EmptyPage className="text-center mt-8 pb-16">
-              <h3 className="font-normal">No streams right now</h3>
-            </EmptyPage>
-          )}
-        </div>
-      </div>
-    </aside>
-  )
-}
-
-const MobileTopBar = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const { users, loading: usersLoading } = useAppSelector((state) => state.users)
-  const { currentUser: myAccount } = useCurrentUser()
-  const { isUserBlocked } = useIsUserBlocked(myAccount)
-
-  // Fetch users if they're not loaded yet
-  useEffect(() => {
-    if (users.length === 0 && !usersLoading) {
-      dispatch(fetchUsersAsync())
-    }
-  }, [users, usersLoading, dispatch])
-
-  let selectedUsers =
-    users.length > 0
-      ? [
-          ...users.filter(
-            (user) => user.username !== myAccount?.username && !isUserBlocked(user.username)
-          )
-        ]
-      : []
-
-  selectedUsers = selectedUsers.sort((a, b) => b.score - a.score).slice(0, 4)
-
-  if (!myAccount) return null
-
-  return (
-    <div className="md:hidden w-full overflow-x-auto py-4 px-4 border-b border-b-gray-600/20 dark:border-b-white/20">
-      <h2 className="text-xl font-bold mb-4">Streams</h2>
-      <div className="flex gap-6">
-        {usersLoading ? (
-          <Loader className="w-full" />
-        ) : selectedUsers.length > 0 ? (
-          selectedUsers.map((user) => (
-            <div className="flex flex-col items-center" key={user.username}>
-              <StreamingUser myAccount={myAccount} {...user} />
-              <span className="text-xs mt-1 truncate max-w-[64px] text-center">
-                {user.username}
-              </span>
-            </div>
-          ))
-        ) : (
-          <EmptyPage className="text-center mt-8 pb-8 md:pb-16 w-full">
-            <h3 className="font-normal">No streams right now</h3>
-          </EmptyPage>
         )}
       </div>
     </div>
