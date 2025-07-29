@@ -121,6 +121,10 @@ export const isMobile = () => {
   return window.matchMedia && window.matchMedia("(max-width: 639px)").matches
 }
 
+export const isXLScreen = () => {
+  return window.matchMedia && window.matchMedia("(min-width: 1280px)").matches
+}
+
 // Function to transform Wallex API data into CoinType format
 export const transformWallexData = (wallexData: WallexCryptoResponseType | undefined) => {
   if (!wallexData || !wallexData.result || !wallexData.result.symbols) {

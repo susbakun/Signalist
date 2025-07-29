@@ -27,7 +27,8 @@ export const CustomAvatar = ({
   const borderedClass = bordered ? "ring-2 ring-gray-300 dark:ring-gray-500" : ""
 
   const baseClasses = twMerge(
-    "flex items-center justify-center bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 font-medium flex-shrink-0",
+    "flex items-center justify-center bg-gray-100 dark:bg-gray-600",
+    "text-gray-600 dark:text-gray-300 font-medium flex-shrink-0",
     sizeClass,
     roundedClass,
     borderedClass,

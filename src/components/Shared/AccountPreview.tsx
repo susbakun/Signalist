@@ -2,7 +2,7 @@ import { CustomAvatar } from "@/components"
 import millify from "millify"
 import { Link } from "react-router-dom"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { getCurrentUser } from "@/utils"
+import { getCurrentUser, isXLScreen } from "@/utils"
 
 export const AccountPreview = () => {
   const { currentUser } = useCurrentUser()
@@ -17,7 +17,7 @@ export const AccountPreview = () => {
           .split(" ")
           .map((n: string) => n[0])
           .join("")}
-        size="xl"
+        size={isXLScreen() ? "lg" : "xl"}
         img={userSimplified.imageUrl}
         wrapperClassName="w-26 h-26"
         rounded
