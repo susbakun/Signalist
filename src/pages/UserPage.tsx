@@ -1,7 +1,6 @@
 import { AccountBottomBar, AccountTopBar, Loader, UserActivities, UserInfo } from "@/components"
-import { useAppSelector } from "@/features/User/usersSlice"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { getCurrentUsername } from "@/utils"
+import { useUserAccount } from "@/hooks/useUserAccount"
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 
@@ -12,14 +11,12 @@ export const UserPage = () => {
   const location = useLocation()
 
   const { username: profileUsername } = useParams()
-  const currentUsername = getCurrentUsername()
 
   // Get users state with loading
-  const { users, loading } = useAppSelector((state) => state.users)
 
-  const userAccount = users.find((user) => user.username === profileUsername)
-  const { currentUser: myAccount } = useCurrentUser()
-  const isItmyAccount = profileUsername === currentUsername
+  const { currentUser: myAccount, currentUserLoading } = useCurrentUser()
+  const { userAccount, loading: userAccountLoading } = useUserAccount(profileUsername)
+  const isItmyAccount = profileUsername === myAccount?.username
 
   const handleShareEmail = () => {
     if (userAccount?.email) {
@@ -39,11 +36,24 @@ export const UserPage = () => {
   }, [location, navigate, userAccount?.username, activeLink])
 
   // Show loading if users are still being fetched
-  if (loading) {
+  if (currentUserLoading || userAccountLoading) {
     return <Loader className="h-screen" />
   }
 
-  // If the profile doesn't exist, show a message
+  if (!myAccount && !(currentUserLoading && userAccountLoading))
+    return (
+      <div className="flex flex-col items-center justify-center h-screen px-4">
+        <h2 className="text-2xl font-bold mb-4 text-center">User not found</h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center">You're not authenticated</p>
+        <button
+          onClick={() => navigate("/login")}
+          className="mt-6 px-4 py-2 bg-primary-link-button dark:bg-dark-link-button text-white rounded-lg"
+        >
+          Return to Home
+        </button>
+      </div>
+    )
+
   if (!userAccount) {
     return (
       <div className="flex flex-col items-center justify-center h-screen px-4">
@@ -61,37 +71,24 @@ export const UserPage = () => {
     )
   }
 
-  // If we're not logged in or our account is not found, we can't show components that require myAccount
-  if (!myAccount) {
+  if (myAccount)
     return (
       <>
-        <div className="flex flex-col px-4 md:px-6 lg:px-8 xl:px-16 2xl:px-32 pt-4 md:pt-6 gap-3 md:gap-6">
+        <div className="flex flex-col px-4 md:px-16 pt-4 md:pt-6 gap-3 md:gap-6">
+          <AccountTopBar
+            myAccount={myAccount}
+            isItmMyAccount={isItmyAccount}
+            userAccount={userAccount}
+          />
           <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
+          <AccountBottomBar
+            isItMyAccount={isItmyAccount}
+            myAccount={myAccount}
+            userAccount={userAccount}
+          />
           <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
         </div>
         <Outlet />
       </>
     )
-  }
-
-  // If both userAccount and myAccount exist, show the full profile
-  return (
-    <>
-      <div className="flex flex-col px-4 md:px-16 pt-4 md:pt-6 gap-3 md:gap-6">
-        <AccountTopBar
-          myAccount={myAccount}
-          isItmMyAccount={isItmyAccount}
-          userAccount={userAccount}
-        />
-        <UserInfo handleShareEmail={handleShareEmail} userAccount={userAccount} />
-        <AccountBottomBar
-          isItMyAccount={isItmyAccount}
-          myAccount={myAccount}
-          userAccount={userAccount}
-        />
-        <UserActivities handleChangeActiveLink={handleChangeActiveLink} />
-      </div>
-      <Outlet />
-    </>
-  )
 }

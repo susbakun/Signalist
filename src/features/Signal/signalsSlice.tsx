@@ -1,5 +1,11 @@
 import { SignalModel } from "@/shared/models"
-import { CoinType, RootState, SignalAccountType, SimplifiedAccountType } from "@/shared/types"
+import {
+  CoinType,
+  RootState,
+  SignalAccountType,
+  SimplifiedAccountType,
+  SignalsFilters
+} from "@/shared/types"
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TypedUseSelectorHook, useSelector } from "react-redux"
 import * as signalsApi from "@/services/signalsApi"
@@ -8,10 +14,41 @@ import { getUserByUsernameAsync } from "@/features/User/usersSlice"
 // Define async thunks for API operations
 export const fetchSignals = createAsyncThunk(
   "signals/fetchSignals",
-  async ({ page = 1, limit = 10 }: { page?: number; limit?: number } = {}) => {
+  async ({
+    page = 1,
+    limit = 10,
+    publishers,
+    publisher,
+    market,
+    status,
+    openFrom,
+    openTo,
+    closeFrom,
+    closeTo
+  }: {
+    page?: number
+    limit?: number
+    publishers?: string[]
+    publisher?: string
+    market?: SignalsFilters["market"]
+    status?: SignalsFilters["status"]
+    openFrom?: SignalsFilters["openFrom"]
+    openTo?: SignalsFilters["openTo"]
+    closeFrom?: SignalsFilters["closeFrom"]
+    closeTo?: SignalsFilters["closeTo"]
+  } = {}) => {
     const isReset = page === 1
     return {
-      ...(await signalsApi.fetchSignals(page, limit)),
+      ...(await signalsApi.fetchSignals(page, limit, {
+        publishers,
+        publisher,
+        market,
+        status,
+        openFrom,
+        openTo,
+        closeFrom,
+        closeTo
+      })),
       isReset
     }
   }
@@ -47,15 +84,15 @@ export const updateSignalStatusAsync = createAsyncThunk(
       // If there's an old signal and a publisher score change, update the user data
       if (
         oldSignal &&
-        oldSignal.publisher.score !== updatedSignal.publisher.score &&
-        updatedSignal.publisher.username
+        oldSignal.user.score !== updatedSignal.user.score &&
+        updatedSignal.user.username
       ) {
         console.log(
-          `Publisher score changed from ${oldSignal.publisher.score} to ${updatedSignal.publisher.score}`
+          `Publisher score changed from ${oldSignal.user.score} to ${updatedSignal.user.score}`
         )
 
         // Fetch the latest user data to update the UI
-        dispatch(getUserByUsernameAsync(updatedSignal.publisher.username))
+        dispatch(getUserByUsernameAsync(updatedSignal.user.username))
       }
 
       return updatedSignal
@@ -113,20 +150,24 @@ export const updateSignalPublishersAsync = createAsyncThunk(
 interface SignalsState {
   signals: SignalModel[]
   loading: boolean
+  applyingFilters: boolean
   error: string | null
   page: number
   hasMore: boolean
   totalCount: number
+  filters: SignalsFilters
 }
 
 // Initial state now includes loading and error states
 const initialState: SignalsState = {
   signals: [],
   loading: false,
+  applyingFilters: false,
   error: null,
   page: 1,
   hasMore: true,
-  totalCount: 0
+  totalCount: 0,
+  filters: {}
 }
 
 const signalsSlice = createSlice({
@@ -150,8 +191,8 @@ const signalsSlice = createSlice({
             return target
           })
           const publisherWithUpdatedScore = {
-            ...signal.publisher,
-            score: signal.publisher.score + score
+            ...signal.user,
+            score: signal.user.score + score
           }
           return {
             ...signal,
@@ -167,6 +208,10 @@ const signalsSlice = createSlice({
     },
     updatePage: (state, action) => {
       state.page = action.payload
+    },
+    setSignalsFilters: (state, action: { payload: SignalsFilters }) => {
+      state.filters = action.payload
+      state.applyingFilters = true
     }
   },
   extraReducers: (builder) => {
@@ -178,6 +223,7 @@ const signalsSlice = createSlice({
       })
       .addCase(fetchSignals.fulfilled, (state, action) => {
         state.loading = false
+        state.applyingFilters = false
 
         // If we're resetting (page 1), replace all signals
         if (action.payload.isReset) {
@@ -205,6 +251,7 @@ const signalsSlice = createSlice({
       })
       .addCase(fetchSignals.rejected, (state, action) => {
         state.loading = false
+        state.applyingFilters = false
         state.error = action.error.message || "Failed to fetch signals"
       })
 
@@ -246,16 +293,16 @@ const signalsSlice = createSlice({
       .addCase(updateSignalPublishersAsync.fulfilled, (state, action) => {
         // Update publisher info in all signals where this user is the publisher
         state.signals = state.signals.map((signal) => {
-          if (signal.publisher.username === action.payload.username) {
+          if (signal.user.username === action.payload.username) {
             return {
               ...signal,
               publisher: {
-                ...signal.publisher,
+                ...signal.user,
                 username: action.payload.username,
                 name: action.payload.name,
                 imageUrl: action.payload.imageUrl,
                 // Keep the original score since that's separately managed
-                score: signal.publisher.score
+                score: signal.user.score
               }
             }
           }
@@ -273,6 +320,6 @@ const signalsSlice = createSlice({
   }
 })
 
-export const { updateSignalsState, updatePage } = signalsSlice.actions
+export const { updateSignalsState, updatePage, setSignalsFilters } = signalsSlice.actions
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export default signalsSlice.reducer

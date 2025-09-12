@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/features/User/usersSlice"
 import { EmptyPage } from "@/pages"
 import { cn } from "@/utils"
 import { Modal } from "flowbite-react"
@@ -8,24 +7,29 @@ import { UserPreview } from "../../Shared/UserPreview"
 import { AccountModel } from "@/shared/models"
 import { Loader } from "@/components/Shared/Loader"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { getUserByUsername } from "@/services/usersApi"
 
 export const UserFollowingsModal = () => {
   const [openModal, setOpenModal] = useState(true)
   const [searched, setSearched] = useState("")
   const [user, setUser] = useState<AccountModel | undefined>(undefined)
+  const [loading, setLoading] = useState(true)
   const { currentUser: myAccount } = useCurrentUser()
 
   const navigate = useNavigate()
 
   const { username } = useParams()
-  const { users, loading } = useAppSelector((store) => store.users)
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearched(e.target.value)
   }
 
   const handleSearchUsers = useCallback(() => {
-    return user?.followings.filter(
+    console.log(user?.followings)
+
+    if (!user?.followings) return []
+
+    return user.followings.filter(
       (user) =>
         user.username.toLowerCase().includes(searched.toLowerCase()) ||
         user.name.toLocaleLowerCase().includes(searched)
@@ -37,13 +41,25 @@ export const UserFollowingsModal = () => {
     navigate(`/${user?.username}`)
   }
 
-  useEffect(() => {
-    if (users) {
-      setUser(users.find((user) => user.username === username))
-    }
-  }, [users, username])
-
   const searchedUsers = useMemo(() => handleSearchUsers(), [user, searched])
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!username) return
+
+      try {
+        setLoading(true)
+        const userData = await getUserByUsername(username)
+        setUser(userData)
+      } catch (error) {
+        console.error("Failed to fetch user:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [username])
 
   if (user && searchedUsers && myAccount)
     return (

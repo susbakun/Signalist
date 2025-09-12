@@ -26,7 +26,7 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
   const [enlarged, setEnlarged] = useState(false)
   const [isImageLoading, setisImageLoading] = useState(false)
 
-  const { publisher } = signal
+  const { user: publisher } = signal
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const currentUsername = getCurrentUsername()
 
@@ -46,6 +46,22 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
       })
     }, 2000)
     await navigator.clipboard.writeText(target.value.toString())
+  }
+
+  const getSignalStatus = (avgScore: number) => {
+    if (avgScore >= 0.15) return "Perfect"
+    else if (avgScore >= 0.07 && avgScore < 0.15) return "High"
+    else if (avgScore >= 0.01 && avgScore < 0.07) return "Average"
+    else if (avgScore >= -0.05 && avgScore < 0.01) return "Poor"
+    else return "Risky"
+  }
+
+  const getSignalStatusColor = (avgScore: number) => {
+    if (avgScore >= 0.15) return "bg-purple-600"
+    else if (avgScore >= 0.07 && avgScore < 0.15) return "bg-green-500"
+    else if (avgScore >= 0.01 && avgScore < 0.07) return "bg-black"
+    else if (avgScore >= -0.05 && avgScore < 0.01) return "bg-yellow-500"
+    else return "text-red-500"
   }
 
   const handleImageClick = () => {
@@ -100,6 +116,23 @@ export const SignalContext = ({ signal, isBookmarkPage }: SignalContextProps) =>
               </div>
             )}
           </div>
+          {signal.status === "closed" && (
+            <div
+              className="text-md flex items-center gap-2 border border-gray-600/20
+            dark:border-white/20 rounded-md w-fit px-2 py-1"
+            >
+              <span
+                className={cn(
+                  "rounded-full w-2 h-2 md:w-3 md:h-3",
+                  getSignalStatusColor(signal.score)
+                )}
+              />
+              <span>{getSignalStatus(signal.score)}</span>
+              <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                ({signal.score.toFixed(2)})
+              </span>
+            </div>
+          )}
           {isImageLoading && <Loader className="h-[342px]" />}{" "}
           {chartHref && (
             <div

@@ -43,7 +43,7 @@ export const PostFooter = ({
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
   const dispatch = useDispatch<AppDispatch>()
 
-  const { publisher } = post
+  const { user: publisher } = post
 
   const handleLikePost = async () => {
     if (isLikeLoading) return
@@ -72,6 +72,13 @@ export const PostFooter = ({
 
   const handleBookmarkPost = async () => {
     if (!myAccount || isBookmarkLoading) return
+
+    // Ensure bookmarks structure exists
+    if (!myAccount.bookmarks || !myAccount.bookmarks.posts) {
+      console.error("Bookmarks structure not found in user account")
+      handleShowToast("Bookmarks not available", "error")
+      return
+    }
 
     // Optimistically update UI
     setIsBookmarkLoading(true)
@@ -137,7 +144,7 @@ export const PostFooter = ({
   }
 
   useEffect(() => {
-    if (myAccount) {
+    if (myAccount && myAccount.bookmarks && myAccount.bookmarks.posts) {
       const isPostBookmarked = myAccount.bookmarks.posts.includes(post.id)
       setIsBookmarked(isPostBookmarked)
     }

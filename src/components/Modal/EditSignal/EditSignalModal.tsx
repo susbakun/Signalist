@@ -25,6 +25,7 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [touched, setTouched] = useState(false)
   const [closeTimeError, setCloseTimeError] = useState("")
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   const dispatch = useDispatch<AppDispatch>()
 
@@ -53,9 +54,9 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
 
   const handleCalendarClose = () => {
     setTouched(true)
+    setIsCalendarOpen(false)
   }
 
-  // Calculate the signal status based on open and close times
   const getStatus = (openTime: number, closeTime: number): SignalModel["status"] => {
     const currentTime = new Date().getTime()
     if (currentTime - openTime >= 0 && currentTime - closeTime < 0) {
@@ -67,7 +68,6 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
     }
   }
 
-  // Check if any changes were made to enable save button
   useEffect(() => {
     const hasDescriptionChanged = descriptionText !== (signal.description || "")
     const hasCloseTimeChanged = closeTime.getTime() !== signal.closeTime
@@ -112,7 +112,7 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
           <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
             <div className="font-medium">Signal Info (non-editable)</div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              <div>Market: {signal.market.name}</div>
+              <div>Market: {signal.market?.name}</div>
               <div>Entry: {signal.entry}</div>
               <div>Status: {signal.status}</div>
               <div>Open Time: {new Date(signal.openTime).toLocaleString()}</div>
@@ -133,7 +133,9 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
               rows={5}
               maxLength={500}
               className={cn(
-                "w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-primary-link-button dark:focus:border-dark-link-button dark:bg-gray-700 dark:border-gray-600 resize-none"
+                "w-full px-4 py-2 border rounded-lg focus:outline-none ",
+                "focus:border-primary-link-button dark:focus:border-dark-link-button",
+                "dark:bg-gray-700 dark:border-gray-600 resize-none"
               )}
             />
             <div className="min-h-[1.5rem] flex justify-end">
@@ -150,6 +152,10 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
                 selected={closeTime}
                 onChange={handleCloseTimeChange}
                 onCalendarClose={handleCalendarClose}
+                onInputClick={() => setIsCalendarOpen((prev) => !prev)}
+                onClickOutside={() => setIsCalendarOpen(false)}
+                open={isCalendarOpen}
+                shouldCloseOnSelect
                 showTimeSelect
                 timeFormat="HH:mm"
                 timeIntervals={15}
@@ -195,14 +201,18 @@ export const EditSignalModal = ({ openModal, handleCloseModal, signal }: EditSig
             <button
               type="button"
               onClick={handleCloseModal}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm
+              font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700
+              dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={buttonDisabled || isSubmitting}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-link-button hover:bg-blue-700 dark:bg-dark-link-button dark:hover:bg-blue-800 disabled:opacity-50"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm
+              font-medium text-white bg-primary-link-button hover:bg-blue-700
+              dark:bg-dark-link-button dark:hover:bg-blue-800 disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </button>

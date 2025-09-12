@@ -13,12 +13,12 @@ export const BookmarkedSignals = () => {
   const { signals: allSignals } = useAppSelector((state) => state.signals)
 
   useEffect(() => {
-    if (myAccount && allSignals.length > 0) {
+    if (myAccount && myAccount.bookmarks && allSignals.length > 0) {
       // Handle both old format (full objects) and new format (just IDs)
       let signals: SignalModel[] = []
 
       // Check if the bookmarks are strings (IDs) or objects
-      const bookmarksSignals = myAccount.bookmarks.signals
+      const bookmarksSignals = myAccount.bookmarks.signals || []
       const isIdFormat = bookmarksSignals.length > 0 && typeof bookmarksSignals[0] === "string"
 
       if (isIdFormat) {

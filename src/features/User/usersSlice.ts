@@ -7,18 +7,20 @@ import { updatePostPublishersAsync } from "../Post/postsSlice"
 import { updateMessageSendersReceiversAsync } from "../Message/messagesSlice"
 import { updateSignalPublishersAsync } from "../Signal/signalsSlice"
 
-// Define the state type with loading and error states
 interface UsersState {
   users: AccountModel[]
   loading: boolean
   error: string | null
+  signalsCount: number
+  signalsCountLoading: boolean
 }
 
-// Set up initial state with loading and error fields
 const initialState: UsersState = {
   users: [],
   loading: false,
-  error: null
+  error: null,
+  signalsCount: 0,
+  signalsCountLoading: false
 }
 
 // Async Thunks
@@ -48,7 +50,6 @@ export const loginUserAsync = createAsyncThunk(
   "users/loginUser",
   async (credentials: { email: string; password: string }) => {
     const response = await usersApi.loginUser(credentials)
-    // No token handling needed with cookie-based auth
     return response.user
   }
 )
@@ -134,6 +135,13 @@ export const updateUserScoreAsync = createAsyncThunk(
     } catch (error: unknown) {
       return rejectWithValue(error instanceof Error ? error.toString() : String(error))
     }
+  }
+)
+
+export const getUserSignalsCountAsync = createAsyncThunk(
+  "users/getUserSignalsCount",
+  async (username: string) => {
+    return await usersApi.getUserSignalsCount(username)
   }
 )
 
@@ -258,7 +266,7 @@ const usersSlice = createSlice({
           }
           // Update the blocked user (removed from followings/followers)
           const blockedUsername =
-            action.payload.blockedAccounts[action.payload.blockedAccounts.length - 1].username
+            action.payload.blockedUsers[action.payload.blockedUsers.length - 1].username
           if (user.username === blockedUsername) {
             // Remove blocker from this user's followings and followers
             return {
@@ -292,14 +300,7 @@ const usersSlice = createSlice({
         state.error = action.error.message || "Failed to unblock user"
       })
 
-      // Handle update bookmarks cases
-      .addCase(updateBookmarksAsync.pending, (state) => {
-        // Don't set global loading state to true for bookmark actions
-        // This prevents unnecessary UI refreshes
-        state.error = null
-      })
       .addCase(updateBookmarksAsync.fulfilled, (state, action) => {
-        // Update only the specific user that changed
         state.users = state.users.map((user) =>
           user.username === action.payload.username ? action.payload : user
         )
@@ -340,6 +341,20 @@ const usersSlice = createSlice({
       .addCase(updateUserScoreAsync.rejected, (state, action) => {
         // Don't set loading to false here since we didn't set it to true in pending
         state.error = action.error.message || "Failed to update user score"
+      })
+
+      // Handle get user signals count cases
+      .addCase(getUserSignalsCountAsync.pending, (state) => {
+        state.signalsCountLoading = true
+        state.error = null
+      })
+      .addCase(getUserSignalsCountAsync.fulfilled, (state, action) => {
+        state.signalsCountLoading = false
+        state.signalsCount = action.payload.count
+      })
+      .addCase(getUserSignalsCountAsync.rejected, (state, action) => {
+        state.signalsCountLoading = false
+        state.error = action.error.message || "Failed to fetch user signals count"
       })
   }
 })

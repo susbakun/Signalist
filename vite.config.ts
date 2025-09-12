@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => {
         "@/services": resolve("src/services"),
         "@/app": resolve("src/app"),
         "@/features": resolve("src/features"),
-        "@/shared": resolve("src/shared")
+        "@/shared": resolve("src/shared"),
+        "@/public": resolve("public")
       }
     },
     build: {

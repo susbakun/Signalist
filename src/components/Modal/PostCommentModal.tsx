@@ -20,6 +20,7 @@ export const PostCommentModal = ({
 }: PostCommentMoalProps) => {
   const { currentUser: me } = useCurrentUser()
   const sortedComments = [...comments].sort((a, b) => b.date - a.date)
+  const { user: publisher } = post
 
   if (!me) return null
 
@@ -38,12 +39,12 @@ export const PostCommentModal = ({
           <PostTopBar
             handleOpenEditPostModal={handleOpenEditPostModal}
             postId={post.id}
-            {...post.publisher}
+            {...publisher}
             date={post.date}
           />
           <PostBody
             isPremium={post.isPremium}
-            publisherUsername={post.publisher.username}
+            publisherUsername={publisher.username}
             content={post.content}
           />
           <PostFooter myAccount={me} simplified={true} post={post} />

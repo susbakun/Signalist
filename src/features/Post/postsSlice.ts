@@ -10,9 +10,10 @@ export const fetchPosts = createAsyncThunk(
   async ({
     page = 1,
     limit = 10,
-    tagName = ""
-  }: { page?: number; limit?: number; tagName?: string } = {}) => {
-    return await postsApi.fetchPosts(page, limit, tagName)
+    tagName = "",
+    publishers
+  }: { page?: number; limit?: number; tagName?: string; publishers?: string[] } = {}) => {
+    return await postsApi.fetchPosts(page, limit, tagName, { publishers })
   }
 )
 
@@ -85,16 +86,16 @@ export const deleteCommentAsync = createAsyncThunk(
 export const likeCommentAsync = createAsyncThunk(
   "posts/likeComment",
   async (data: { postId: string; commentId: string; user: SimplifiedAccountType }) => {
-    const updatedComment = await postsApi.likeComment(data.postId, data.commentId, data.user)
-    return { postId: data.postId, commentId: data.commentId, updatedComment }
+    await postsApi.likeComment(data.postId, data.commentId, data.user)
+    return { postId: data.postId, commentId: data.commentId, user: data.user }
   }
 )
 
 export const dislikeCommentAsync = createAsyncThunk(
   "posts/dislikeComment",
   async (data: { postId: string; commentId: string; user: SimplifiedAccountType }) => {
-    const updatedComment = await postsApi.dislikeComment(data.postId, data.commentId, data.user)
-    return { postId: data.postId, commentId: data.commentId, updatedComment }
+    await postsApi.dislikeComment(data.postId, data.commentId, data.user)
+    return { postId: data.postId, commentId: data.commentId, user: data.user }
   }
 )
 
@@ -224,28 +225,30 @@ const postsSlice = createSlice({
 
       // Like comment
       .addCase(likeCommentAsync.fulfilled, (state, action) => {
-        const { postId, commentId, updatedComment } = action.payload
+        const { postId, commentId, user } = action.payload
         const postIndex = state.posts.findIndex((post) => post.id === postId)
         if (postIndex !== -1) {
           const commentIndex = state.posts[postIndex].comments.findIndex(
             (comment) => comment.commentId === commentId
           )
           if (commentIndex !== -1) {
-            state.posts[postIndex].comments[commentIndex] = updatedComment
+            state.posts[postIndex].comments[commentIndex].likes.push(user)
           }
         }
       })
 
       // Dislike comment
       .addCase(dislikeCommentAsync.fulfilled, (state, action) => {
-        const { postId, commentId, updatedComment } = action.payload
+        const { postId, commentId, user } = action.payload
         const postIndex = state.posts.findIndex((post) => post.id === postId)
         if (postIndex !== -1) {
           const commentIndex = state.posts[postIndex].comments.findIndex(
             (comment) => comment.commentId === commentId
           )
           if (commentIndex !== -1) {
-            state.posts[postIndex].comments[commentIndex] = updatedComment
+            state.posts[postIndex].comments[commentIndex].likes = state.posts[postIndex].comments[
+              commentIndex
+            ].likes.filter((likedUser) => likedUser.username !== user.username)
           }
         }
       })
@@ -255,9 +258,9 @@ const postsSlice = createSlice({
         // Update publisher info in all posts and comments where this user is the publisher
         state.posts = state.posts.map((post) => {
           // If this post was published by the updated user
-          if (post.publisher.username === action.payload.username) {
+          if (post.user.username === action.payload.username) {
             // Update the publisher info
-            post.publisher = action.payload
+            post.user = action.payload
           }
 
           // Also update publisher info in comments

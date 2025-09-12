@@ -39,12 +39,12 @@ export const cryptoNewsCategories = [
 ]
 
 // CoinDesk API Source IDs
-export const cryptoNewsSourceIds = [
-  { value: "coindesk", label: "CoinDesk" },
-  { value: "cointelegraph", label: "CoinTelegraph" },
-  { value: "decrypt", label: "Decrypt" },
-  { value: "bitcoinmagazine", label: "Bitcoin Magazine" },
-  { value: "coingape", label: "CoinGape" }
+export const newsSources = [
+  { label: "CoinDesk", value: "CoinDesk" },
+  { label: "CoinTelegraph", value: "CoinTelegraph" },
+  { label: "EWN", value: "EWN" },
+  { label: "CryptoSlate", value: "CryptoSlate" },
+  { label: "Decrypt", value: "Decrypt" }
 ]
 
 export const sizeClasses = {
@@ -54,3 +54,10 @@ export const sizeClasses = {
   lg: "w-32 h-32 text-lg",
   xl: "w-36 h-36 text-xl"
 }
+
+export const signalStatus = [
+  { key: "", label: "All" },
+  { key: "open", label: "Open" },
+  { key: "closed", label: "Closed" },
+  { key: "not_opened", label: "Not opened" }
+]

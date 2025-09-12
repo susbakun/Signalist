@@ -5,7 +5,7 @@ import moment from "jalali-moment"
 import { Link } from "react-router-dom"
 
 type SignalTopBarProps = {
-  publisher: SignalModel["publisher"]
+  publisher: SignalModel["user"]
   date: SignalModel["date"]
   signalId: SignalModel["id"]
   subscribed?: boolean

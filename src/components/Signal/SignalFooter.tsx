@@ -1,8 +1,9 @@
 import { AppDispatch } from "@/app/store"
 import { SharePostModal, ToastContainer } from "@/components"
 import { dislikeSignalAsync, likeSignalAsync } from "@/features/Signal/signalsSlice"
-import { updateBookmarksAsync, useAppSelector } from "@/features/User/usersSlice"
+import { updateBookmarksAsync } from "@/features/User/usersSlice"
 import { useToastContainer } from "@/hooks/useToastContainer"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { AccountModel, SignalModel } from "@/shared/models"
 import { SimplifiedAccountType } from "@/shared/types"
 import { getCurrentUsername } from "@/utils"
@@ -20,6 +21,7 @@ type SignalFooterProps = {
 
 export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
   const currentUsername = getCurrentUsername()
+  const { currentUser: myAccount } = useCurrentUser()
   const isLiked = signal.likes.some((user) => user.username === currentUsername)
 
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -28,8 +30,6 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false)
 
   const dispatch = useDispatch<AppDispatch>()
-  const { users } = useAppSelector((state) => state.users)
-  const myAccount = users.find((user) => user.username === currentUsername)
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
   const handleLikeSignal = async () => {
@@ -115,7 +115,7 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
   }
 
   useEffect(() => {
-    if (myAccount) {
+    if (myAccount && myAccount.bookmarks) {
       const isSignalBookmarked = myAccount.bookmarks.signals.includes(signal.id)
       setIsBookmarked(isSignalBookmarked)
     }
@@ -126,14 +126,20 @@ export const SignalFooter = ({ signal, username }: SignalFooterProps) => {
       <div className="flex justify-between items-center mt-2">
         <div className="flex gap-3 md:gap-4 items-center">
           <div className="flex items-center gap-[2px]">
-            <button onClick={handleLikeSignal} className="action-button disabled:opacity-20">
+            <button
+              onClick={handleLikeSignal}
+              className="action-button disabled:opacity-20"
+              disabled={isLikeLoading}
+            >
               {isLiked ? (
                 <HiBolt className="w-5 h-5 md:w-6 md:h-6 text-yellow-300" />
               ) : (
                 <HiOutlineLightningBolt className="w-5 h-5 md:w-6 md:h-6" />
               )}
             </button>
-            <span className="text-xs md:text-sm detail-text">{millify(signal.likes.length)}</span>
+            <span className="text-xs md:text-sm detail-text">
+              {millify(signal.likes?.length || 0)}
+            </span>
           </div>
           <button onClick={handleOpenShareModal} className="action-button text-sm md:text-base">
             Share

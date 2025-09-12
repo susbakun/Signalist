@@ -40,7 +40,7 @@ export const MoreOptionsButton = ({
     setIsOpen(false)
   }
 
-  if (isForComment && handleDeleteComment && myAccount?.username === username)
+  if (isForComment && handleDeleteComment && myAccount && myAccount.username === username)
     return (
       <Popover
         trigger="click"
@@ -55,7 +55,8 @@ export const MoreOptionsButton = ({
       </Popover>
     )
   else if (
-    myAccount?.username === username &&
+    myAccount &&
+    myAccount.username === username &&
     !signalId &&
     !isForComment &&
     handleOpenEditPostModal
@@ -66,7 +67,8 @@ export const MoreOptionsButton = ({
       </button>
     )
   else if (
-    myAccount?.username === username &&
+    myAccount &&
+    myAccount.username === username &&
     signalId &&
     !isForComment &&
     handleOpenEditSignalModal
@@ -76,7 +78,7 @@ export const MoreOptionsButton = ({
         <MdOutlineModeEditOutline className="w-6 h-6" />
       </button>
     )
-  else if (myAccount?.username !== username && (signalId || postId || isForComment))
+  else if (myAccount && myAccount.username !== username && (signalId || postId || isForComment))
     return (
       <>
         <Popover

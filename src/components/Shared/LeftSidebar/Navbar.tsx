@@ -1,6 +1,6 @@
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { messagesRouteRegExp } from "@/shared/constants"
-import { cn } from "@/utils"
+import { cn, isDarkMode } from "@/utils"
 import { ReactNode } from "react"
 import { BiSolidSearch } from "react-icons/bi"
 import { FaRegUser, FaUser } from "react-icons/fa"
@@ -13,16 +13,58 @@ import {
 } from "react-icons/io5"
 import { TbCoinFilled, TbPremiumRights } from "react-icons/tb"
 import { NavLink, useLocation } from "react-router-dom"
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton"
+
+const NavbarSkeleton = ({ isInMessages }: { isInMessages: boolean }) => {
+  return (
+    <SkeletonTheme
+      baseColor={isDarkMode() ? "rgb(31 41 55)" : "rgb(255 255 255)"}
+      highlightColor={isDarkMode() ? "#828282" : "#ececec"}
+    >
+      <nav className={cn("flex flex-col gap-5 w-full", { "pr-2 pt-8": isInMessages })}>
+        {/* Home skeleton */}
+        <div className="link-button">
+          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+        </div>
+
+        {/* Explore skeleton */}
+        <div className="link-button">
+          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+        </div>
+
+        {/* Signals skeleton */}
+        <div className="link-button">
+          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+        </div>
+
+        {/* Premium skeleton */}
+        <div className="link-button">
+          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+        </div>
+
+        {/* Profile skeleton */}
+        <div className="link-button">
+          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+        </div>
+      </nav>
+    </SkeletonTheme>
+  )
+}
 
 export const Navbar = () => {
   const location = useLocation()
   const isInMessages = messagesRouteRegExp.test(location.pathname)
 
-  const { currentUser } = useCurrentUser()
+  const { currentUser, currentUserLoading, initialLoading } = useCurrentUser()
 
   // Function to determine the appropriate icon based on the active link
   const getIcon = (pathREG: RegExp, activeIcon: ReactNode, inactiveIcon: ReactNode) => {
     return pathREG.test(location.pathname) ? activeIcon : inactiveIcon
+  }
+
+  // Show skeleton while loading
+  if (initialLoading || currentUserLoading) {
+    return <NavbarSkeleton isInMessages={isInMessages} />
   }
 
   if (!currentUser) return null

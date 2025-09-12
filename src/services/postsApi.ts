@@ -17,13 +17,21 @@ const handleResponse = async (response: Response) => {
 export const fetchPosts = async (
   page = 1,
   limit = 10,
-  tagName = ""
+  tagName = "",
+  options?: { publishers?: string[] }
 ): Promise<{
   data: PostModel[]
   totalCount: number
   hasMore: boolean
 }> => {
-  const response = await fetch(`${POSTS_ENDPOINT}?page=${page}&limit=${limit}&tagName=${tagName}`, {
+  const url = new URL(POSTS_ENDPOINT)
+  url.searchParams.set("page", String(page))
+  url.searchParams.set("limit", String(limit))
+  url.searchParams.set("tagName", tagName)
+  if (options?.publishers && options.publishers.length)
+    url.searchParams.set("publishers", options.publishers.join(","))
+
+  const response = await fetch(url.toString(), {
     credentials: "include"
   })
   const data = await handleResponse(response)

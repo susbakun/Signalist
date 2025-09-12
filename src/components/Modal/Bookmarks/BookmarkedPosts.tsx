@@ -1,4 +1,4 @@
-import { Post } from "@/components/Post/Post"
+import { Post } from "@/components"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { EmptyPage } from "@/pages"
 import { cn, isEmpty } from "@/utils"
@@ -14,12 +14,12 @@ export const BookmarkedPosts = () => {
   const { posts: allPosts } = useAppSelector((state) => state.posts)
 
   useEffect(() => {
-    if (myAccount && allPosts.length > 0) {
+    if (myAccount && myAccount.bookmarks && allPosts.length > 0) {
       // Handle both old format (full objects) and new format (just IDs)
       let posts: PostModel[] = []
 
       // Check if the bookmarks are strings (IDs) or objects
-      const bookmarksPosts = myAccount.bookmarks.posts
+      const bookmarksPosts = myAccount.bookmarks.posts || []
       const isIdFormat = bookmarksPosts.length > 0 && typeof bookmarksPosts[0] === "string"
 
       if (isIdFormat) {

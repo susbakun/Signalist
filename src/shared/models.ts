@@ -12,9 +12,12 @@ import {
 // Wallex API Response Type
 export type WallexCryptoResponseType = {
   result: {
-    symbols: {
-      [key: string]: WallexCoinType
-    }
+    markets: WallexCoinType[]
+    coin_categories: {
+      id: number
+      name: string
+      name_fa: string
+    }[]
   }
   message: string
   success: boolean
@@ -22,50 +25,34 @@ export type WallexCryptoResponseType = {
 
 export type WallexCoinType = {
   symbol: string
-  baseAsset: string
-  baseAsset_png_icon: string
-  baseAsset_svg_icon: string
-  baseAssetPrecision: number
-  quoteAsset: string
-  quoteAsset_png_icon: string
-  quoteAsset_svg_icon: string
-  quotePrecision: number
-  faName: string
-  enName: string
-  faBaseAsset: string
-  enBaseAsset: string
-  faQuoteAsset: string
-  enQuoteAsset: string
-  stepSize: number
-  tickSize: number
-  minQty: number
-  minNotional: number
-  stats: {
-    bidPrice: string
-    askPrice: string
-    "24h_ch": number | string
-    "7d_ch": number | string
-    "24h_volume": string
-    "7d_volume": string
-    "24h_quoteVolume": string
-    "24h_highPrice": string
-    "24h_lowPrice": string
-    lastPrice: string
-    lastQty: string
-    lastTradeSide: string
-    bidVolume: string
-    askVolume: string
-    bidCount: number | string
-    askCount: number | string
-    direction: {
-      SELL: number
-      BUY: number
-    }
-    "24h_tmnVolume": string
-  }
-  createdAt: string
-  isNew: boolean
-  isZeroFee: boolean
+  base_asset: string
+  quote_asset: string
+  fa_base_asset: string
+  fa_quote_asset: string
+  en_base_asset: string
+  en_quote_asset: string
+  categories: number[] | null
+  price: string
+  change_24h: number
+  volume_24h: number | null
+  change_7D: number
+  quote_volume_24h: number | null
+  spot_is_new: boolean
+  otc_is_new: boolean
+  is_new: boolean
+  is_spot: boolean
+  is_otc: boolean
+  is_margin: boolean
+  is_tmn_based: boolean
+  is_usdt_based: boolean
+  is_zero_fee: boolean
+  leverage_step: number | null
+  max_leverage: number | null
+  created_at: string
+  amount_precision: number
+  price_precision: number
+  flags: string[]
+  is_market_type_enable: boolean
 }
 
 export type CryptoResponseType = {
@@ -92,14 +79,6 @@ export type CryptoResponseType = {
   }
 }
 
-// CryptoPanic API Types
-export type CryptoCurrency = {
-  code: string
-  title: string
-  slug: string
-  url: string
-}
-
 export type NewsSource = {
   title: string
   region: string
@@ -108,19 +87,6 @@ export type NewsSource = {
   type: string
 }
 
-export type NewsItem = {
-  kind: string
-  domain: string
-  source: NewsSource
-  title: string
-  published_at: string
-  slug: string
-  id: number
-  url: string
-  created_at: string
-  currencies: CryptoCurrency[] | null
-  image_url?: string // Will be populated from microlink
-}
 
 export type AccountModel = {
   name: string
@@ -136,10 +102,11 @@ export type AccountModel = {
   followings: SimplifiedAccountType[]
   followers: SimplifiedAccountType[]
   bookmarks: BookmarkType
-  blockedAccounts: SimplifiedAccountType[]
+  blockedUsers: SimplifiedAccountType[]
 }
 
 export type CommentModel = {
+  id: string
   postId: PostModel["id"]
   commentId: string
   body: string
@@ -155,7 +122,7 @@ export type PostModel = {
   likes: SimplifiedAccountType[]
   comments: CommentModel[]
   isPremium: boolean
-  publisher: SimplifiedAccountType
+  user: SimplifiedAccountType
   postImageHref?: string
 }
 
@@ -177,7 +144,8 @@ export type SignalModel = {
   description?: string
   chartImageHref?: string
   isPremium: boolean
-  publisher: SignalAccountType
+  user: SignalAccountType
+  score: number
 }
 
 export type MessageModel = {

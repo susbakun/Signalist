@@ -20,6 +20,7 @@ type CommentFooterProps = {
 
 export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) => {
   const currentUsername = getCurrentUsername()
+
   const [isLiked, setIsLiked] = useState(() => {
     return likes.some((user) => user.username === currentUsername)
   })
@@ -28,9 +29,25 @@ export const CommentFooter = ({ likes, commentId, postId }: CommentFooterProps) 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
   const { currentUser: myAccount } = useCurrentUser()
+  // Safety check for corrupted likes data
+  if (!Array.isArray(likes)) {
+    console.error("CommentFooter: Invalid likes data received:", likes)
+    return (
+      <div className="flex items-center gap-1 md:-translate-x text-red-500 text-sm">
+        Error: Invalid likes data
+      </div>
+    )
+  }
 
   const handleLikeComment = async () => {
     if (!myAccount || isLoading) return
+
+    // Ensure we have a valid commentId
+    if (!commentId) {
+      console.error("Comment ID is missing")
+      handleShowToast("Comment ID not found", "error")
+      return
+    }
 
     const user: SimplifiedAccountType = {
       name: myAccount.name,

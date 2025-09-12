@@ -31,7 +31,7 @@ export const UserSignals = () => {
   // Use useMemo for sorting signals
   const userSignals = useMemo(() => {
     return signals
-      .filter((signal) => signal.publisher.username === userAccount?.username)
+      .filter((signal) => signal.user.username === userAccount?.username)
       .sort((a, b) => b.date - a.date)
   }, [signals, userAccount])
 

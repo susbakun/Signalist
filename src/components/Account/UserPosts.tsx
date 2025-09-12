@@ -32,7 +32,7 @@ export const UserPosts = () => {
   // Use useMemo for userPosts to ensure proper reactivity
   const userPosts = useMemo(() => {
     return posts
-      .filter((post) => post.publisher.username === userAccount?.username)
+      .filter((post) => post.user.username === userAccount?.username)
       .sort((a, b) => b.date - a.date)
   }, [posts, userAccount])
 

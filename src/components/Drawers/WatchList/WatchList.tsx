@@ -13,22 +13,24 @@ import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 export const WatchList = () => {
   // Use the new Wallex API instead of the CoinRanking API
   // const { data: cryptosList, isLoading } = useGetCryptosQuery(50)
-  const { data: wallexData, isLoading } = useGetWallexMarketsQuery()
+  const { data: wallexResponse, isLoading } = useGetWallexMarketsQuery()
   const [cryptos, setCryptos] = useState<CoinType[]>([])
   const [isOpen, setIsOpen] = useState(false)
+
 
   // Memoize username so it doesn't change on every render
   const username = useMemo(() => getCurrentUsername(), [])
 
   // Memoize transformed data to prevent unnecessary recalculations
   const cryptosList = useMemo(() => {
-    if (!wallexData) return null
+    if (!wallexResponse?.data) return null
     return {
       data: {
-        coins: transformWallexData(wallexData)
+        coins: transformWallexData(wallexResponse.data)
       }
     }
-  }, [wallexData])
+  }, [wallexResponse])
+
 
   const saveWatchlist = (username: string, watchlist: string[]) => {
     const key = `${STORAGE_KEYS.WATCHLIST}_${username}`
@@ -120,7 +122,6 @@ export const WatchList = () => {
         </button>
       </div>
 
-      {/* Move MarketSelectionDrawer here, so it's always present */}
       <MarketSelectionDrawer
         selectedCryptos={cryptos}
         isOpen={isOpen}

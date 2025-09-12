@@ -1,8 +1,7 @@
 import { Loader, Post } from "@/components"
 import { fetchPosts, updatePage, useAppSelector } from "@/features/Post/postsSlice"
 import { EmptyPage } from "@/pages"
-import { PostModel } from "@/shared/models"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store" // Adjust this import to your store file location
 import { useCurrentUser } from "@/hooks/useCurrentUser"
@@ -14,13 +13,11 @@ export const FollowingsPosts = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loadingMore, setLoadingMore] = useState(false)
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(10) // Start with fewer items
 
-  const allPosts = useAppSelector((state) => state.posts.posts)
-  const loading = useAppSelector((state) => state.posts.loading)
-  const hasMore = useAppSelector((state) => state.posts.hasMore)
-  const page = useAppSelector((state) => state.posts.page)
+  const { posts: allPosts, loading, hasMore, page } = useAppSelector((state) => state.posts)
 
-  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+  const { currentUser: myAccount, currentUserLoading: userLoading } = useCurrentUser()
 
   // Ref for intersection observer
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -28,10 +25,14 @@ export const FollowingsPosts = () => {
 
   // Initial fetch
   useEffect(() => {
-    dispatch(fetchPosts({})).then(() => {
+    const publishers = [
+      ...(myAccount?.followings?.map((f) => f.username) || []),
+      ...(myAccount?.username ? [myAccount.username] : [])
+    ]
+    dispatch(fetchPosts({ publishers })).then(() => {
       setInitialLoadComplete(true)
     })
-  }, [dispatch])
+  }, [dispatch, myAccount?.username])
 
   // Setup intersection observer for infinite scrolling
   useEffect(() => {
@@ -72,9 +73,12 @@ export const FollowingsPosts = () => {
 
       // Pass the current page + 1 to fetch the next set of posts
       const nextPage = page + 1
-
+      const publishers = [
+        ...(myAccount?.followings?.map((f) => f.username) || []),
+        ...(myAccount?.username ? [myAccount.username] : [])
+      ]
       // Dispatch is wrapped in a promise to ensure we wait for completion
-      await dispatch(fetchPosts({ page: nextPage, tagName })).unwrap()
+      await dispatch(fetchPosts({ page: nextPage, tagName, publishers })).unwrap()
 
       // Update page in the state
       dispatch(updatePage(nextPage))
@@ -91,24 +95,23 @@ export const FollowingsPosts = () => {
     }
   }
 
-  const isMyFollowingPost = (post: PostModel) => {
-    return myAccount?.followings.some((following) =>
-      following.username.includes(post.publisher.username)
-    )
-  }
+  const followingPosts = useMemo(() => {
+    return [...allPosts].sort((a, b) => b.date - a.date)
+  }, [allPosts])
 
-  const isMyPost = (post: PostModel) => {
-    return post.publisher.username === myAccount?.username
-  }
+  const visiblePosts = useMemo(() => {
+    return followingPosts.slice(0, visibleCount)
+  }, [followingPosts, visibleCount])
 
-  const followingPosts = [
-    ...allPosts.filter((post) => {
-      if (isMyFollowingPost(post) || isMyPost(post)) {
-        return post
-      }
-      return false
-    })
-  ].sort((a, b) => b.date - a.date)
+  // Progressively show more posts after initial render
+  useEffect(() => {
+    if (initialLoadComplete && followingPosts.length > visibleCount) {
+      const timer = setTimeout(() => {
+        setVisibleCount(prev => Math.min(prev + 20, followingPosts.length))
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [initialLoadComplete, followingPosts.length, visibleCount])
 
   // Show loading state only on initial load
   if ((!initialLoadComplete && loading) || userLoading) {
@@ -119,6 +122,8 @@ export const FollowingsPosts = () => {
     )
   }
 
+  if (!myAccount) return null
+
   if (!followingPosts.length)
     return (
       <EmptyPage className="flex justify-center items-center h-[80vh]">
@@ -126,11 +131,9 @@ export const FollowingsPosts = () => {
       </EmptyPage>
     )
 
-  if (!myAccount) return null
-
   return (
     <div className="flex flex-col">
-      {followingPosts.map((post) => (
+      {visiblePosts.map((post) => (
         <Post
           className="border-b border-b-gray-600/20 dark:border-b-white/20 px-4 py-6"
           key={post.id}
@@ -138,6 +141,13 @@ export const FollowingsPosts = () => {
           myAccount={myAccount}
         />
       ))}
+
+      {/* Show remaining posts are loading */}
+      {visibleCount < followingPosts.length && (
+        <div className="flex justify-center py-4">
+          <div className="text-sm opacity-70">Loading more posts...</div>
+        </div>
+      )}
 
       {/* Loading indicator and intersection observer target */}
       {hasMore && (

@@ -23,15 +23,15 @@ export const MarketSelectionDrawer = ({
   const [drawerCoins, setDrawerCoins] = useState<CoinType[]>([])
   const [searchTerm, setSearchTerm] = useState("")
 
-  const { data: wallexData } = useGetWallexMarketsQuery()
+  const { data: wallexResponse } = useGetWallexMarketsQuery()
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
   }
 
   useEffect(() => {
-    if (wallexData) {
-      const transformedCoins = transformWallexData(wallexData)
+    if (wallexResponse?.data) {
+      const transformedCoins = transformWallexData(wallexResponse.data)
       const filteredData = transformedCoins.filter(
         (coin) =>
           (coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,7 +40,7 @@ export const MarketSelectionDrawer = ({
       )
       setDrawerCoins(filteredData)
     }
-  }, [wallexData, searchTerm])
+  }, [wallexResponse, searchTerm])
 
   const notSelectedMarkets = drawerCoins.filter((drawerCoin) => {
     return selectedCryptos.every((selectedCoin) => selectedCoin.uuid !== drawerCoin.uuid)

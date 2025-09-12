@@ -37,7 +37,6 @@ export const EditProfileModal = ({
   const dispatch = useDispatch<AppDispatch>()
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
 
-  // Initialize form values from user account
   useEffect(() => {
     if (userAccount) {
       setName(userAccount.name || "")
@@ -192,7 +191,6 @@ export const EditProfileModal = ({
           handleCloseModal()
         }, 5000)
         navigate(`/${result.username}`, { replace: true })
-        window.location.reload()
       }
     } catch (error) {
       console.error("Error updating profile:", error)

@@ -127,28 +127,25 @@ export const isXLScreen = () => {
 
 // Function to transform Wallex API data into CoinType format
 export const transformWallexData = (wallexData: WallexCryptoResponseType | undefined) => {
-  if (!wallexData || !wallexData.result || !wallexData.result.symbols) {
+  if (!wallexData || !wallexData.result || !wallexData.result.markets) {
     return []
   }
 
-  return Object.values(wallexData.result.symbols).map((coin: WallexCoinType) => {
+  return wallexData.result.markets.map((coin: WallexCoinType) => {
     // Convert any numeric changes to strings for consistency with CoinType
-    const changeValue =
-      typeof coin.stats["24h_ch"] === "number"
-        ? coin.stats["24h_ch"].toString()
-        : coin.stats["24h_ch"] || "0"
+    const changeValue = coin.change_24h.toString()
 
     return {
       uuid: coin.symbol, // Using symbol as the unique identifier
-      symbol: coin.baseAsset,
-      name: coin.enBaseAsset,
-      iconUrl: coin.baseAsset_png_icon,
-      price: coin.stats.lastPrice,
+      symbol: coin.base_asset,
+      name: coin.en_base_asset,
+      iconUrl: `https://wallex.ir/_next/image?url=https%3A%2F%2Fapi.wallex.ir%2Fcoins%2F${coin.base_asset}.svg&w=32&q=75`,
+      price: coin.price,
       change: changeValue,
-      "24hVolume": coin.stats["24h_volume"] || "0",
+      "24hVolume": coin.volume_24h?.toString() || "0",
       marketCap: "0", // Wallex doesn't provide market cap
       rank: 0, // Wallex doesn't provide rank
-      quoteAsset: coin.quoteAsset // New field to store the quote asset (USDT, TMN, etc.)
+      quoteAsset: coin.quote_asset // New field to store the quote asset (USDT, TMN, etc.)
     }
   })
 }
@@ -161,4 +158,16 @@ export const urlToFile = async (url: string, filename: string, mimeType: string)
 
 export const getWeeklyChartUrl = (symbol: string) => {
   return `https://images.cryptocompare.com/sparkchart/${symbol}/USD/latest.png?ts=`
+}
+
+export const timeAgoFromNow = (dateMs: number) => {
+  const diff = Date.now() - Number(dateMs)
+  const sec = Math.floor(diff / 1000)
+  const min = Math.floor(sec / 60)
+  const hr = Math.floor(min / 60)
+  const day = Math.floor(hr / 24)
+  if (day > 0) return `${day}d`
+  if (hr > 0) return `${hr}h`
+  if (min > 0) return `${min}m`
+  return `${sec}s`
 }

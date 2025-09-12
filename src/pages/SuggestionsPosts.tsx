@@ -1,7 +1,7 @@
 import { Loader, Post } from "@/components"
 import { fetchPosts, updatePage, useAppSelector } from "@/features/Post/postsSlice"
 import { EmptyPage } from "./EmptyPage"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "@/app/store" // Adjust this import to your store file path
 import { useCurrentUser } from "@/hooks/useCurrentUser"
@@ -13,10 +13,11 @@ export const SuggestionsPosts = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [loadingMore, setLoadingMore] = useState(false)
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(10) // Start with fewer items
 
   const { posts, loading, hasMore, page } = useAppSelector((state) => state.posts)
 
-  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+  const { currentUser: myAccount, initialLoading } = useCurrentUser()
 
   // Ref for intersection observer
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -89,10 +90,26 @@ export const SuggestionsPosts = () => {
     }
   }
 
-  const sortedPosts = [...posts].sort((a, b) => b.date - a.date)
+  const sortedPosts = useMemo(() => {
+    return [...posts].sort((a, b) => b.date - a.date)
+  }, [posts])
+
+  const visiblePosts = useMemo(() => {
+    return sortedPosts.slice(0, visibleCount)
+  }, [sortedPosts, visibleCount])
+
+  // Progressively show more posts after initial render
+  useEffect(() => {
+    if (initialLoadComplete && sortedPosts.length > visibleCount) {
+      const timer = setTimeout(() => {
+        setVisibleCount(prev => Math.min(prev + 20, sortedPosts.length))
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [initialLoadComplete, sortedPosts.length, visibleCount])
 
   // Show loading state only on initial load
-  if ((!initialLoadComplete && loading) || userLoading) {
+  if ((!initialLoadComplete && loading) || initialLoading) {
     return (
       <EmptyPage className="flex justify-center items-center h-[80vh]">
         <Loader className="h-[350px]" />
@@ -111,7 +128,7 @@ export const SuggestionsPosts = () => {
 
   return (
     <div className="flex flex-col">
-      {sortedPosts.map((post) => (
+      {visiblePosts.map((post) => (
         <Post
           className="border-b border-b-gray-600/20 
         dark:border-b-white/20 px-4 py-6"
@@ -120,6 +137,13 @@ export const SuggestionsPosts = () => {
           myAccount={myAccount}
         />
       ))}
+
+      {/* Show remaining posts are loading */}
+      {visibleCount < sortedPosts.length && (
+        <div className="flex justify-center py-4">
+          <div className="text-sm opacity-70">Loading more posts...</div>
+        </div>
+      )}
 
       {/* Loading indicator and intersection observer target */}
       {hasMore && (

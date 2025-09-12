@@ -1,9 +1,9 @@
 import { EditPostModal, PostBody, PostFooter, PostTopBar } from "@/components"
-import { useAppSelector } from "@/features/Post/postsSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
+import { useUserAccount } from "@/hooks/useUserAccount"
 import { AccountModel, PostModel } from "@/shared/models"
-import { ComponentProps, useEffect, useState } from "react"
+import { ComponentProps, useEffect, useState, useMemo, memo } from "react"
 import { twMerge } from "tailwind-merge"
 
 type PostProps = {
@@ -11,14 +11,12 @@ type PostProps = {
   myAccount: AccountModel
 } & ComponentProps<"div">
 
-export const Post = ({ post, myAccount, className }: PostProps) => {
-  const { publisher } = post
+export const Post = memo(({ post, myAccount, className }: PostProps) => {
+  const { user: publisher } = post
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
 
-  const publisherDetails = useAppSelector((store) => store.users.users).find(
-    (user) => user.username === publisher.username
-  )
+  const { userAccount: publisherDetails } = useUserAccount(publisher.username)
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const { isUserBlocked: determineIsUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
@@ -31,12 +29,14 @@ export const Post = ({ post, myAccount, className }: PostProps) => {
     setIsEditPostModalOpen(false)
   }
 
+  const isBlocked = useMemo(() => {
+    if (!myAccount) return false
+    return determineIsUserBlocked(publisher.username)
+  }, [myAccount, determineIsUserBlocked, publisher.username])
+
   useEffect(() => {
-    if (myAccount) {
-      const userUsername = post.publisher.username
-      setIsUserBlocked(determineIsUserBlocked(userUsername))
-    }
-  }, [myAccount])
+    setIsUserBlocked(isBlocked)
+  }, [isBlocked])
 
   if (!publisherDetails) return null
 
@@ -54,7 +54,7 @@ export const Post = ({ post, myAccount, className }: PostProps) => {
         />
         <PostBody
           content={post.content}
-          publisherUsername={post.publisher.username}
+          publisherUsername={publisher.username}
           isPremium={post.isPremium}
           postImageHref={post.postImageHref}
           amISubscribed={amISubscribed}
@@ -77,4 +77,4 @@ export const Post = ({ post, myAccount, className }: PostProps) => {
       )}
     </>
   )
-}
+})

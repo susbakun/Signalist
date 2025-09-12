@@ -16,13 +16,36 @@ const handleResponse = async (response: Response) => {
 // Get all signals
 export const fetchSignals = async (
   page = 1,
-  limit = 10
+  limit = 10,
+  options?: {
+    publishers?: string[]
+    publisher?: string
+    market?: string
+    status?: "open" | "closed" | "not_opened" | ""
+    openFrom?: number | null
+    openTo?: number | null
+    closeFrom?: number | null
+    closeTo?: number | null
+  }
 ): Promise<{
   data: SignalModel[]
   totalCount: number
   hasMore: boolean
 }> => {
-  const response = await fetch(`${SIGNALS_ENDPOINT}?page=${page}&limit=${limit}`, {
+  const url = new URL(SIGNALS_ENDPOINT)
+  url.searchParams.set("page", String(page))
+  url.searchParams.set("limit", String(limit))
+  if (options?.publisher) url.searchParams.set("publisher", options.publisher)
+  if (options?.publishers && options.publishers.length)
+    url.searchParams.set("publishers", options.publishers.join(","))
+  if (options?.market) url.searchParams.set("market", options.market)
+  if (options?.status) url.searchParams.set("status", options.status)
+  if (options?.openFrom != null) url.searchParams.set("openFrom", String(options.openFrom))
+  if (options?.openTo != null) url.searchParams.set("openTo", String(options.openTo))
+  if (options?.closeFrom != null) url.searchParams.set("closeFrom", String(options.closeFrom))
+  if (options?.closeTo != null) url.searchParams.set("closeTo", String(options.closeTo))
+
+  const response = await fetch(url.toString(), {
     credentials: "include"
   })
   const data = await handleResponse(response)
@@ -33,6 +56,39 @@ export const fetchSignals = async (
   }
 }
 
+// Fetch many signals (paginated) and return a concatenated list
+export const fetchManySignals = async (
+  maxPages = 10,
+  limit = 50,
+  params?: { publisher?: string }
+): Promise<SignalModel[]> => {
+  const all: SignalModel[] = []
+  for (let page = 1; page <= maxPages; page++) {
+    const url = new URL(`${SIGNALS_ENDPOINT}`)
+    url.searchParams.set("page", String(page))
+    url.searchParams.set("limit", String(limit))
+    if (params?.publisher) url.searchParams.set("publisher", params.publisher)
+    const response = await fetch(url.toString(), { credentials: "include" })
+    const res = await handleResponse(response)
+    const data: SignalModel[] = res.data
+    const hasMore: boolean = res.hasMore || data.length >= limit
+    all.push(...data)
+    if (!hasMore) break
+  }
+  return all
+}
+
+// Fetch signals for a specific publisher username
+export const fetchUserSignals = async (
+  username: string,
+  options?: { maxPages?: number; limit?: number }
+): Promise<Pick<SignalModel, "date" | "score">[]> => {
+  const maxPages = options?.maxPages ?? 10
+  const limit = options?.limit ?? 50
+  const all = await fetchManySignals(maxPages, limit, { publisher: username })
+  return all.map((s) => ({ date: s.date, score: s.score ?? 0 }))
+}
+
 // Get a single signal by ID
 export const fetchSignalById = async (id: string): Promise<SignalModel> => {
   const response = await fetch(`${SIGNALS_ENDPOINT}/${id}`, {
@@ -40,6 +96,19 @@ export const fetchSignalById = async (id: string): Promise<SignalModel> => {
   })
   const data = await handleResponse(response)
   return data.data
+}
+
+// Get top signals for last N ms (default 7 days)
+export const fetchTopSignals = async (
+  limit = 3,
+  sinceMs = 7 * 24 * 60 * 60 * 1000
+): Promise<SignalModel[]> => {
+  const url = new URL(`${SIGNALS_ENDPOINT}/top`)
+  url.searchParams.set("limit", String(limit))
+  url.searchParams.set("since", String(Date.now() - sinceMs))
+  const response = await fetch(url.toString(), { credentials: "include" })
+  const data = await handleResponse(response)
+  return data.data as SignalModel[]
 }
 
 // Create a new signal

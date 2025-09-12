@@ -16,7 +16,6 @@ import {
   UserBlockedAccountsModal
 } from "@/components"
 import {
-  DetailedNewsPage,
   ExplorePage,
   FollowingsPosts,
   HomePage,
@@ -24,7 +23,9 @@ import {
   PremiumPage,
   SignalsPage,
   SuggestionsPosts,
-  UserPage
+  UserPage,
+  FollowingsSignals,
+  SuggestionsSignals
 } from "@/pages"
 import { messagesRouteRegExp } from "@/shared/constants"
 import { cn } from "@/utils"
@@ -66,7 +67,6 @@ export const AppContent = () => {
     >
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/news" element={<DetailedNewsPage />} />
         <Route path="/explore" element={<ExplorePage />}>
           <Route path="followings" element={<FollowingsPosts />}>
             <Route path="hashtag/:tagName" />
@@ -75,7 +75,10 @@ export const AppContent = () => {
             <Route path="hashtag/:tagName" />
           </Route>
         </Route>
-        <Route path="/signals" element={<SignalsPage />} />
+        <Route path="/signals" element={<SignalsPage />}>
+          <Route path="followings" element={<FollowingsSignals />} />
+          <Route path="suggests" element={<SuggestionsSignals />} />
+        </Route>
         <Route path="/premium" element={<PremiumPage />} />
         <Route path="/:username" element={<UserPage />}>
           <Route path="posts" element={<UserPosts />} />

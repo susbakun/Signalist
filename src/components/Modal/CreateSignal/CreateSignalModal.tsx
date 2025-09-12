@@ -60,7 +60,7 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   })
   const [formTouched, setFormTouched] = useState(false)
 
-  const { data: wallexData, isLoading } = useGetWallexMarketsQuery()
+  const { data: wallexResponse, isLoading } = useGetWallexMarketsQuery()
   const dispatch = useDispatch<AppDispatch>()
   const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
 
@@ -252,14 +252,14 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
   )!
 
   useEffect(() => {
-    if (wallexData) {
+    if (wallexResponse?.data) {
       // Transform Wallex data to the format expected by components
-      const transformedData = transformWallexData(wallexData)
+      const transformedData = transformWallexData(wallexResponse.data)
       // Filter to only include USDT pairs for simplicity
       const usdtPairs = transformedData.filter((coin) => coin.quoteAsset === "USDT")
       setDropDownMarkets(usdtPairs)
     }
-  }, [wallexData])
+  }, [wallexResponse])
 
   const validateSignalData = useCallback(() => {
     const newErrors = {

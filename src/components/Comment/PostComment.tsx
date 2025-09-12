@@ -15,6 +15,23 @@ export const PostComment = ({
   postId,
   isLastComment
 }: PostCommentProps) => {
+  // Safety check for corrupted comment data
+  if (!publisher || !body || !commentId || !postId) {
+    console.error("PostComment: Invalid comment data received:", {
+      body,
+      date,
+      publisher,
+      likes,
+      commentId,
+      postId
+    })
+    return (
+      <div className="flex items-center gap-2 p-2 text-red-500 text-sm border-b dark:border-b-white/20 pb-3 px-3 md:pl-4 md:pr-6">
+        Error: Invalid comment data
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(

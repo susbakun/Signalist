@@ -23,11 +23,10 @@
     /* Pathing */
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"],
+      "@/public/*": ["public/*"]
     }
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

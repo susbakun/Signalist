@@ -45,7 +45,7 @@ export const UserBlockedAccountsModal = () => {
         if (!prevMe) return undefined
         return {
           ...prevMe,
-          blockedAccounts: prevMe.blockedAccounts.filter(
+          blockedAccounts: prevMe.blockedUsers.filter(
             (account) => account.username !== blockedUsername
           )
         }
@@ -57,7 +57,7 @@ export const UserBlockedAccountsModal = () => {
   }
 
   const handleSearchUsers = useCallback(() => {
-    return me?.blockedAccounts.filter(
+    return me?.blockedUsers.filter(
       (user) =>
         user.username.toLowerCase().includes(searched.toLowerCase()) ||
         user.name.toLocaleLowerCase().includes(searched)

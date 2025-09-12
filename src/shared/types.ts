@@ -51,6 +51,17 @@ export type OptionType = {
   label: string
 }
 
+// Filters used for Signals listing pages
+export type SignalsFilterStatus = StatusType | ""
+export type SignalsFilters = {
+  market?: string
+  openFrom?: number | null
+  openTo?: number | null
+  closeFrom?: number | null
+  closeTo?: number | null
+  status?: SignalsFilterStatus
+}
+
 export type CreateSignalInputsErrors = {
   entry: string
   stoploss: string

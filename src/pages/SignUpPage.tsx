@@ -181,7 +181,8 @@ export const SignUpPage = () => {
           imageUrl,
           bio,
           hasPremium: false,
-          subscriptionPlan: []
+          subscriptionPlan: [],
+          blockedUsers: []
         })
       )
 
@@ -381,31 +382,29 @@ export const SignUpPage = () => {
               {/* Password field */}
               <div className="relative mb-6">
                 <div className="flex items-center">
-                  <div className="absolute left-3 flex items-center justify-center pointer-events-none">
-                    <FaLock className="text-gray-400 text-lg" />
+                  <div className="relative w-full">
+                    <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      required
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none
+                  focus:border-primary-link-button dark:focus:border-dark-link-button
+                  dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <button
+                      className="action-button absolute right-3 top-1/2 -translate-y-1/2"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash className="w-5 h-5" />
+                      ) : (
+                        <FaEye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className={cn(
-                      "w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none",
-                      "focus:border-primary-link-button dark:focus:border-dark-link-button",
-                      "dark:bg-gray-700 dark:border-gray-600 h-10",
-                      errors.password && "border-red-500 dark:border-red-500"
-                    )}
-                  />
-                  <button
-                    className="action-button absolute right-3 top-1/2 -translate-y-1/2"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <FaEyeSlash className="w-5 h-5" />
-                    ) : (
-                      <FaEye className="w-5 h-5" />
-                    )}
-                  </button>
                 </div>
                 {errors.password ? (
                   <p className="text-red-500 text-xs mt-1 bg-red-50 dark:bg-red-900/10 p-1 rounded">

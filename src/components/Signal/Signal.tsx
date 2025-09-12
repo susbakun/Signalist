@@ -5,7 +5,7 @@ import { useAppSelector } from "@/features/User/usersSlice"
 import { useIsUserBlocked } from "@/hooks/useIsUserBlocked"
 import { useIsUserSubscribed } from "@/hooks/useIsUserSubscribed"
 import { AccountModel, SignalModel } from "@/shared/models"
-import { ComponentProps, useEffect, useState } from "react"
+import { ComponentProps, useEffect, useState, useMemo, memo } from "react"
 import { useDispatch } from "react-redux"
 import { twMerge } from "tailwind-merge"
 
@@ -15,7 +15,7 @@ type SignalProps = {
   isBookmarkPage?: boolean
 } & ComponentProps<"div">
 
-export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalProps) => {
+export const Signal = memo(({ signal, className, myAccount, isBookmarkPage }: SignalProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_currentTime, setCurrentTime] = useState(new Date().getTime())
   const [isUserBlocked, setIsUserBlocked] = useState<undefined | boolean>(undefined)
@@ -23,14 +23,13 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
 
   const dispatch = useDispatch<AppDispatch>()
 
-  const { publisher } = signal
+  const { user: publisher } = signal
   const publisherDetails = useAppSelector((store) => store.users.users).find(
     (user) => user.username === publisher.username
   )
 
   const { amISubscribed } = useIsUserSubscribed(publisher)
   const { isUserBlocked: determineIsUserBlocked, areYouBlocked } = useIsUserBlocked(myAccount)
-
   const handleOpenEditSignalModal = () => {
     setOpenEditSignalModal(true)
   }
@@ -50,44 +49,31 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
       return
     }
 
-    // Update once immediately to catch any immediate state changes
-    updateSignalStatus()
+    // Debounce the initial update to avoid blocking the UI
+    const initialUpdateTimeout = setTimeout(() => {
+      updateSignalStatus()
+    }, 100)
 
     const now = new Date().getTime()
     const OFFSET_BUFFER = 30000 // 30 seconds buffer
 
     // Array to keep track of all timeout ids so we can clear them on cleanup
-    const timeoutIds: NodeJS.Timeout[] = []
+    const timeoutIds: NodeJS.Timeout[] = [initialUpdateTimeout]
 
     // Schedule checks at strategic times based on signal state
-    if (signal.status === "not_opened") {
-      // Check 1: Right before opening time
-      if (signal.openTime > now) {
-        const timeUntilOpen = Math.max(500, signal.openTime - now - OFFSET_BUFFER)
-
-        const openingTimeoutId = setTimeout(() => {
-          updateSignalStatus()
-        }, timeUntilOpen)
-
-        timeoutIds.push(openingTimeoutId)
-      }
+    if (signal.status === "not_opened" && signal.openTime > now) {
+      const timeUntilOpen = Math.max(500, signal.openTime - now - OFFSET_BUFFER)
+      const openingTimeoutId = setTimeout(updateSignalStatus, timeUntilOpen)
+      timeoutIds.push(openingTimeoutId)
     }
 
     // Schedule check for closing time (regardless of current status)
     if (signal.closeTime > now) {
-      // Check 2: Right before closing time
       const timeUntilClose = Math.max(500, signal.closeTime - now - OFFSET_BUFFER)
-
-      const closingTimeoutId = setTimeout(() => {
-        updateSignalStatus()
-      }, timeUntilClose)
-
-      // Check 3: After closing time (final status update + cleanup)
       const timeUntilAfterClose = Math.max(1000, signal.closeTime - now + OFFSET_BUFFER)
 
-      const afterCloseTimeoutId = setTimeout(() => {
-        updateSignalStatus()
-      }, timeUntilAfterClose)
+      const closingTimeoutId = setTimeout(updateSignalStatus, timeUntilClose)
+      const afterCloseTimeoutId = setTimeout(updateSignalStatus, timeUntilAfterClose)
 
       timeoutIds.push(closingTimeoutId, afterCloseTimeoutId)
     }
@@ -98,12 +84,14 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
     }
   }, [signal.id, signal.status, signal.openTime, signal.closeTime])
 
+  const isBlocked = useMemo(() => {
+    if (!myAccount) return false
+    return determineIsUserBlocked(publisher.username)
+  }, [myAccount, determineIsUserBlocked, publisher.username])
+
   useEffect(() => {
-    if (myAccount) {
-      const userUsername = signal.publisher.username
-      setIsUserBlocked(determineIsUserBlocked(userUsername))
-    }
-  }, [myAccount, determineIsUserBlocked, signal.publisher.username])
+    setIsUserBlocked(isBlocked)
+  }, [isBlocked])
 
   if (!publisherDetails) return null
 
@@ -135,4 +123,4 @@ export const Signal = ({ signal, className, myAccount, isBookmarkPage }: SignalP
       />
     </>
   )
-}
+})

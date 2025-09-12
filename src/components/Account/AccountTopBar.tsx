@@ -61,7 +61,9 @@ export const AccountTopBar = ({ isItmMyAccount, userAccount, myAccount }: Accoun
         </div>
 
         {isItmMyAccount ? (
-          <UserOptionsButton handleOpen={handleOpen} open={open} setIsOpen={setIsOpen} />
+          <div className="absolute top-4 right-2 md:right-4 lg:right-8">
+            <UserOptionsButton handleOpen={handleOpen} open={open} setIsOpen={setIsOpen} />
+          </div>
         ) : (
           <div className="flex gap-2 sm:gap-4 absolute top-4 right-4 md:right-8 lg:right-12">
             {amISubscribed && <SubscriberSign />}

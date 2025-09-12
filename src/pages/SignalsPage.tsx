@@ -1,13 +1,24 @@
-import { AppDispatch } from "@/app/store"
-import { CreateSignalButton, CreateSignalModal, Loader, Signal } from "@/components"
-import { fetchSignals, updatePage, useAppSelector } from "@/features/Signal/signalsSlice"
-import { useEffect, useState, useRef, useMemo } from "react"
+import { CreateSignalButton, CreateSignalModal } from "@/components"
+import { type SignalsFilters } from "@/shared/types"
+import { SignalsInlineFilters } from "@/components/Inline/SignalsInlineFilters"
+import { useEffect, useState } from "react"
+import { VscFilter } from "react-icons/vsc"
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { fetchTopSignals } from "@/services/signalsApi"
+import { SignalModel } from "@/shared/models"
+import { cn, timeAgoFromNow } from "@/utils"
+import { AiOutlineRise } from "react-icons/ai"
 import { useDispatch } from "react-redux"
-import { EmptyPage } from "./EmptyPage"
-import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { AppDispatch } from "@/app/store"
+import { setSignalsFilters } from "@/features/Signal/signalsSlice"
 
 export const SignalsPage = () => {
+  const dispatch = useDispatch<AppDispatch>()
   const [openCreateSignalModal, setOpenCreateSignalModal] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState<SignalsFilters>({})
 
   const handleCloseCreateSignalModal = () => {
     setOpenCreateSignalModal(false)
@@ -16,137 +27,153 @@ export const SignalsPage = () => {
   const hanldeOpenCreateSignalModal = () => {
     setOpenCreateSignalModal(true)
   }
+
+  useEffect(() => {
+    if (location.pathname === "/signals") {
+      navigate("followings")
+    }
+  }, [location, navigate])
+
+  // Sync local filters with redux so child pages can use them when fetching
+  useEffect(() => {
+    dispatch(setSignalsFilters(filters))
+  }, [dispatch, filters])
+
   return (
     <div className="flex flex-col md:flex-row">
-      <ExploreSignals />
+      <div
+        className="flex-1 md:border-r dark:md:border-r-white/20
+      md:border-r-gray-600/20 overflow-hidden"
+      >
+        <SignalsTopBar onToggleFilters={() => setIsFiltersOpen((p) => !p)}>
+          <div className="px-4">
+            <SignalsInlineFilters
+              isOpen={isFiltersOpen}
+              value={filters}
+              onChange={setFilters}
+              onClose={() => setIsFiltersOpen(false)}
+            />
+          </div>
+        </SignalsTopBar>
+        <Outlet />
+      </div>
+      <div className="hidden md:block w-[38%]">
+        <RightSideBarSignals />
+      </div>
       <CreateSignalButton handleOpenModal={hanldeOpenCreateSignalModal} />
       <CreateSignalModal
         openModal={openCreateSignalModal}
         handleCloseModal={handleCloseCreateSignalModal}
       />
+      {/* Inline filters replaces the drawer */}
     </div>
   )
 }
 
-const ExploreSignals = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false)
-
-  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
-
-  const { signals, loading, hasMore, page } = useAppSelector((state) => state.signals)
-
-  // Use useMemo to sort the signals - this ensures we always display all signals in the correct order
-  const sortedSignalsList = useMemo(() => {
-    return [...signals].sort((a, b) => b.date - a.date)
-  }, [signals])
-
-  // Ref for intersection observer
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-
-  // Initial fetch
-  useEffect(() => {
-    // Clear any previous signals and start fresh with page 1
-    dispatch(fetchSignals({ page: 1, limit: 10 })).then(() => {
-      setInitialLoadComplete(true)
-    })
-  }, [dispatch])
-
-  // Setup intersection observer for infinite scrolling
-  useEffect(() => {
-    if (loading || !hasMore) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Only trigger loading if we have more signals to load, we're not already loading,
-        // and the loadMore element is intersecting
-        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
-          loadMoreSignals()
-        }
-      },
-      // Use a moderate threshold to detect earlier but not too early
-      { threshold: 0.05, rootMargin: "200px 0px" }
-    )
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current)
-    }
-
-    observerRef.current = observer
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [loading, hasMore, loadingMore])
-
-  // Function to load more signals
-  const loadMoreSignals = async () => {
-    if (!hasMore || loading || loadingMore) return
-
-    setLoadingMore(true)
-
-    try {
-      // Pass the current page + 1 to fetch the next set of signals
-      const nextPage = page + 1
-
-      // Dispatch and wait for completion
-      await dispatch(fetchSignals({ page: nextPage, limit: 10 })).unwrap()
-
-      // Update page in the state
-      dispatch(updatePage(nextPage))
-    } catch (error) {
-      console.error("Failed to load more signals:", error)
-    } finally {
-      setLoadingMore(false)
-    }
-  }
-
-  // Show loading state only on initial load
-  if ((!initialLoadComplete && loading) || userLoading) {
-    return (
-      <EmptyPage
-        className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r 
-        dark:md:border-r-white/20 md:border-r-gray-600/20 md:h-screen"
-      >
-        <Loader className="h-[350px]" />
-      </EmptyPage>
-    )
-  }
-
-  if (!sortedSignalsList.length)
-    return (
-      <EmptyPage
-        className="flex justify-center items-center h-[80vh] md:flex-1 md:border-r
-        dark:md:border-r-white/20 md:border-r-gray-600/20 md:h-screen"
-      >
-        <h3 className="font-normal">There are no signals yet</h3>
-      </EmptyPage>
-    )
-
-  if (!myAccount) return null
-
+const SignalsTopBar = ({
+  children,
+  onToggleFilters
+}: {
+  children?: React.ReactNode
+  onToggleFilters: () => void
+}) => {
   return (
     <div
-      className="flex-1 md:border-r dark:md:border-r-white/20
-    md:border-r-gray-600/20 pb-4 md:pb-0"
+      className="flex flex-col gap-8 sticky top-0 pt-8
+      dark:bg-dark-main bg-primary-main"
     >
-      <h2 className="text-2xl px-4 pt-4 md:pt-11 pb-2 font-bold">Signals</h2>
-      <div className="flex flex-col justify-center">
-        {sortedSignalsList.map((signal) => (
-          <Signal myAccount={myAccount} key={signal.id} signal={signal} />
-        ))}
+      <div className="px-4 flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Signals</h2>
+        <button
+          className="action-button flex items-center gap-2 dark:bg-gray-600
+         bg-gray-300 rounded-full px-4 py-2"
+          onClick={onToggleFilters}
+        >
+          <VscFilter className="w-4 h-4" /> Filter
+        </button>
+      </div>
+      {children}
+      <div
+        className="border-b border-b-gray-600/20 dark:border-b-white/20
+        flex justify-evenly gap-20"
+      >
+        <NavLink className="explore-nav-link" to="followings">
+          Followings
+        </NavLink>
+        <NavLink className="explore-nav-link" to="suggests">
+          Suggests
+        </NavLink>
+      </div>
+    </div>
+  )
+}
 
-        {/* Loading indicator and intersection observer target */}
-        {hasMore && (
-          <div ref={loadMoreRef} className="flex justify-center py-6 mt-2">
-            {loadingMore && <Loader className="h-16 w-16" />}
+const RightSideBarSignals = () => {
+  const [topSignals, setTopSignals] = useState<SignalModel[]>([])
+  const [loading, setLoading] = useState(true)
+
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchTopSignals(3)
+        setTopSignals(data)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  return (
+    <aside className="w-full h-screen flex flex-col pt-8 px-4 md:px-8 sticky top-0">
+      <div
+        className="border border-gray-600/20 dark:border-white/20
+        rounded-xl gap-4 p-3 flex flex-col"
+      >
+        <h2 className="text-xl font-bold flex items-center gap-2">
+          <span className="text-emerald-400">
+            <AiOutlineRise />
+          </span>{" "}
+          Top Signals This Week
+        </h2>
+        {loading ? (
+          <div className="py-16 text-center opacity-70">Loading...</div>
+        ) : topSignals.length === 0 ? (
+          <div className="py-8 text-center opacity-70">No signals</div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {topSignals.map((s, idx) => (
+              <div
+                key={s.id}
+                className={cn(
+                  "rounded-xl p-4 flex items-center justify-between",
+                  "bg-gray-300/40 dark:bg-gray-600/30"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center
+                   justify-center text-sm font-bold bg-gray-300 dark:bg-gray-600"
+                  >
+                    {idx + 1}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">{s.market?.name}</span>
+                    <Link to={`/${s.user.username}`} className="text-sm opacity-70">
+                      @{s.user.username}
+                    </Link>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-green-400 font-bold">{(s.score ?? 0).toFixed(2)}</div>
+                  <div className="text-xs opacity-70">{timeAgoFromNow(s.date)}</div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
-    </div>
+    </aside>
   )
 }

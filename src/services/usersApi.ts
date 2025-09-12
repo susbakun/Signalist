@@ -279,7 +279,7 @@ export const updateProfile = async (
 export const updateUserScore = async (signal: SignalModel): Promise<AccountModel> => {
   try {
     // Using the publisher's username from the signal
-    const username = signal.publisher.username
+    const username = signal.user.username
 
     const response = await fetch(`${API_URL}/${username}/score`, {
       method: "PUT",
@@ -297,6 +297,21 @@ export const updateUserScore = async (signal: SignalModel): Promise<AccountModel
     return await response.json()
   } catch (error) {
     console.error("Error updating user score:", error)
+    throw error
+  }
+}
+
+export const getUserSignalsCount = async (username: string): Promise<{ count: number }> => {
+  try {
+    const response = await fetch(`${API_URL}/${username}/signals/count`, {
+      credentials: "include"
+    })
+    if (!response.ok) {
+      throw new Error("Failed to fetch user signals count")
+    }
+    return await response.json()
+  } catch (error) {
+    console.error("Error fetching user signals count:", error)
     throw error
   }
 }

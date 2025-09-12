@@ -76,7 +76,9 @@ export const PostBody = ({
   } else {
     return (
       <div className="flex flex-col gap-3">
-        <div className="mb-1">{parseContent(content)}</div>
+        <div className="mb-1" dir="auto">
+          {parseContent(content)}
+        </div>
         {isImageLoading && <Loader className="h-[350px]" />}{" "}
         {postImageHref && (
           <div

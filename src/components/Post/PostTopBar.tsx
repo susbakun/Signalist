@@ -4,7 +4,7 @@ import { formatDateFromMS, getAvatarPlaceholder } from "@/utils"
 import moment from "jalali-moment"
 import { Link } from "react-router-dom"
 
-type PostUserInfoProps = PostModel["publisher"] & {
+type PostUserInfoProps = PostModel["user"] & {
   date: PostModel["date"]
   postId: PostModel["id"]
   subscribed?: boolean
