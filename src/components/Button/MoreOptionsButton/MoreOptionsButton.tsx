@@ -34,7 +34,7 @@ export const MoreOptionsButton = ({
   const [open, setIsOpen] = useState(false)
 
   const { handleShowToast, showToast, toastContent, toastType } = useToastContainer()
-  const { currentUser: myAccount, loading } = useCurrentUser()
+  const { currentUser: myAccount, currentUserLoading: loading } = useCurrentUser()
 
   const handleCloseCreatePostModal = () => {
     setIsOpen(false)

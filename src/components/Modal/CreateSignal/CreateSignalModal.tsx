@@ -62,16 +62,16 @@ export const CreateSignalModal = ({ openModal, handleCloseModal }: CreateSignalM
 
   const { data: wallexResponse, isLoading } = useGetWallexMarketsQuery()
   const dispatch = useDispatch<AppDispatch>()
-  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+  const { currentUser: myAccount, currentUserLoading: userLoading } = useCurrentUser()
 
   // Only create signalPublisher if myAccount exists
   const signalPublisher: SignalAccountType | undefined = myAccount
     ? {
-        name: myAccount.name,
-        username: myAccount.username,
-        imageUrl: myAccount.imageUrl,
-        score: myAccount.score || 0 // Provide default value for score
-      }
+      name: myAccount.name,
+      username: myAccount.username,
+      imageUrl: myAccount.imageUrl,
+      score: myAccount.score || 0 // Provide default value for score
+    }
     : undefined
 
   const handleSelectMarket = (market: SignalModel["market"]) => {

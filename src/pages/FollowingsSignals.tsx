@@ -13,7 +13,7 @@ export const FollowingsSignals = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
   const [visibleCount, setVisibleCount] = useState(5) // Start with fewer signals
 
-  const { currentUser: myAccount, loading: userLoading } = useCurrentUser()
+  const { currentUser: myAccount, currentUserLoading: userLoading } = useCurrentUser()
 
   const { signals, loading, hasMore, page, filters, applyingFilters } = useAppSelector(
     (state) => state.signals

@@ -105,6 +105,13 @@ export type AccountModel = {
   blockedUsers: SimplifiedAccountType[]
 }
 
+export type CryptoCurrency = {
+  code: string
+  title: string
+  slug: string
+  url: string
+}
+
 export type CommentModel = {
   id: string
   postId: PostModel["id"]

@@ -5,7 +5,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useDispatch } from "react-redux"
 
 export type CommentInputProps = {
-  commentPublisher: PostModel["publisher"]
+  commentPublisher: PostModel["user"]
   postId: PostModel["id"]
 }
 
