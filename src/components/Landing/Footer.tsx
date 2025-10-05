@@ -1,8 +1,6 @@
-import { HiTrendingUp, HiMail } from "react-icons/hi"
+import { HiMail } from "react-icons/hi"
 import { FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa"
 import SignalLogo from "@/assets/antenna.png"
-
-
 
 export const Footer = () => {
   return (
@@ -152,9 +150,7 @@ export const Footer = () => {
         {/* Bottom Footer */}
         <div className="py-8 border-t border-primary-light">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-white/80 text-sm">
-              © 2025 Signalist. All rights reserved.
-            </div>
+            <div className="text-white/80 text-sm">© 2025 Signalist. All rights reserved.</div>
             <div className="flex space-x-6 text-sm text-white/80">
               <a href="#" className="hover:text-accent transition-colors">
                 Privacy Policy
