@@ -37,7 +37,11 @@ export const MobileNavbar = () => {
               : "text-gray-600 dark:text-gray-300 hover:text-white"
           }
         >
-          {getIcon(/^\/$/, <IoHome className="w-6 h-6" />, <IoHomeOutline className="w-6 h-6" />)}
+          {getIcon(
+            /^\/home$/,
+            <IoHome className="w-6 h-6" />,
+            <IoHomeOutline className="w-6 h-6" />
+          )}
         </NavLink>
         <NavLink
           to="/explore"

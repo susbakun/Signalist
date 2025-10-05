@@ -73,7 +73,7 @@ export const Navbar = () => {
     <nav className={cn("flex flex-col gap-4 pr-4 w-full", { "pr-2 pt-8": isInMessages })}>
       <NavLink className="link-button" to="/home">
         {getIcon(
-          /^\/$/,
+          /^\/home$/,
           <IoHome className="w-6 h-6 button-icon" />,
           <IoHomeOutline className="w-6 h-6 button-icon" />
         )}
