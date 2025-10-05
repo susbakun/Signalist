@@ -66,7 +66,7 @@ export const AppContent = () => {
        md:border-l-gray-600/20 md:dark:border-l-white/20 pb-10 md:pb-0"
     >
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />}>
           <Route path="followings" element={<FollowingsPosts />}>
             <Route path="hashtag/:tagName" />
@@ -97,7 +97,7 @@ export const AppContent = () => {
         <Route path="/messages" element={<MessagesPage />}>
           <Route path=":id" element={<MessageRoom />} />
         </Route>
-        <Route path="*" element={<Navigate replace to="/" />} />
+        <Route path="*" element={<Navigate replace to="/home" />} />
       </Routes>
     </div>
   )

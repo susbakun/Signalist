@@ -21,30 +21,30 @@ const NavbarSkeleton = ({ isInMessages }: { isInMessages: boolean }) => {
       baseColor={isDarkMode() ? "rgb(31 41 55)" : "rgb(255 255 255)"}
       highlightColor={isDarkMode() ? "#828282" : "#ececec"}
     >
-      <nav className={cn("flex flex-col gap-5 w-full", { "pr-2 pt-8": isInMessages })}>
+      <nav className={cn("flex flex-col lg:gap-3 2xl:gap-5 w-full", { "pr-2 pt-8": isInMessages })}>
         {/* Home skeleton */}
         <div className="link-button">
-          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+          {!isInMessages && <Skeleton className="h-6 lg:w-56 xl:w-80 2xl:w-[350px] rounded-md" />}
         </div>
 
         {/* Explore skeleton */}
         <div className="link-button">
-          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+          {!isInMessages && <Skeleton className="h-6 lg:w-56 xl:w-80 2xl:w-[350px] rounded-md" />}
         </div>
 
         {/* Signals skeleton */}
         <div className="link-button">
-          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+          {!isInMessages && <Skeleton className="h-6 lg:w-56 xl:w-80 2xl:w-[350px] rounded-md" />}
         </div>
 
         {/* Premium skeleton */}
         <div className="link-button">
-          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+          {!isInMessages && <Skeleton className="h-6 lg:w-56 xl:w-80 2xl:w-[350px] rounded-md" />}
         </div>
 
         {/* Profile skeleton */}
         <div className="link-button">
-          {!isInMessages && <Skeleton className="h-6 w-48 lg:w-96 rounded-md" />}
+          {!isInMessages && <Skeleton className="h-6 lg:w-56 xl:w-80 2xl:w-[350px] rounded-md" />}
         </div>
       </nav>
     </SkeletonTheme>
@@ -71,7 +71,7 @@ export const Navbar = () => {
 
   return (
     <nav className={cn("flex flex-col gap-4 pr-4 w-full", { "pr-2 pt-8": isInMessages })}>
-      <NavLink className="link-button" to="/">
+      <NavLink className="link-button" to="/home">
         {getIcon(
           /^\/$/,
           <IoHome className="w-6 h-6 button-icon" />,

@@ -8,7 +8,7 @@ import {
 } from "@/components"
 import { AppDispatch } from "@/app/store"
 import { fetchUsersAsync } from "@/features/User/usersSlice"
-import { LoginPage, SignUpPage } from "@/pages"
+import { LandingPage, LoginPage, SignUpPage } from "@/pages"
 import { UserPage } from "@/pages/UserPage"
 import { STORAGE_KEYS } from "@/shared/constants"
 import { toggleThemeMode } from "@/utils"
@@ -39,6 +39,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<SignUpPage />} />

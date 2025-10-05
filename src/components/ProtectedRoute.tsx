@@ -74,7 +74,7 @@ export const AuthLayout = () => {
 
   // If user is already authenticated, redirect to home or intended page
   if (isAuthenticated) {
-    const intendedPath = location.state?.from?.pathname || "/"
+    const intendedPath = location.state?.from?.pathname || "/home"
     return <Navigate to={intendedPath} replace />
   }
 

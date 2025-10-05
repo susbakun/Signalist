@@ -42,7 +42,7 @@ export const SignUpPage = () => {
   const currentUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
 
   if (currentUser) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/home" replace />
   }
 
   // Handle reCAPTCHA change
@@ -198,7 +198,7 @@ export const SignUpPage = () => {
         // Fetch all users to populate the Redux store before navigating
         await dispatch(fetchUsersAsync())
 
-        navigate("/", { replace: true })
+        navigate("/home", { replace: true })
       } else {
         // Registration failed
         const errorMessage = resultAction.error?.message || "Registration failed"

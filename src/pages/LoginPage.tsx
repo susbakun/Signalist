@@ -62,7 +62,7 @@ export const LoginPage = () => {
   }
 
   if (currentUser) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/home" replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +114,7 @@ export const LoginPage = () => {
         // Fetch all users to populate the Redux store before navigating
         await dispatch(fetchUsersAsync())
 
-        navigate("/", { replace: true })
+        navigate("/home", { replace: true })
       } else {
         // Login failed
         const errorMessage = resultAction.error?.message || "Invalid email or password"
