@@ -9,10 +9,10 @@ export const cryptoPanicApiKey = import.meta.env.VITE_CRYPTOPANIC_API_KEY
 export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 export const backendUrl = isDevmode()
   ? "http://localhost:3000/api"
-  : "https://signalist-backend.liara.run/api"
+  : "https://api.signalisttech.com/api"
 export const socketUrl = isDevmode()
   ? "http://localhost:3000"
-  : "https://signalist-backend.liara.run"
+  : "https://api.signalisttech.com/"
 
 // Storage Keys
 export const STORAGE_KEYS = {
