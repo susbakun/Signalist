@@ -52,7 +52,7 @@ export const AccountPreview = () => {
           className="space-y-1 font-medium dark:text-white
       text-slate-700 flex flex-col justify-center text-center"
         >
-          <div>{currentUser.name}</div>
+          <div></div>
           <Link to={`/${currentUser.username}`} className="detail-text">
             @{currentUser.username}
           </Link>
