@@ -29,12 +29,13 @@ jobs:
           rsync -avz \
             -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_cicd" \
             ./ \
-            ${SERVER_USER}@${SERVER_HOST}:/home/deploy/signalist/frontend/
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/deploy/signalist/frontend/
 
       - name: Build Docker on server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_cicd ${SERVER_USER}@${SERVER_HOST} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_cicd ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd /home/deploy/signalist
             docker compose build frontend
             docker compose up -d frontend
           EOF
+
