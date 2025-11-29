@@ -7,7 +7,7 @@ import { getCurrentUsername, getWeeklyChartUrl, transformWallexData } from "@/ut
 import { Table } from "flowbite-react"
 import { isEmpty } from "lodash"
 import millify from "millify"
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { IoAddCircleOutline, IoTrashOutline } from "react-icons/io5"
 
 export const WatchList = () => {

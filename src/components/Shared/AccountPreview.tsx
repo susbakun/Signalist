@@ -1,11 +1,11 @@
 
 import { CustomAvatar, Loader, ScoreDetailsPopover } from "@/components"
-import { useEffect, useState } from "react"
-import millify from "millify"
-import { Link } from "react-router-dom"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { getCurrentUser, isXLScreen } from "@/utils"
 import { fetchUserSignals } from "@/services/signalsApi"
+import { getCurrentUser, isXLScreen } from "@/utils"
+import millify from "millify"
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 
 export const AccountPreview = () => {
   const { currentUser, initialLoading, currentUserLoading } = useCurrentUser()
@@ -52,7 +52,7 @@ export const AccountPreview = () => {
           className="space-y-1 font-medium dark:text-white
       text-slate-700 flex flex-col justify-center text-center"
         >
-          <div></div>
+          <div>{currentUser.name}</div>
           <Link to={`/${currentUser.username}`} className="detail-text">
             @{currentUser.username}
           </Link>
